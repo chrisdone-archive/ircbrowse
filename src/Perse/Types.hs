@@ -26,9 +26,9 @@ data Stats = Stats
   { stEventCount :: Integer
   , stMsgCount   :: Integer
   , stNickCount  :: Integer
-  , stActiveTimes :: [(Int,Int)]
-  , stDailyAcitivty :: [(Int,Int)]
-  , stActiveNicks :: [(String,Int)]
+  , stActiveTimes :: [(Integer,Integer)]
+  , stDailyAcitivty :: [(Integer,Integer)]
+  , stActiveNicks :: [(String,Integer)]
   } deriving Show
 
 instance AppLiftModel Config PState where
