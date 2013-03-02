@@ -51,7 +51,7 @@ summarize range stats = p $ do
   h1 $ do em "Per se"; " IRC stats"
   p $ do strong "Network(s): "
          toHtml (intercalate ", " (stNetworks stats))
-         strong "Channel(s): "
+  p $ do strong "Channel(s): "
          toHtml (intercalate ", " (stChannels stats))
   "During this "
   toHtml (show (diffDays (rangeTo range) (rangeFrom range)))
