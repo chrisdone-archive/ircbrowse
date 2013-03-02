@@ -1,0 +1,25 @@
+name:                perse
+version:             0.1.0.0
+synopsis:            IRC channel analysis.
+license:             BSD3
+license-file:        LICENSE
+author:              Chris Done
+maintainer:          chrisdone@gmail.com
+category:            Web
+build-type:          Simple
+cabal-version:       >=1.8
+
+executable perse
+  main-is:           Main.hs
+  hs-source-dirs:    src
+  build-depends:     base >= 4 && <5,
+                     clogparse,
+                     curl,
+                     time,
+                     snap-core,
+                     snap-server,
+                     snap-app,
+                     mime-mail,
+                     text,
+                     pgsql-simple,
+                     ConfigFile

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo "Restarting server ..."
+killall perse -q
+
+while true
+do
+    if ps -C perse > /dev/null
+    then
+       echo Waiting...;
+    else
+       break;
+    fi
+done
+
+dist/build/perse/perse perse.conf 1>/dev/null 2>/dev/null & disown

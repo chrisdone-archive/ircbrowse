@@ -1,0 +1,7 @@
+dist/
+*.hi
+*.o
+log/
+TAGS
+cabal-dev/
+perse.conf
