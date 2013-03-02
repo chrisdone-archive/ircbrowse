@@ -18,8 +18,9 @@ executable perse
                      time,
                      snap-core,
                      snap-server,
-                     snap-app,
+                     snap-app >= 0.1.2,
                      mime-mail,
                      text,
                      pgsql-simple,
-                     ConfigFile
+                     ConfigFile,
+                     mtl
