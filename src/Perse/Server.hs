@@ -6,6 +6,7 @@ module Perse.Server where
 
 import Perse.Config
 import Perse.Types
+import qualified Perse.Controllers as C
 
 import Database.PostgreSQL.Base   (newPool)
 import Database.PostgreSQL.Simple (Pool)
@@ -30,6 +31,6 @@ serve conf p = route routes where
   routes = [("/js/",serveDirectory "static/js")
            ,("/css/",serveDirectory "static/css")
            ,("/js/",serveDirectory "static/js")
-           ,("/hs/",serveDirectory "static/hs")
+           ,("/",run C.home)
            ]
   run = runHandler () conf p

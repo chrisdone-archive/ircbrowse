@@ -3,5 +3,5 @@ dist/
 *.o
 log/
 TAGS
-cabal-dev/
+cabal-dev
 perse.conf
