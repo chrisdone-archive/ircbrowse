@@ -3,18 +3,18 @@
 
 module Perse.Controllers where
 
-import Perse.Model.Stats
-import Perse.Types
+import           Perse.Model.Stats
+import           Perse.Types
 
-import Control.Monads
-import Data.Time
-import Graphics.Google.Chart
-import Prelude hiding (head,div)
+import           Control.Monads
+import           Data.List hiding (head)
+import           Data.Time
 import qualified Prelude as P
-import Snap.App
-import Text.Blaze.Extra
-import Text.Blaze.Html5 hiding (output,map)
-import Text.Blaze.Html5.Attributes
+import           Prelude hiding (head,div)
+import           Snap.App
+import           Text.Blaze.Extra
+import           Text.Blaze.Html5 hiding (output,map)
+import           Text.Blaze.Html5.Attributes
 
 home :: Controller Config PState ()
 home = do
@@ -28,8 +28,13 @@ home = do
         div !. "row" $ do
           div !. "span12" $ do
             summarize range stats
+        div !. "row" $ do
+          div !. "span6" $ do
             mostActiveTimes stats
+          div !. "span6" $ do
             dailyActivity range stats
+        div !. "row" $ do
+          div !. "span12" $ do
             activeNicks range stats
 
 summarize range stats = p $ do
@@ -47,32 +52,40 @@ summarize range stats = p $ do
 
 mostActiveTimes stats = do
   h2 "Most Active Times"
-  p $ img ! src (toValue (chartURL chart))
+  p "The most active times of the day in which anyone spoke."
+  p $ img ! src (toValue url)
 
-  where chart = setAxisLabels [map (show . fst) (stActiveTimes stats)]
-              $ setAxisTypes [AxisBottom]
-              $ setData (encodeDataSimple [datas])
-              $ setSize 700 257
-              $ newBarChart Vertical Stacked
-        datas = map (\x -> round ((fi x / maxcount) * 61)) times
+  where url = "http://chart.apis.google.com/chart?chxl=0:|" ++
+              intercalate "|" labels ++
+              "&chxt=x,y&chd=t:" ++
+              intercalate "," datas ++
+              "&chs=" ++ show w ++ "x" ++ show h ++ "&cht=bvs&chbh=a"
+        labels = map show [0..23]
+        datas = map (\x -> show (round ((fi x / maxcount) * 61))) times
         times = map snd (stActiveTimes stats)
         maxcount = fi (maximum times)
+        w = 450
+        h = 200
 
 dailyActivity range stats = do
   h2 $ do "Daily Activity"
           " (last "
           toHtml (show (diffDays (rangeTo range) (rangeFrom range)))
           " days)"
-  p $ img ! src (toValue (chartURL chart))
+  p "The amount of conversation per day in the past month."
+  p $ img ! src (toValue url)
 
-  where chart = setAxisLabels [map (show . fst) (stDailyAcitivty stats)]
-              $ setAxisTypes [AxisBottom]
-              $ setData (encodeDataSimple [datas])
-              $ setSize 700 257
-              $ newBarChart Vertical Stacked
-        datas = map (\x -> round ((fi x / maxcount) * 61)) times
-        times = map snd (stActiveTimes stats)
+  where url = "http://chart.apis.google.com/chart?chxl=0:|" ++
+              intercalate "|" labels ++
+              "&chxt=x,y&chd=t:" ++
+              intercalate "," datas ++
+              "&chs=" ++ show w ++ "x" ++ show h ++ "&cht=bvs&chbh=a"
+        labels = map (show.fst) (stDailyAcitivty stats)
+        datas = map (\x -> show (round ((fi x / maxcount) * 61))) times
+        times = map snd (stDailyAcitivty stats)
         maxcount = fi (maximum times)
+        w = 450
+        h = 200
 
 activeNicks range stats = do
   h2 "Most Active Nicks (Top 50)"
