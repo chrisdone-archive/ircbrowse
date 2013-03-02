@@ -2,6 +2,7 @@
 module Perse.Types where
 
 import Control.Monads
+import Data.Time
 import Database.PostgreSQL.Simple (ConnectInfo)
 import Network.Mail.Mime (Address)
 import Snap.App.Types
@@ -23,6 +24,11 @@ data PState = PState
 -- | Statistics.
 data Stats = Stats
   { stEventCount :: Integer
+  , stMsgCount   :: Integer
+  , stNickCount  :: Integer
+  , stActiveTimes :: [(Int,Int)]
+  , stDailyAcitivty :: [(Int,Int)]
+  , stActiveNicks :: [(String,Int)]
   } deriving Show
 
 instance AppLiftModel Config PState where
@@ -32,3 +38,7 @@ instance AppLiftModel Config PState where
     conf <- env controllerStateConfig
     let state = ModelState conn anns conf
     io $ runReaderT (runModel action) state
+
+data Range = Range
+  { rangeFrom :: Day, rangeTo :: Day }
+  deriving Show

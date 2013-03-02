@@ -26,7 +26,8 @@ executable perse
                      mtl,
                      blaze-html,
                      network,
-                     cgi
+                     cgi,
+                     GoogleChart
 
 -- executable perse-import-from-tunes
 --   main-is:           ImportTunes.hs
