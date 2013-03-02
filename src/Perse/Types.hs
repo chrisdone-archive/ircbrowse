@@ -29,6 +29,8 @@ data Stats = Stats
   , stActiveTimes :: [(Integer,Integer)]
   , stDailyAcitivty :: [(Integer,Integer)]
   , stActiveNicks :: [(String,Integer)]
+  , stNetworks :: [String]
+  , stChannels :: [String]
   } deriving Show
 
 instance AppLiftModel Config PState where
