@@ -18,9 +18,30 @@ executable perse
                      time,
                      snap-core,
                      snap-server,
-                     snap-app >= 0.1.2,
+                     snap-app >= 0.1.4,
                      mime-mail,
                      text,
                      pgsql-simple,
                      ConfigFile,
                      mtl
+
+executable perse-import-from-tunes
+  main-is:           ImportTunes.hs
+  hs-source-dirs:    src
+  build-depends:     base >= 4 && <5,
+                     clogparse,
+                     curl,
+                     time,
+                     snap-core,
+                     snap-server,
+                     snap-app >= 0.1.4,
+                     mime-mail,
+                     text,
+                     pgsql-simple,
+                     ConfigFile,
+                     mtl,
+                     old-locale,
+                     filepath,
+                     directory,
+                     bytestring,
+                     text

@@ -34,6 +34,11 @@ parseDay = parseTime defaultTimeLocale "%Y-%m-%d"
 makeUrl :: FormatTime t => Channel -> t -> URLString
 makeUrl channel t =
   "http://tunes.org/~nef/logs/" ++ showChan channel ++
-  "/" ++ formatTime defaultTimeLocale "%y.%m.%d" t
+  "/" ++ unmakeDay t
 
-  where showChan Haskell = "haskell"
+unmakeDay :: FormatTime t => t -> String
+unmakeDay = formatTime defaultTimeLocale "%y.%m.%d"
+
+-- | Show a channel.
+showChan :: Channel -> String
+showChan Haskell = "haskell"
