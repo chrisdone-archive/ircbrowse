@@ -40,4 +40,4 @@ serve config pool = route routes where
            ,("/js/",serveDirectory "static/js")
            ,("/",run C.home)
            ]
-  run = runHandler () config pool
+  run = runHandler PState config pool
