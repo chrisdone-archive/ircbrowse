@@ -3,4 +3,4 @@
 #browse .events .nick-wrap { text-align: right; }
 #browse .events .event.selected { background:  }
 #browse .events .not-focused,#browse .events .not-focused .nick { color: #888; font-style: italic; font-weight: normal }
-#browse .events .focused { background: #eee; }
+#browse .events .focused { background: #efefef; }
