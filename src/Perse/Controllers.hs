@@ -4,6 +4,7 @@
 module Perse.Controllers where
 
 import           Perse.Model.Stats
+import           Perse.Controllers.Cache
 import           Perse.Types
 
 import           Control.Monads
@@ -20,32 +21,33 @@ home :: Controller Config PState ()
 home = do
   now <- io getCurrentTime
   let range = Range (addDays (-31) (utctDay now)) (utctDay now)
-  stats <- model $ getStats range
-  output $ html $ do
-    head $ link ! rel "stylesheet" ! type_ "text/css" ! href "/css/bootstrap.min.css"
-    body $ do
-      div !. "container" $ do
-        div !. "row" $ do
-          div !. "span12" $ do
-            summarize range stats
-        div !. "row" $ do
-          div !. "span6" $ do
-            mostActiveTimes stats
-          div !. "span6" $ do
-            dailyActivity range stats
-        div !. "row" $ do
-          div !. "span12" $ do
-            activeNicks range stats
-      preEscapedText "<script type=\"text/javascript\"> var _gaq = _gaq \
-                     \|| []; _gaq.push(['_setAccount', 'UA-38975161-1']);\
-                     \ _gaq.push(['_trackPageview']); (function() {var ga\
-                     \ = document.createElement('script'); ga.type = 'tex\
-                     \t/javascript'; ga.async = true; ga.src = ('https:' \
-                     \== document.location.protocol ? 'https://ssl' : \
-                     \'http://www') + '.google-analytics.com/ga.js'; var\
-                     \ s = document.getElementsByTagName('script')[0]; \
-                     \s.parentNode.insertBefore(ga, s);})(); </script>"
-
+  out <- cache (Home range) $ do
+    stats <- model $ getStats range
+    return $ Just $ html $ do
+      head $ link ! rel "stylesheet" ! type_ "text/css" ! href "/css/bootstrap.min.css"
+      body $ do
+        div !. "container" $ do
+          div !. "row" $ do
+            div !. "span12" $ do
+              summarize range stats
+          div !. "row" $ do
+            div !. "span6" $ do
+              mostActiveTimes stats
+            div !. "span6" $ do
+              dailyActivity range stats
+          div !. "row" $ do
+            div !. "span12" $ do
+              activeNicks range stats
+        preEscapedText "<script type=\"text/javascript\"> var _gaq = _gaq \
+                       \|| []; _gaq.push(['_setAccount', 'UA-38975161-1']);\
+                       \ _gaq.push(['_trackPageview']); (function() {var ga\
+                       \ = document.createElement('script'); ga.type = 'tex\
+                       \t/javascript'; ga.async = true; ga.src = ('https:' \
+                       \== document.location.protocol ? 'https://ssl' : \
+                       \'http://www') + '.google-analytics.com/ga.js'; var\
+                       \ s = document.getElementsByTagName('script')[0]; \
+                       \s.parentNode.insertBefore(ga, s);})(); </script>"
+  maybe (return ()) outputText out
 
 summarize range stats = p $ do
   h1 $ do em "Per se"; " IRC stats"

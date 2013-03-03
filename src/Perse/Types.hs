@@ -43,4 +43,8 @@ instance AppLiftModel Config PState where
 
 data Range = Range
   { rangeFrom :: Day, rangeTo :: Day }
-  deriving Show
+  deriving (Eq,Show)
+
+data Key =
+  Home Range
+  deriving (Eq)
