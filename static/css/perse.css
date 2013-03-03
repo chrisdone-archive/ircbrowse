@@ -1,0 +1,3 @@
+#browse .events .timestamp { color: #666; }
+#browse .events .nick { color: #333; font-weight: bold; }
+#browse .events .nick-wrap { text-align: right; }

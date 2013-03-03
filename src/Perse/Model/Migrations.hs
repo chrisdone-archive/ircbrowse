@@ -25,4 +25,5 @@ versions = zip [1..] ms where
        ,exec ["CREATE INDEX event_channel_idx ON event(channel);"] ()
        ,exec ["CREATE INDEX event_nick_idx ON event(nick);"] ()
        ,exec ["CREATE INDEX event_type_idx ON event(type);"] ()
+       ,exec ["CREATE INDEX event_timestamp_idx ON event(timestamp);"] ()
        ]

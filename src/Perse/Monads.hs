@@ -1,4 +1,4 @@
-module Control.Monads
+module Perse.Monads
   (module Control.Monad
   ,module Control.Monad.Trans
   ,module Control.Monad.Reader

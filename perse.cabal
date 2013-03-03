@@ -28,7 +28,8 @@ executable perse
                      network,
                      cgi,
                      old-locale,
-                     directory
+                     directory,
+                     bytestring
 
 executable perse-import-from-tunes
   main-is:           ImportTunes.hs

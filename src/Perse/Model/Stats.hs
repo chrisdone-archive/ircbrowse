@@ -5,8 +5,8 @@ import Perse.Types
 import Data.Maybe
 import Snap.App
 
-getStats :: Range -> Model c s Stats
-getStats (Range from to) = do
+getStats :: Maybe String -> Maybe String -> Range -> Model c s Stats
+getStats network channel (Range from to) = do
   count <- single ["SELECT COUNT(*)"
                   ,"FROM event"
                   ,"WHERE timestamp > ? and timestamp < ?"]

@@ -9,20 +9,15 @@ module Perse.Controllers.Cache
        ,resetCacheModel)
        where
 
-
+import           Perse.Blaze
+import           Perse.Data
+import           Perse.Monads
+import           Perse.System
 import           Perse.Types
 
-import           Control.Monad
-import           Control.Monad.IO         (io)
-import           Control.Monad.Reader     (asks)
 import           Data.Text.Lazy           (Text)
 import qualified Data.Text.Lazy.IO as T
-import           Data.Time
-import           Snap.App.Types
-import           System.Directory
-import           System.Locale
-import           Text.Blaze.Html5         (Html)
-import           Text.Blaze.Renderer.Text (renderHtml)
+import           Snap.App
 
 -- | Cache conditionally.
 cacheIf :: Bool -> Key -> Controller Config s (Maybe Html) -> Controller Config s (Maybe Text)
@@ -67,7 +62,14 @@ resetCacheModel key = do
    when exists $ removeFile cachePath
 
 keyToString :: Key -> String
-keyToString (Home (Range from to)) = "home-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
+keyToString (Overview network channel (Range from to)) =
+  "overview-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
+    where opt Nothing = "_"
+          opt (Just x) = x
+keyToString (Browse network channel (Range from to)) =
+  "browse-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
+    where opt Nothing = "_"
+          opt (Just x) = x
 
 showDay :: Day -> String
 showDay = formatTime defaultTimeLocale "%Y-%m-%d"
