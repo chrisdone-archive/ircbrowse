@@ -6,6 +6,7 @@ module Perse.Controllers.Cache
        (cache
        ,cacheIf
        ,resetCache
+       ,clearCache
        ,resetCacheModel)
        where
 
@@ -18,6 +19,7 @@ import           Perse.Types
 import           Data.Text.Lazy           (Text)
 import qualified Data.Text.Lazy.IO as T
 import           Snap.App
+import           System.FilePath
 
 -- | Cache conditionally.
 cacheIf :: Bool -> Key -> Controller Config s (Maybe Html) -> Controller Config s (Maybe Text)
@@ -43,6 +45,13 @@ cache key generate = do
 	       	    	        return text
                Nothing -> return text
 
+clearCache :: Config -> IO ()
+clearCache config = do
+  files <- getDirectoryContents dir
+  forM_ (filter (not . all (=='.')) files) $ removeFile . (dir </>)
+
+  where dir = configCacheDir config
+
 -- | Reset an item in the cache.
 resetCache :: Key -> Controller Config s ()
 resetCache key = do
@@ -66,11 +75,14 @@ keyToString (Overview network channel (Range from to)) =
   "overview-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
-keyToString (Browse network channel (Range from to) pagination) =
-  "browse-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++
+keyToString (Browse network channel utctime pagination) =
+  "browse-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ fromMaybe "" (fmap showTime utctime) ++
   "-page" ++ show (pnPage pagination) ++ "-of-" ++ show (pnLimit pagination) ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
 
 showDay :: Day -> String
 showDay = formatTime defaultTimeLocale "%Y-%m-%d"
+
+showTime :: UTCTime -> String
+showTime = formatTime defaultTimeLocale "%s"

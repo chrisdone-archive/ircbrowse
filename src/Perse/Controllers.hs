@@ -11,7 +11,9 @@ import Perse.Types
 import Perse.View.Browse as V
 import Perse.View.Overview as V
 
+import Data.ByteString (ByteString)
 import Snap.App
+import System.Locale
 
 --------------------------------------------------------------------------------
 -- Controllers
@@ -28,16 +30,18 @@ overview = do
 
 browse :: Controller Config PState ()
 browse = do
-  range <- getRange
+  timestamp <- getTimestamp
   network <- getStringMaybe "network"
   channel <- getStringMaybe "channel"
+  q <- getSearchString "q"
   pagination <- getPagination
-  out <- cache (Browse network channel range pagination) $ do
-    (total,logs) <- model $ getEvents network channel range pagination
-    let pn = pagination { pnResults = fromIntegral (length logs)
-                        , pnTotal = total
-                        }
-    return $ Just $ V.browse network channel range logs pn
+  out <- cacheIf (isNothing q) (Browse network channel timestamp pagination) $ do
+    (pagination',total,logs) <- model $ getEvents network channel timestamp pagination q
+    let pn = pagination' { pnResults = fromIntegral (length logs)
+                         , pnTotal = total
+                         }
+    uri <- getMyURI
+    return $ Just $ V.browse uri network channel timestamp logs pn q
   maybe (return ()) outputText out
 
 --------------------------------------------------------------------------------
@@ -48,3 +52,16 @@ getRange = do
   now <- io getCurrentTime
   let range = Range (addDays (-31) (utctDay now)) (utctDay now)
   return range
+
+getTimestamp :: Controller c s (Maybe UTCTime)
+getTimestamp = do
+  string <- getStringMaybe "timestamp"
+  return $ string >>= parseTime defaultTimeLocale "%s"
+
+getSearchString :: ByteString -> Controller c s (Maybe String)
+getSearchString key = do
+  v <- getStringMaybe key
+  case fmap trim v of
+    Nothing -> return Nothing
+    Just "" -> return Nothing
+    Just v  -> return (Just v)

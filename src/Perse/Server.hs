@@ -7,6 +7,7 @@ module Perse.Server where
 
 import Perse.Config
 import Perse.Types
+import Perse.Controllers.Cache
 import Perse.Model.Migrations
 import qualified Perse.Controllers as C
 
@@ -30,6 +31,7 @@ runServer = do
      else do
        runDB () config pool $ migrate create versions
        setUnicodeLocale "en_US"
+       clearCache config
        httpServe server (serve config pool)
     where server = setPort 10001 defaultConfig
 

@@ -5,8 +5,9 @@
 
 module Data.String.ToString where
 
-import           Data.ByteString
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString.UTF8 as UTF8 (toString)
+import           Data.Char
 
 class ToString string where
   toString :: string -> String

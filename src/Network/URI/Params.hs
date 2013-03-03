@@ -1,6 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# OPTIONS -fno-warn-missing-signatures #-}
-module Network.URI.Params (updateUrlParam,updateUrlParams,uriParams,deleteQueryKey) where
+module Network.URI.Params where
 
 import Control.Arrow
 import Network.URI
@@ -12,6 +12,9 @@ updateUrlParam :: String -> String -> URI -> URI
 updateUrlParam this value uri@(URI{uriQuery}) =
   uri { uriQuery = updated uriQuery } where
   updated = editQuery $ ((this,value):) . deleteBy ((==) `on` fst) (this,"")
+
+clearUrlQueries :: URI -> URI
+clearUrlQueries uri = uri { uriQuery = [] }
 
 deleteQueryKey :: String -> URI -> URI
 deleteQueryKey key uri =

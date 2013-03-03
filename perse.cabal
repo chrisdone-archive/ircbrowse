@@ -29,7 +29,8 @@ executable perse
                      cgi,
                      old-locale,
                      directory,
-                     bytestring
+                     bytestring,
+                     filepath
 
 executable perse-import-from-tunes
   main-is:           ImportTunes.hs

@@ -1,18 +1,6 @@
-{-# LANGUAGE TypeSynonymInstances #-}
+module Data.String.Extra where
 
--- | Instances that can be converted to a string.
+import Data.Char
 
-module Data.String.ToString where
-
-import           Data.ByteString
-import qualified Data.ByteString.UTF8 as UTF8 (toString)
-
-class ToString string where
-  toString :: string -> String
-
-instance ToString String where toString = id
-
-(+++) :: (ToString str1,ToString str2) => str1 -> str2 -> String
-str1 +++ str2 = toString str1 ++ toString str2
-
-instance ToString ByteString where toString = UTF8.toString
+trim :: String -> String
+trim = dropWhile isSpace . reverse . dropWhile isSpace . reverse

@@ -1,3 +1,4 @@
+{-# LANGUAGE PatternGuards #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoImplicitPrelude #-}
@@ -9,26 +10,57 @@ import Perse.View
 import Perse.View.Template
 
 import Data.Text (Text)
+import Network.URI
 import Network.URI.Params
 import Snap.App.Types
+import System.Locale
 
-browse :: Maybe String -> Maybe String -> Range -> [Event] -> Pagination -> Html
-browse network channel range events pagination =
-  template "browse" $
-    paginate pagination $
-      table !. "events table" $
-        forM_ events $ \event ->
-          tr !. "event" $ do
-            td  !. "timestamp" $ toHtml $ show (eventTimestamp event)
-            if (eventType event == "talk")
-              then do td !. "nick-wrap" $ do
-                        " <"
-                        span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
-                        "> "
-                      td !. "text" $ toHtml $ eventText event
-              else do td !. "nick-wrap" $
-                        span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
-                      td !. "text" $ toHtml $ eventText event
+browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> Pagination -> Maybe String -> Html
+browse uri network channel timestamp events pagination q =
+  template "browse" $ do
+    div !. "container" $ do
+      h1 $ a ! hrefURI (clearUrlQueries uri) $ "Browsing IRC conversations"
+      maybe (return ()) (\network -> p $ do strong "Network: "; toHtml network) network
+      maybe (return ()) (\channel -> p $ do strong "Channel: "; toHtml channel) channel
+    searchForm q
+    paginatedTable uri events pagination
+
+searchForm :: Maybe String -> Html
+searchForm q =
+  div !. "container" $
+    form !. "pull-left" ! method "get" $
+      fieldset $ do
+        label "Search the logs"
+        input ! type_ "text" ! placeholder "Search" ! name "q" ! value (maybe "" toValue q)
+
+paginatedTable :: URI -> [Event] -> Pagination -> Html
+paginatedTable uri events pagination =
+  paginate pagination $
+    table !. "events table" $
+      forM_ events $ \event -> do
+        let secs = formatTime defaultTimeLocale "%s" (zonedTimeToUTC (eventTimestamp event))
+            anchor = ("t" ++ secs)
+            eventClass | Just t <- lookup "timestamp" (uriParams uri),
+                         t == secs = "event info"
+                       | otherwise = "event"
+        tr ! name (toValue anchor) !# (toValue anchor) !. eventClass $ do
+          td  !. "timestamp" $ timestamp uri (eventTimestamp event) anchor secs
+          if (eventType event == "talk")
+            then do td !. "nick-wrap" $ do
+                      " <"
+                      span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
+                      "> "
+                    td !. "text" $ toHtml $ eventText event
+            else do td !. "nick-wrap" $
+                      span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
+                    td !. "text" $ toHtml $ eventText event
+
+
+timestamp :: URI -> ZonedTime -> String -> String -> Html
+timestamp puri t anchor secs =
+  a ! hrefURIWithHash uri anchor $ toHtml $ show t
+
+  where uri = updateUrlParam "timestamp" secs (clearUrlQueries puri)
 
 -- | Render results with pagination.
 paginate :: Pagination -> Html -> Html
@@ -64,4 +96,4 @@ navDirection Pagination{..} change caption = do
 
   where uri = updateUrlParam "page"
   	      		     (show (pnPage + change))
-			     pnURI
+			     (deleteQueryKey "timestamp" pnURI)

@@ -48,6 +48,10 @@ hrefURI :: URI -> Attribute
 hrefURI uri = href (toValue (showURI uri)) where
   showURI URI{..} = uriPath ++ uriQuery
 
+hrefURIWithHash :: URI -> String -> Attribute
+hrefURIWithHash uri hash = href (toValue (showURI uri ++ "#" ++ hash)) where
+  showURI URI{..} = uriPath ++ uriQuery
+
 hrefAssoc :: String -> [(String,String)] -> Attribute
 hrefAssoc path qs = href (toValue uri) where
   uri = "/" ++ path ++ "?" ++ intercalate "&" (map (uncurry (printf "%s=%s")) qs)
