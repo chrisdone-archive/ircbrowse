@@ -61,7 +61,7 @@ batchImport = do
   forM_ [1..5] $ \_ -> forkIO $ do
     forever $ do
       file <- readChan chan
-      runDB config () pool $ importFile Haskell config file
+      runDB config () pool $ importFile Lisp config file
       writeChan done $ file
   forever $ do
     file <- readChan done
@@ -98,8 +98,8 @@ importEvents channel events = do
       EventAt time (decompose -> GenericEvent typ mnick texts) -> do
         processQuery (if i == 0 then "(?,?,?,?,?,?)" else ",(?,?,?,?,?,?)")
                      (time
-                     ,"freenode" :: Text
-                     ,showChan channel
+                     ,1::Int
+                     ,3::Int
                      ,map toLower (show typ)
                      ,fmap unNick mnick
                      ,T.concat texts)

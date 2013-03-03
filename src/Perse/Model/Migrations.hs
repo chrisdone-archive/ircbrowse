@@ -41,4 +41,6 @@ versions = zip [1..] ms where
                 ,"FOREIGN KEY (network) REFERENCES network(id)"
                 ,"ON DELETE CASCADE ON UPDATE CASCADE"
                 ] ()
+       ,do exec ["INSERT INTO channel (name) VALUES ('lisp')"] ()
+       ,do exec ["INSERT INTO channel (name) VALUES ('ocaml')"] ()
        ]

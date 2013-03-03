@@ -11,7 +11,7 @@ import Network.Curl
 import System.Locale
 
 -- | Possible supported channels.
-data Channel = Haskell
+data Channel = Haskell | Lisp | OCaml
 
 -- | Download the log for a channel on a given day.
 downloadLog :: Channel -> Day -> IO (Either (CurlCode,ByteString) ByteString)
@@ -42,3 +42,5 @@ unmakeDay = formatTime defaultTimeLocale "%y.%m.%d"
 -- | Show a channel.
 showChan :: Channel -> String
 showChan Haskell = "haskell"
+showChan Lisp = "lisp"
+showChan OCaml = "ocaml"
