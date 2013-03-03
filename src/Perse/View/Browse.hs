@@ -43,9 +43,11 @@ paginatedTable uri events pagination =
             eventClass | Just t <- lookup "timestamp" (uriParams uri),
                          t == secs = "event info"
                        | otherwise = "event"
-        tr ! name (toValue anchor) !# (toValue anchor) !. eventClass $ do
+            focused | eventType event == "talk" = "focused"
+                    | otherwise = "not-focused" :: String
+        tr ! name (toValue anchor) !# (toValue anchor) !. (toValue (eventClass ++ " " ++ focused)) $ do
           td  !. "timestamp" $ timestamp uri (eventTimestamp event) anchor secs
-          if (eventType event == "talk")
+          if eventType event == "talk"
             then do td !. "nick-wrap" $ do
                       " <"
                       span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
