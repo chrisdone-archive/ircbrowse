@@ -28,6 +28,7 @@ runServer = do
      then do putStrLn "Running migration setup and ending."
              runDB () config pool $ migrate create versions
      else do
+       runDB () config pool $ migrate create versions
        setUnicodeLocale "en_US"
        httpServe server (serve config pool)
     where server = setPort 10001 defaultConfig
