@@ -44,3 +44,10 @@ showChan :: Channel -> String
 showChan Haskell = "haskell"
 showChan Lisp = "lisp"
 showChan OCaml = "ocaml"
+
+-- | Read a channel.
+parseChan :: String -> Maybe Channel
+parseChan "haskell" =  Just Haskell
+parseChan "lisp" =  Just Lisp
+parseChan "ocaml" =  Just OCaml
+parseChan _ = Nothing

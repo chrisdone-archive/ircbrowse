@@ -50,7 +50,7 @@ singleImport = do
 
 batchImport :: IO ()
 batchImport = do
-  (cpath:_) <- getArgs
+  (cpath:(parseChan -> Just channel):_) <- getArgs
   files <- fmap (sort . filter (not . all (=='.'))) (getDirectoryContents ".")
   config <- getConfig cpath
   pool <- newPool (configPostgres config)
@@ -61,7 +61,7 @@ batchImport = do
   forM_ [1..5] $ \_ -> forkIO $ do
     forever $ do
       file <- readChan chan
-      runDB config () pool $ importFile Lisp config file
+      runDB config () pool $ importFile channel config file
       writeChan done $ file
   forever $ do
     file <- readChan done
@@ -98,8 +98,8 @@ importEvents channel events = do
       EventAt time (decompose -> GenericEvent typ mnick texts) -> do
         processQuery (if i == 0 then "(?,?,?,?,?,?)" else ",(?,?,?,?,?,?)")
                      (time
-                     ,1::Int
-                     ,3::Int
+                     ,"freenode" :: Text
+                     ,showChan channel
                      ,map toLower (show typ)
                      ,fmap unNick mnick
                      ,T.concat texts)
