@@ -50,7 +50,8 @@ home = do
   maybe (return ()) outputText out
 
 summarize range stats = p $ do
-  h1 $ do em "Per se"; " IRC stats"
+  h1 $ do em "Per se"; " IRC"
+
   p $ do strong "Network(s): "
          toHtml (intercalate ", " (stNetworks stats))
   p $ do strong "Channel(s): "

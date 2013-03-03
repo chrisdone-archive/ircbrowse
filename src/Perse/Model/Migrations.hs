@@ -20,4 +20,9 @@ versions = zip [1..] ms where
              ,")"
              ]
              ()
+       ,exec ["CREATE INDEX event_text_idx ON event USING gin(to_tsvector('english',text));"] ()
+       ,exec ["CREATE INDEX event_network_idx ON event(network);"] ()
+       ,exec ["CREATE INDEX event_channel_idx ON event(channel);"] ()
+       ,exec ["CREATE INDEX event_nick_idx ON event(nick);"] ()
+       ,exec ["CREATE INDEX event_type_idx ON event(type);"] ()
        ]
