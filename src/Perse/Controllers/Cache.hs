@@ -66,8 +66,9 @@ keyToString (Overview network channel (Range from to)) =
   "overview-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
-keyToString (Browse network channel (Range from to)) =
-  "browse-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
+keyToString (Browse network channel (Range from to) pagination) =
+  "browse-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++
+  "-page" ++ show (pnPage pagination) ++ "-of-" ++ show (pnLimit pagination) ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
 

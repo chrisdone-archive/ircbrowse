@@ -51,8 +51,7 @@ data Range = Range
 
 data Key
   = Overview (Maybe String) (Maybe String) Range
-  | Browse (Maybe String) (Maybe String) Range
-  deriving (Eq)
+  | Browse (Maybe String) (Maybe String) Range Pagination
 
 data Event = Event
   { eventTimestamp :: ZonedTime
