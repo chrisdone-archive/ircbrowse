@@ -35,8 +35,7 @@ overview network channel range stats = do
 
 summarize :: Range -> Stats -> Html
 summarize range stats = p $ do
-  h1 $ do em "Per se"; " IRC"
-
+  h1 $ "browseirc.net: overview"
   p $ do strong "Network(s): "
          toHtml (intercalate ", " (stNetworks stats))
   p $ do strong "Channel(s): "

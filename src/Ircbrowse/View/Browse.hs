@@ -19,7 +19,7 @@ browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> Pag
 browse uri network channel timestamp events pagination q =
   template "browse" $ do
     div !. "container" $ do
-      h1 $ a ! hrefURI (clearUrlQueries uri) $ "Browsing IRC conversations"
+      h1 $ a ! hrefURI (clearUrlQueries uri) $ "browseirc.net: browsing"
       maybe (return ()) (\network -> p $ do strong "Network: "; toHtml network) network
       maybe (return ()) (\channel -> p $ do strong "Channel: "; toHtml channel) channel
     searchForm q
