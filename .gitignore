@@ -7,3 +7,6 @@ cabal-dev
 perse.conf
 cache/
 ircbrowse.conf
+.hsenv
+logs/
+sphinx/
