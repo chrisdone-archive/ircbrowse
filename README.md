@@ -2,9 +2,9 @@
 
 Create the PostgreSQL database:
 
-    $ sudo su postgres --command 'createuser perse -P'
-    $ sudo su postgres --command 'createdb perse -O perse'
+    $ sudo su postgres --command 'createuser ircbrowse -P'
+    $ sudo su postgres --command 'createdb ircbrowse -O ircbrowse'
 
 Update the database to the latest migration:
 
-    $ dist/build/perse/perse perse.conf --create-version
+    $ dist/build/ircbrowse/ircbrowse ircbrowse.conf --create-version
