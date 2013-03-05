@@ -6,10 +6,10 @@
 
 module Main where
 
-import           Perse.Types
-import           Perse.Config
-import           Perse.Tunes
-import           Perse.Model.Migrations
+import           Ircbrowse.Types
+import           Ircbrowse.Config
+import           Ircbrowse.Tunes
+import           Ircbrowse.Model.Migrations
 
 import           Control.Concurrent
 import           Control.Monad

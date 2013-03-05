@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
-module Perse.View.Template where
+module Ircbrowse.View.Template where
 
-import Perse.View
+import Ircbrowse.View
 
 template name inner = do
   html $ do

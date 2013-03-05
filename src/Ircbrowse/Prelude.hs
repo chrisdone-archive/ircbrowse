@@ -1,4 +1,4 @@
-module Perse.Prelude
+module Ircbrowse.Prelude
   (module Prelude)
     where
 

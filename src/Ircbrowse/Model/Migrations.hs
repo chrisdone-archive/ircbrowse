@@ -2,7 +2,7 @@
 
 -- | The server's database migrations.
 
-module Perse.Model.Migrations where
+module Ircbrowse.Model.Migrations where
 
 import Snap.App
 

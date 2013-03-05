@@ -1,4 +1,4 @@
-module Perse.Data
+module Ircbrowse.Data
   (module Data.List
   ,module Data.Time
   ,module Data.Maybe

@@ -1,15 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Perse.Controllers where
+module Ircbrowse.Controllers where
 
-import Perse.Controllers.Cache
-import Perse.Data
-import Perse.Model.Stats
-import Perse.Model.Events
-import Perse.Monads
-import Perse.Types
-import Perse.View.Browse as V
-import Perse.View.Overview as V
+import Ircbrowse.Controllers.Cache
+import Ircbrowse.Data
+import Ircbrowse.Model.Stats
+import Ircbrowse.Model.Events
+import Ircbrowse.Monads
+import Ircbrowse.Types
+import Ircbrowse.View.Browse as V
+import Ircbrowse.View.Overview as V
 
 import Data.ByteString (ByteString)
 import Snap.App

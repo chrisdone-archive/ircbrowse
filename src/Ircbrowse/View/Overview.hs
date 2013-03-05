@@ -2,10 +2,10 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS -fno-warn-unused-do-bind -fno-warn-type-defaults #-}
 
-module Perse.View.Overview where
+module Ircbrowse.View.Overview where
 
-import Perse.View
-import Perse.View.Template
+import Ircbrowse.View
+import Ircbrowse.View.Template
 
 overview :: Maybe String -> Maybe String -> Range -> Stats -> Html
 overview network channel range stats = do

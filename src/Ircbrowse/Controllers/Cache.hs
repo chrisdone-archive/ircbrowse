@@ -2,7 +2,7 @@
 
 -- | HTML caching.
 
-module Perse.Controllers.Cache
+module Ircbrowse.Controllers.Cache
        (cache
        ,cacheIf
        ,resetCache
@@ -10,11 +10,11 @@ module Perse.Controllers.Cache
        ,resetCacheModel)
        where
 
-import           Perse.Blaze
-import           Perse.Data
-import           Perse.Monads
-import           Perse.System
-import           Perse.Types
+import           Ircbrowse.Blaze
+import           Ircbrowse.Data
+import           Ircbrowse.Monads
+import           Ircbrowse.System
+import           Ircbrowse.Types
 
 import           Data.Text.Lazy           (Text)
 import qualified Data.Text.Lazy.IO as T

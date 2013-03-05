@@ -1,4 +1,4 @@
-module Perse.Blaze
+module Ircbrowse.Blaze
   (module Text.Blaze.Extra
   ,module Text.Blaze.Html5
   ,module Text.Blaze.Html5.Attributes

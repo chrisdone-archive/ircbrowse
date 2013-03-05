@@ -1,6 +1,6 @@
-module Perse.Model.Stats where
+module Ircbrowse.Model.Stats where
 
-import Perse.Types
+import Ircbrowse.Types
 
 import Data.Maybe
 import Snap.App

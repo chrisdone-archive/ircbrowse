@@ -1,14 +1,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
-module Perse.Types where
+module Ircbrowse.Types where
 
 import Data.Text
 import Database.PostgreSQL.Simple (ConnectInfo)
 import Database.PostgreSQL.Simple.QueryResults (QueryResults(..))
 import Network.Mail.Mime (Address)
-import Perse.Data
-import Perse.Monads
+import Ircbrowse.Data
+import Ircbrowse.Monads
 import Snap.App.Types
 
 -- | Site-wide configuration.

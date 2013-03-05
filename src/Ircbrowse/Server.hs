@@ -3,13 +3,13 @@
 
 -- | The web server.
 
-module Perse.Server where
+module Ircbrowse.Server where
 
-import Perse.Config
-import Perse.Types
-import Perse.Controllers.Cache
-import Perse.Model.Migrations
-import qualified Perse.Controllers as C
+import Ircbrowse.Config
+import Ircbrowse.Types
+import Ircbrowse.Controllers.Cache
+import Ircbrowse.Model.Migrations
+import qualified Ircbrowse.Controllers as C
 
 import Database.PostgreSQL.Base   (newPool)
 import Database.PostgreSQL.Simple (Pool)

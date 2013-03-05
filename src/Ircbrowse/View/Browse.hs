@@ -4,10 +4,10 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS -fno-warn-unused-do-bind -fno-warn-type-defaults #-}
 
-module Perse.View.Browse where
+module Ircbrowse.View.Browse where
 
-import Perse.View
-import Perse.View.Template
+import Ircbrowse.View
+import Ircbrowse.View.Template
 
 import Data.Text (Text)
 import Network.URI

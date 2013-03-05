@@ -2,9 +2,9 @@
 
 -- | Load the configuration file.
 
-module Perse.Config (getConfig) where
+module Ircbrowse.Config (getConfig) where
 
-import Perse.Types
+import Ircbrowse.Types
 
 import Data.ConfigFile
 import Database.PostgreSQL.Simple (ConnectInfo(..))

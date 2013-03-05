@@ -1,4 +1,4 @@
-module Perse.System
+module Ircbrowse.System
   (module System.Directory
   ,module System.Locale)
   where

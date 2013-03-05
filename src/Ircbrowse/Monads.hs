@@ -1,4 +1,4 @@
-module Perse.Monads
+module Ircbrowse.Monads
   (module Control.Monad
   ,module Control.Monad.Trans
   ,module Control.Monad.Reader

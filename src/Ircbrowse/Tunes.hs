@@ -1,8 +1,8 @@
 -- | Downloading logs from tunes.org.
 
-module Perse.Tunes where
+module Ircbrowse.Tunes where
 
-import Perse.Types
+import Ircbrowse.Types
 
 import Data.ByteString
 import Data.Maybe

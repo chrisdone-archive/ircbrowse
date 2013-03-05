@@ -2,7 +2,7 @@
 
 module Main where
 
-import Perse.Server
+import Ircbrowse.Server
 
 -- | Main entry point.
 main :: IO ()

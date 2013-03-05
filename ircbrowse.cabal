@@ -1,4 +1,4 @@
-name:                perse
+name:                ircbrowse
 version:             0.1.0.0
 synopsis:            IRC channel analysis.
 license:             BSD3
@@ -9,7 +9,7 @@ category:            Web
 build-type:          Simple
 cabal-version:       >=1.8
 
-executable perse
+executable ircbrowse
   main-is:           Main.hs
   ghc-options: -threaded -O2
   hs-source-dirs:    src
@@ -33,7 +33,7 @@ executable perse
                      bytestring,
                      filepath
 
-executable perse-import-from-tunes
+executable ircbrowse-import-from-tunes
   main-is:           ImportTunes.hs
   ghc-options:       -threaded -O2
   hs-source-dirs:    src

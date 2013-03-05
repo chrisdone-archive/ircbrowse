@@ -1,7 +1,7 @@
-module Perse.Model.Events where
+module Ircbrowse.Model.Events where
 
-import Perse.Types
-import Perse.Data
+import Ircbrowse.Types
+import Ircbrowse.Data
 
 import Data.Char
 import Snap.App
