@@ -64,7 +64,8 @@ paginatedTable uri events pagination =
 
 timestamp :: URI -> ZonedTime -> String -> String -> Html
 timestamp puri t anchor secs =
-  a ! hrefURIWithHash uri anchor $ toHtml $ show t
+  -- a ! hrefURIWithHash uri anchor $ toHtml $ show t
+  toHtml $ show t
 
   where uri = updateUrlParam "timestamp" secs (clearUrlQueries puri)
 
