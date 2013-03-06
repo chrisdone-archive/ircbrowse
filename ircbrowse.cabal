@@ -32,7 +32,9 @@ executable ircbrowse
                      directory,
                      bytestring,
                      filepath,
-                     sphinx
+                     pcre-light,
+                     process,
+                     data-default
 
 executable ircbrowse-import-from-tunes
   main-is:           ImportTunes.hs

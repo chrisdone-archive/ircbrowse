@@ -2,53 +2,51 @@ module Ircbrowse.Model.Events where
 
 import Ircbrowse.Types
 import Ircbrowse.Data
+import Ircbrowse.Monads
 
 import Data.Char
+import Data.String
+import Data.Default
+import Data.Text (Text)
+import Data.Time
 import Snap.App
+import Sphinx
 
-getEvents :: Maybe String -> Maybe String -> Maybe UTCTime -> Pagination -> Maybe String
-          -> Model c s (Pagination,Integer,[Event])
+getEvents :: Maybe String -> Maybe String -> Maybe UTCTime -> Pagination -> Maybe Text
+          -> Model c s (Int,[Event],Double,NominalDiffTime)
 getEvents network channel timestamp pagination q = do
-  (pagination',events) <- case timestamp of
-    Nothing -> getSearchedEvents q pagination
-    Just t -> getTimestampedEvents t pagination
-  count <- single ["SELECT COUNT(*) FROM event"
-                  ,"WHERE"
-                  ,"(? IS NULL OR (to_tsvector('english',text) @@ to_tsquery('english',?)"
-                  ,"AND type IN ('talk','act')))"]
-                  (tsquery q,tsquery q)
-  return (pagination',fromMaybe 0 count,events)
+  case q of
+    Just q -> do
+      result <- io $ search def
+        { sPath = "/opt/sphinx/bin/search"
+        , sConfig = "sphinx.conf"
+        , sQuery = escapeText q
+        }
+      case result of
+        Left err -> do io $ appendFile "/tmp/sphinx-error.log" (err ++"\n")
+                       return (0,[],0,0)
+        Right result -> do
+          now <- io getCurrentTime
+          results <- getEventsByResults (map fst (rResults result))
+          after <- io getCurrentTime
+          return (rTotal result,results,rSecs result,diffUTCTime after now)
+    Nothing -> getPaginatedEvents pagination
 
-tsquery q = fmap (intercalate "&" . map normalize . words) q where
-      normalize = filter isok
-      isok c = c `elem` "-_" || isDigit c || isLetter c
+getEventsByResults :: [Int] -> Model c s [Event]
+getEventsByResults eids = do
+  query ["SELECT id,timestamp,network,channel,type,nick,text"
+        ,"FROM event"
+        ,"WHERE id in ("
+        ,intercalate ", " (map show eids)
+        ,")"]
+        ()
 
-getSearchedEvents q pagination = do
-  events <- query ["SELECT id,timestamp,network,channel,type,nick,text FROM event"
-                  ,"WHERE"
-                  ,"(? IS NULL OR (to_tsvector('english',text) @@ to_tsquery('english',?)"
-                  ,"AND type IN ('talk','act')))"
-                  ,"ORDER BY timestamp ASC"
-                  ,"OFFSET ?"
-                  ,"LIMIT ?"]
-                  (tsquery q,tsquery q
-                  ,max 0 (pnPage pagination - 1) * pnLimit pagination
-                  ,pnLimit pagination)
-  return (pagination,events)
-
-getTimestampedEvents t pagination = do
-  rowsBefore <- fmap (fromMaybe 0)
-                     (single ["SELECT COUNT(*) FROM event"
-                             ,"WHERE timestamp at time zone 'utc' < ?"]
-                             (Only t))
-  let pagination' = pagination { pnPage = rowsBefore `div` pnLimit pagination + 1 }
-  events <- getPaginatedEvents pagination'
-  return (pagination',events)
-
-getPaginatedEvents pagination =
-  query ["SELECT id,timestamp,network,channel,type,nick,text FROM event"
-        ,"ORDER BY timestamp ASC"
-        ,"OFFSET ?"
-        ,"LIMIT ?"]
-        (max 0 (pnPage pagination - 1) * pnLimit pagination
-        ,pnLimit pagination)
+getPaginatedEvents pagination = do
+  count <- single ["SELECT COUNT(*) FROM event"] ()
+  rows <- query ["SELECT id,timestamp,network,channel,type,nick,text FROM event"
+                ,"ORDER BY timestamp ASC"
+                ,"OFFSET ?"
+                ,"LIMIT ?"]
+                (max 0 (pnPage pagination - 1) * pnLimit pagination
+                ,pnLimit pagination)
+  return (fromMaybe 0 count,rows,0,0)

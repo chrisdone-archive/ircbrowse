@@ -13,7 +13,11 @@ import Ircbrowse.View.Overview as V
 
 import Data.ByteString (ByteString)
 import Snap.App
+import Data.Char
 import System.Locale
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
+import Data.Text (Text)
 
 --------------------------------------------------------------------------------
 -- Controllers
@@ -33,15 +37,15 @@ browse = do
   timestamp <- getTimestamp
   network <- getStringMaybe "network"
   channel <- getStringMaybe "channel"
-  q <- getSearchString "q"
+  q <- getSearchText "q"
   pagination <- getPagination
   out <- cacheIf (isNothing q) (Browse network channel timestamp pagination) $ do
-    (pagination',total,logs) <- model $ getEvents network channel timestamp pagination q
-    let pn = pagination' { pnResults = fromIntegral (length logs)
-                         , pnTotal = total
-                         }
+    (total,logs,secs,resecs) <- model $ getEvents network channel timestamp pagination q
+    let pn = pagination { pnResults = fromIntegral (length logs)
+                        , pnTotal = fromIntegral total
+                        }
     uri <- getMyURI
-    return $ Just $ V.browse uri network channel timestamp logs pn q
+    return $ Just $ V.browse uri network channel timestamp logs pn q secs resecs
   maybe (return ()) outputText out
 
 --------------------------------------------------------------------------------
@@ -58,10 +62,16 @@ getTimestamp = do
   string <- getStringMaybe "timestamp"
   return $ string >>= parseTime defaultTimeLocale "%s"
 
-getSearchString :: ByteString -> Controller c s (Maybe String)
-getSearchString key = do
-  v <- getStringMaybe key
-  case fmap trim v of
+getSearchText :: ByteString -> Controller c s (Maybe Text)
+getSearchText key = do
+  v <- getTextMaybe key
+  case fmap (T.filter (not.isSpace)) v of
     Nothing -> return Nothing
-    Just "" -> return Nothing
-    Just v  -> return (Just v)
+    Just e | T.null e -> return Nothing
+           | otherwise -> return v
+
+-- | Get text (maybe).
+getTextMaybe :: ByteString -> Controller c s (Maybe Text)
+getTextMaybe name = do
+  pid <- fmap (fmap T.decodeUtf8) (getParam name)
+  return pid

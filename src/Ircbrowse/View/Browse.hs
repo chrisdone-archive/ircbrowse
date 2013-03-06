@@ -14,18 +14,22 @@ import Network.URI
 import Network.URI.Params
 import Snap.App.Types
 import System.Locale
+import Data.Time
 
-browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> Pagination -> Maybe String -> Html
-browse uri network channel timestamp events pagination q =
+browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> Pagination -> Maybe Text ->
+       Double -> NominalDiffTime -> Html
+browse uri network channel timestamp events pagination q secs resecs =
   template "browse" $ do
     div !. "container" $ do
       h1 $ a ! hrefURI (clearUrlQueries uri) $ "browseirc.net: browsing"
       maybe (return ()) (\network -> p $ do strong "Network: "; toHtml network) network
       maybe (return ()) (\channel -> p $ do strong "Channel: "; toHtml channel) channel
---    searchForm q
+    searchForm q
+    p $ do "Search performed in "; toHtml (show secs); "s"
+    p $ do "Results retrieved in "; toHtml (show resecs)
     paginatedTable uri events pagination
 
-searchForm :: Maybe String -> Html
+searchForm :: Maybe Text -> Html
 searchForm q =
   div !. "container" $
     form !. "pull-left" ! method "get" $
