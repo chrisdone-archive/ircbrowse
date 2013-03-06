@@ -10,3 +10,4 @@ ircbrowse.conf
 .hsenv
 logs/
 sphinx/
+sphinx.conf
