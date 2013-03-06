@@ -54,12 +54,12 @@ data Key
   | Browse (Maybe String) (Maybe String) (Maybe UTCTime) Pagination
 
 data Event = Event
-  { eventTimestamp :: ZonedTime
-  , eventNetwork :: Int
-  , eventChannel :: Int
-  , eventType :: Text
-  , eventNick :: Maybe Text
-  , eventText :: Text
+  { eventTimestamp :: !ZonedTime
+  , eventNetwork :: !Int
+  , eventChannel :: !Int
+  , eventType :: !Text
+  , eventNick :: !(Maybe Text)
+  , eventText :: !Text
   }
 
 instance QueryResults Event where

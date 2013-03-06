@@ -20,22 +20,21 @@ browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> Pag
        Double -> NominalDiffTime -> Html
 browse uri network channel timestamp events pagination q secs resecs =
   template "browse" $ do
-    div !. "container" $ do
+    div !. "container-fluid" $ do
       h1 $ a ! hrefURI (clearUrlQueries uri) $ "browseirc.net: browsing"
       maybe (return ()) (\network -> p $ do strong "Network: "; toHtml network) network
       maybe (return ()) (\channel -> p $ do strong "Channel: "; toHtml channel) channel
-    searchForm q
-    p $ do "Search performed in "; toHtml (show secs); "s"
-    p $ do "Results retrieved in "; toHtml (show resecs)
-    paginatedTable uri events pagination
+      searchForm q
+      p !. "alert alert-info" $ do "Search performed in "; toHtml (show secs); "s"
+      p !. "alert alert-info" $ do "Results retrieved in "; toHtml (show resecs)
+      paginatedTable uri events pagination
 
 searchForm :: Maybe Text -> Html
 searchForm q =
-  div !. "container" $
-    form !. "pull-left" ! method "get" $
-      fieldset $ do
-        label "Search the logs"
-        input ! type_ "text" ! placeholder "Search" ! name "q" ! value (maybe "" toValue q)
+  form ! method "get" $
+    fieldset $ do
+      label "Search the logs"
+      input ! type_ "text" ! placeholder "Search" ! name "q" ! value (maybe "" toValue q)
 
 paginatedTable :: URI -> [Event] -> Pagination -> Html
 paginatedTable uri events pagination =
@@ -79,15 +78,14 @@ paginate pn inner = do
 -- | Show a pagination navigation, with results count, if requested.
 pnnav :: Pagination -> Bool -> Html
 pnnav pn@Pagination{..} showTotal = do
-  div !. "container" $
-    div !. "row12" $
-      ul !. "pager" $ do
-          when (pnPage-1 > 0) $ li !. "previous" $ navDirection pn (-1) "← Older"
-          toHtml (" " :: Text)
-          when (pnResults == pnLimit) $ li !. "next" $ navDirection pn 1 "Newer →"
-          when showTotal $ do
-            br
-            toHtml $ results
+  div !. "row12" $
+    ul !. "pager" $ do
+        when (pnPage-1 > 0) $ li !. "previous" $ navDirection pn (-1) "← Older"
+        toHtml (" " :: Text)
+        when (pnResults == pnLimit) $ li !. "next" $ navDirection pn 1 "Newer →"
+        when showTotal $ do
+          br
+          toHtml $ results
 
     where results = unwords [showCount start ++ "—" ++ showCount end
                             ,"results of"
