@@ -31,7 +31,8 @@ executable ircbrowse
                      old-locale,
                      directory,
                      bytestring,
-                     filepath
+                     filepath,
+                     sphinx
 
 executable ircbrowse-import-from-tunes
   main-is:           ImportTunes.hs

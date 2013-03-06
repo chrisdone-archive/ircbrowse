@@ -24,7 +24,7 @@ tsquery q = fmap (intercalate "&" . map normalize . words) q where
       isok c = c `elem` "-_" || isDigit c || isLetter c
 
 getSearchedEvents q pagination = do
-  events <- query ["SELECT * FROM event"
+  events <- query ["SELECT id,timestamp,network,channel,type,nick,text FROM event"
                   ,"WHERE"
                   ,"(? IS NULL OR (to_tsvector('english',text) @@ to_tsquery('english',?)"
                   ,"AND type IN ('talk','act')))"
@@ -46,7 +46,7 @@ getTimestampedEvents t pagination = do
   return (pagination',events)
 
 getPaginatedEvents pagination =
-  query ["SELECT * FROM event"
+  query ["SELECT id,timestamp,network,channel,type,nick,text FROM event"
         ,"ORDER BY timestamp ASC"
         ,"OFFSET ?"
         ,"LIMIT ?"]

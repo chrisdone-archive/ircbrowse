@@ -26,4 +26,10 @@ versions = zip [1..] ms where
        ,exec ["CREATE INDEX event_nick_idx ON event(nick);"] ()
        ,exec ["CREATE INDEX event_type_idx ON event(type);"] ()
        ,exec ["CREATE INDEX event_timestamp_idx ON event(timestamp);"] ()
+       ,do exec ["alter table event drop network;"] ()
+           exec ["alter table event drop channel;"] ()
+           exec ["alter table event add network integer not null default 1;"] ()
+           exec ["alter table event add channel integer not null default 1;"] ()
+	   exec ["create index event_network_idx on event(network);"] ()
+	   exec ["create index event_channel_idx on event(channel);"] ()
        ]

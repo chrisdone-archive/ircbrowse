@@ -58,7 +58,7 @@ batchImport = do
   chan <- newChan
   done <- newChan
   writeList2Chan chan files
-  forM_ [1..5] $ \_ -> forkIO $ do
+  forM_ [1..2] $ \_ -> forkIO $ do
     forever $ do
       file <- readChan chan
       runDB config () pool $ importFile channel config file
@@ -98,8 +98,8 @@ importEvents channel events = do
       EventAt time (decompose -> GenericEvent typ mnick texts) -> do
         processQuery (if i == 0 then "(?,?,?,?,?,?)" else ",(?,?,?,?,?,?)")
                      (time
-                     ,"freenode" :: Text
-                     ,showChan channel
+                     ,1::Int
+                     ,showChanInt channel
                      ,map toLower (show typ)
                      ,fmap unNick mnick
                      ,T.concat texts)

@@ -45,8 +45,8 @@ getStats network channel (Range from to) = do
                        ,"ORDER BY 2 DESC"
                        ,"LIMIT 50"]
                        (from,to)
-  networks <- queryNoParams ["SELECT DISTINCT network FROM event"]
-  channels <- queryNoParams ["SELECT DISTINCT channel FROM event"]
+  networks <- return [] -- queryNoParams ["SELECT DISTINCT network FROM event"]
+  channels <- return [] -- queryNoParams ["SELECT DISTINCT channel FROM event"]
   return Stats
     { stEventCount = fromMaybe 0 count
     , stMsgCount = fromMaybe 0 msgcount

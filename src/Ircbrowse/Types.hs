@@ -55,8 +55,8 @@ data Key
 
 data Event = Event
   { eventTimestamp :: ZonedTime
-  , eventNetwork :: Text
-  , eventChannel :: Text
+  , eventNetwork :: Int
+  , eventChannel :: Int
   , eventType :: Text
   , eventNick :: Maybe Text
   , eventText :: Text

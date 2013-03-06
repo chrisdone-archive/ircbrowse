@@ -22,7 +22,7 @@ browse uri network channel timestamp events pagination q =
       h1 $ a ! hrefURI (clearUrlQueries uri) $ "browseirc.net: browsing"
       maybe (return ()) (\network -> p $ do strong "Network: "; toHtml network) network
       maybe (return ()) (\channel -> p $ do strong "Channel: "; toHtml channel) channel
-    searchForm q
+--    searchForm q
     paginatedTable uri events pagination
 
 searchForm :: Maybe String -> Html
