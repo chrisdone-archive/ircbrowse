@@ -21,9 +21,12 @@ browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> Pag
 browse uri network channel timestamp events pagination q secs resecs =
   template "browse" $ do
     div !. "container-fluid" $ do
-      h1 $ a ! hrefURI (clearUrlQueries uri) $ do
-        maybe (return ()) (\network -> toHtml network) network
-        maybe (return ()) (\channel -> do ": #"; toHtml channel) channel
+      h1 $ do
+        a ! href "/" $ do "IRC Browse"
+        ": "
+        maybe (return ()) (\network -> do toHtml network; ": ") network
+        a ! hrefURI (clearUrlQueries uri) $ do
+          maybe (return ()) (\channel -> do " #"; toHtml channel) channel
       searchForm q
       paginatedTable uri events pagination
 
@@ -31,8 +34,9 @@ searchForm :: Maybe Text -> Html
 searchForm q =
   form ! method "get" $
     fieldset $ do
-      label "Search the logs"
-      input ! type_ "text" ! placeholder "Search" ! name "q" ! value (maybe "" toValue q)
+      div !. "input-append" $ do
+        input ! name "q" !. "span2" !# "appendedInputButton" ! type_ "text" ! value (maybe "" toValue q)
+        button !. "btn" ! type_ "button" $ "Go!"
 
 paginatedTable :: URI -> [Event] -> Pagination -> Html
 paginatedTable uri events pagination =

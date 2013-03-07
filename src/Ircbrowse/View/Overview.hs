@@ -35,11 +35,12 @@ overview network channel range stats = do
 
 summarize :: Range -> Stats -> Html
 summarize range stats = p $ do
-  h1 $ "browseirc.net: overview"
+  h1 $ "IRC Browse"
   p $ do strong "Network(s): "
          toHtml (intercalate ", " (map snd (stNetworks stats)))
   p $ do strong "Channel(s): "
-         toHtml (intercalate ", " (map fst (stChannels stats)))
+         forM_ (stChannels stats) $ \(network,name) ->
+           a ! href (toValue ("/browse/" ++ network ++ "/" ++ name)) $ do "#"; toHtml name
   "During this "
   toHtml (show (diffDays (rangeTo range) (rangeFrom range)))
   "-day reporting period, a total of "

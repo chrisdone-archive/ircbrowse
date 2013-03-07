@@ -6,9 +6,11 @@ module Ircbrowse.View.Template where
 import Ircbrowse.View
 
 template name inner = do
+  docType
   html $ do
     head $ do link ! rel "stylesheet" ! type_ "text/css" ! href "/css/bootstrap.min.css"
-              link ! rel "stylesheet" ! type_ "text/css" ! href "/css/perse.css"
+              link ! rel "stylesheet" ! type_ "text/css" ! href "/css/bootstrap-responsive.css"
+              link ! rel "stylesheet" ! type_ "text/css" ! href "/css/ircbrowse.css"
               meta ! httpEquiv "Content-Type" ! content "text/html; charset=UTF-8"
     body !# name $ do
       inner
