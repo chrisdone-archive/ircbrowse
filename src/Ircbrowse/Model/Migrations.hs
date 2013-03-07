@@ -38,4 +38,6 @@ versions = zip [1..] ms where
             exec ["create table channel (network text not null,name text not null)"] ()
             exec ["insert into network values ('freenode','Freenode')"] ()
             exec ["insert into channel values ('freenode','haskell')"] ()
+        ,do exec ["drop index event_nick_idx"] ()
+            exec ["drop index event_text_idx"] ()
        ]
