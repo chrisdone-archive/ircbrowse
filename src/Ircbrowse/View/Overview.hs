@@ -37,9 +37,9 @@ summarize :: Range -> Stats -> Html
 summarize range stats = p $ do
   h1 $ "browseirc.net: overview"
   p $ do strong "Network(s): "
-         toHtml (intercalate ", " (stNetworks stats))
+         toHtml (intercalate ", " (map snd (stNetworks stats)))
   p $ do strong "Channel(s): "
-         toHtml (intercalate ", " (stChannels stats))
+         toHtml (intercalate ", " (map fst (stChannels stats)))
   "During this "
   toHtml (show (diffDays (rangeTo range) (rangeFrom range)))
   "-day reporting period, a total of "

@@ -45,8 +45,8 @@ getStats network channel (Range from to) = do
                        ,"ORDER BY 2 DESC"
                        ,"LIMIT 50"]
                        (from,to)
-  networks <- return [] -- queryNoParams ["SELECT DISTINCT network FROM event"]
-  channels <- return [] -- queryNoParams ["SELECT DISTINCT channel FROM event"]
+  networks <- queryNoParams ["SELECT name,title FROM network order by title"]
+  channels <- queryNoParams ["SELECT network,name FROM channel order by name"]
   return Stats
     { stEventCount = fromMaybe 0 count
     , stMsgCount = fromMaybe 0 msgcount
@@ -54,8 +54,6 @@ getStats network channel (Range from to) = do
     , stActiveTimes = activetimes
     , stDailyAcitivty = dailyactivity
     , stActiveNicks = activenicks
-    , stNetworks = map unOnly networks
-    , stChannels = map unOnly channels
+    , stNetworks = networks
+    , stChannels = channels
     }
-
-  where unOnly (Only un) = un

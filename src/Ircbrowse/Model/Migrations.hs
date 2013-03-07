@@ -34,4 +34,8 @@ versions = zip [1..] ms where
 	   exec ["create index event_channel_idx on event(channel);"] ()
        , do exec ["create table event_count (count integer not null default 0)"] ()
             exec ["insert into event_count values (0)"] ()
+       , do exec ["create table network (name text not null, title text not null)"] ()
+            exec ["create table channel (network text not null,name text not null)"] ()
+            exec ["insert into network values ('freenode','Freenode')"] ()
+            exec ["insert into channel values ('freenode','haskell')"] ()
        ]

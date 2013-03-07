@@ -21,12 +21,10 @@ browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> Pag
 browse uri network channel timestamp events pagination q secs resecs =
   template "browse" $ do
     div !. "container-fluid" $ do
-      h1 $ a ! hrefURI (clearUrlQueries uri) $ "browseirc.net: browsing"
-      maybe (return ()) (\network -> p $ do strong "Network: "; toHtml network) network
-      maybe (return ()) (\channel -> p $ do strong "Channel: "; toHtml channel) channel
+      h1 $ a ! hrefURI (clearUrlQueries uri) $ do
+        maybe (return ()) (\network -> toHtml network) network
+        maybe (return ()) (\channel -> do ": #"; toHtml channel) channel
       searchForm q
-      p !. "alert alert-info" $ do "Search performed in "; toHtml (show secs); "s"
-      p !. "alert alert-info" $ do "Results retrieved in "; toHtml (show resecs)
       paginatedTable uri events pagination
 
 searchForm :: Maybe Text -> Html
