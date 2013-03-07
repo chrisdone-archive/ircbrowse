@@ -47,8 +47,8 @@ getEventsByResults eids = do
 
 getTimestampedEvents t pagination = do
   rowsBefore <- fmap (fromMaybe 0)
-                     (single ["SELECT COUNT(*) FROM event"
-                             ,"WHERE timestamp at time zone 'utc' < ?"]
+                     (single ["SELECT id FROM event"
+                             ,"WHERE timestamp at time zone 'utc' = ?"]
                              (Only t))
   getPaginatedEvents pagination { pnPage = rowsBefore `div` pnLimit pagination + 1 }
 
