@@ -34,7 +34,8 @@ executable ircbrowse
                      filepath,
                      pcre-light,
                      process,
-                     data-default
+                     data-default,
+                     safe
 
 executable ircbrowse-import-from-tunes
   main-is:           ImportTunes.hs

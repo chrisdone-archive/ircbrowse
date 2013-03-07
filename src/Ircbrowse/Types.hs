@@ -51,25 +51,26 @@ data Range = Range
 
 data Key
   = Overview (Maybe String) (Maybe String) Range
-  | Browse (Maybe String) (Maybe String) (Maybe UTCTime) Pagination
+  | Browse (Maybe String) (Maybe String) (Maybe Integer) Pagination
 
 data Event = Event
-  { eventTimestamp :: !ZonedTime
-  , eventNetwork :: !Int
-  , eventChannel :: !Int
-  , eventType :: !Text
-  , eventNick :: !(Maybe Text)
-  , eventText :: !Text
+  { eventId        :: !Int
+  , eventTimestamp :: !ZonedTime
+  , eventNetwork   :: !Int
+  , eventChannel   :: !Int
+  , eventType      :: !Text
+  , eventNick      :: !(Maybe Text)
+  , eventText      :: !Text
   }
 
 instance QueryResults Event where
   convertResults field values = Event
-    { eventTimestamp = _2
+    { eventId = _1
+    , eventTimestamp = _2
     , eventNetwork = _3
     , eventChannel = _4
     , eventType = _5
     , eventNick = _6
     , eventText = _7
     }
-    where (_::Int,_2,_3,_4,_5,_6,_7) =
-            convertResults field values
+    where (_1,_2,_3,_4,_5,_6,_7) = convertResults field values

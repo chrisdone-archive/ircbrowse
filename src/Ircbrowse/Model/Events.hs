@@ -12,9 +12,9 @@ import Data.Time
 import Snap.App
 import Sphinx
 
-getEvents :: Maybe String -> Maybe String -> Maybe UTCTime -> Pagination -> Maybe Text
+getEvents :: Maybe String -> Maybe String -> Maybe Integer -> Pagination -> Maybe Text
           -> Model c s (Pagination,[Event])
-getEvents network channel timestamp pagination q = do
+getEvents network channel tid pagination q = do
   case q of
     Just q -> do
       result <- io $ search def
@@ -32,7 +32,7 @@ getEvents network channel timestamp pagination q = do
                              }
                  ,results)
     Nothing -> do
-      case timestamp of
+      case tid of
         Nothing -> getPaginatedEvents pagination
         Just t -> getTimestampedEvents t pagination
 
@@ -45,12 +45,8 @@ getEventsByResults eids = do
         ,")"]
         ()
 
-getTimestampedEvents t pagination = do
-  rowsBefore <- fmap (fromMaybe 0)
-                     (single ["SELECT id FROM event"
-                             ,"WHERE timestamp at time zone 'utc' = ?"]
-                             (Only t))
-  getPaginatedEvents pagination { pnPage = rowsBefore `div` pnLimit pagination + 1 }
+getTimestampedEvents tid pagination = do
+  getPaginatedEvents pagination { pnPage = tid `div` pnLimit pagination + 1 }
 
 getPaginatedEvents pagination = do
   count <- single ["SELECT count FROM event_count"] ()

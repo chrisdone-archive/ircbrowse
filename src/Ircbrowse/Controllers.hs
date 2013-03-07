@@ -13,6 +13,7 @@ import Ircbrowse.View.Overview as V
 
 import Data.ByteString (ByteString)
 import Snap.App
+import Safe
 import Data.Char
 import System.Locale
 import qualified Data.Text as T
@@ -34,13 +35,14 @@ overview = do
 
 browse :: Controller Config PState ()
 browse = do
+  evid <- getIntegerMaybe "id"
   timestamp <- getTimestamp
   network <- getStringMaybe "network"
   channel <- getStringMaybe "channel"
   q <- getSearchText "q"
   pagination <- getPagination
-  out <- cacheIf (isNothing q) (Browse network channel timestamp pagination) $ do
-    (pn,logs) <- model $ getEvents network channel timestamp pagination q
+  out <- cacheIf (isNothing q) (Browse network channel evid pagination) $ do
+    (pn,logs) <- model $ getEvents network channel evid pagination q
     uri <- getMyURI
     return $ Just $ V.browse uri network channel timestamp logs pn q
   maybe (return ()) outputText out
@@ -71,4 +73,10 @@ getSearchText key = do
 getTextMaybe :: ByteString -> Controller c s (Maybe Text)
 getTextMaybe name = do
   pid <- fmap (fmap T.decodeUtf8) (getParam name)
+  return pid
+
+-- | Get integer parmater.
+getIntegerMaybe :: ByteString -> Controller c s (Maybe Integer)
+getIntegerMaybe name = do
+  pid <- fmap (>>= readMay) (getStringMaybe name)
   return pid

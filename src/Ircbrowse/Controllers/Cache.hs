@@ -76,7 +76,7 @@ keyToString (Overview network channel (Range from to)) =
     where opt Nothing = "_"
           opt (Just x) = x
 keyToString (Browse network channel utctime pagination) =
-  "browse-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ fromMaybe "" (fmap showTime utctime) ++
+  "browse-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ fromMaybe "" (fmap show utctime) ++
   "-page" ++ show (pnPage pagination) ++ "-of-" ++ show (pnLimit pagination) ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
@@ -84,5 +84,5 @@ keyToString (Browse network channel utctime pagination) =
 showDay :: Day -> String
 showDay = formatTime defaultTimeLocale "%Y-%m-%d"
 
-showTime :: UTCTime -> String
-showTime = formatTime defaultTimeLocale "%s"
+-- showTime :: UTCTime -> String
+-- showTime = formatTime defaultTimeLocale "%s"

@@ -50,7 +50,7 @@ paginatedTable uri events pagination =
             focused | eventType event == "talk" = "focused"
                     | otherwise = "not-focused" :: String
         tr ! name (toValue anchor) !# (toValue anchor) !. (toValue (eventClass ++ " " ++ focused)) $ do
-          td  !. "timestamp" $ timestamp uri (eventTimestamp event) anchor secs
+          td  !. "timestamp" $ timestamp uri (eventId event) (eventTimestamp event) anchor secs
           if eventType event == "talk"
             then do td !. "nick-wrap" $ do
                       " <"
@@ -62,11 +62,13 @@ paginatedTable uri events pagination =
                     td !. "text" $ toHtml $ eventText event
 
 
-timestamp :: URI -> ZonedTime -> String -> String -> Html
-timestamp puri t anchor secs =
+timestamp :: URI -> Int -> ZonedTime -> String -> String -> Html
+timestamp puri eid t anchor secs =
   a ! hrefURIWithHash uri anchor $ toHtml $ show t
 
-  where uri = updateUrlParam "timestamp" secs (clearUrlQueries puri)
+  where uri = updateUrlParam "id" (show eid)
+                                  (updateUrlParam "timestamp" secs
+                                                  (clearUrlQueries puri))
 
 -- | Render results with pagination.
 paginate :: Pagination -> Html -> Html
@@ -101,4 +103,5 @@ navDirection Pagination{..} change caption = do
 
   where uri = updateUrlParam "page"
   	      		     (show (pnPage + change))
-			     (deleteQueryKey "timestamp" pnURI)
+			     (deleteQueryKey "timestamp"
+                                             (deleteQueryKey "id" pnURI))
