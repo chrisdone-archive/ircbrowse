@@ -55,12 +55,12 @@ getTimestampedEvents t pagination = do
 getPaginatedEvents pagination = do
   count <- single ["SELECT count FROM event_count"] ()
   events <- query ["SELECT id,timestamp,network,channel,type,nick,text FROM event"
-                  ,"WHERE id >= ? and id <= ?"
+                  ,"WHERE id in ("
+                  ,intercalate ", " (map show [offset .. offset + limit])
+                  ,")"
                   ,"ORDER BY timestamp ASC"
                   ,"LIMIT ?"]
-                  (offset
-                  ,offset + limit
-                  ,limit)
+                  (Only limit)
   return (pagination { pnTotal = fromMaybe 0 count
                      , pnResults = fromIntegral (length events)
                      }
