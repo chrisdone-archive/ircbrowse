@@ -97,7 +97,7 @@ pnnav pn@Pagination{..} showTotal = do
 
 -- | Link to change navigation page based on a direction.
 navDirection :: Pagination -> Integer -> Text -> Html
-navDirection Pagination{..} change caption = do
+navDirection pn@Pagination{..} change caption = do
   a ! hrefURI uri $
     toHtml caption
 

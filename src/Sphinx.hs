@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | Use the command-line program for Sphinx to search.
@@ -5,10 +6,10 @@
 module Sphinx where
 
 import           Control.Applicative
+import           Control.Monad.IO
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as S
 import           Data.Default
-import           Data.Text
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Text.Encoding
@@ -22,10 +23,12 @@ data Sphinx = Sphinx
   { sPath   :: !FilePath
   , sQuery  :: !Text
   , sConfig :: !FilePath
+  , sLimit  :: !Int
+  , sOffset :: !Int
   } deriving Show
 
 instance Default Sphinx where
-  def = Sphinx "sphinx" "" "./sphinx.conf"
+  def = Sphinx "sphinx" "" "./sphinx.conf" 35 0
 
 data Result = Result
   { rIndex    :: !Text
@@ -40,7 +43,7 @@ data Result = Result
 search :: Sphinx -> IO (Either String Result)
 search sphinx = do
   (_,pout,perr,ph) <-
-    runInteractiveProcess (sPath sphinx) ["--config",sConfig sphinx,T.unpack (sQuery sphinx)] n n
+    runInteractiveProcess (sPath sphinx) args n n
   exitCode <- waitForProcess ph
   case exitCode of
     ExitSuccess -> do output <- S.hGetContents pout
@@ -51,6 +54,10 @@ search sphinx = do
                         return (Left err)
 
   where n = Nothing
+        args = ["--config",sConfig sphinx,T.unpack (sQuery sphinx)
+               ,"--limit",show (sLimit sphinx)
+               ,"--offset",show (sOffset sphinx)
+               ,"--sort=date"]
 
 -- | Escape the text.
 escapeText :: Text -> Text
@@ -63,12 +70,14 @@ escapeText = T.intercalate "\\" . breakBy (`elem` escapedChars)
 parse :: ByteString -> Maybe Result
 parse input = case match rx input [] of
   Just [consumed,index,query,returned,total,timing] -> do
+    results <- parseResults (S.drop (S.length consumed) input)
+    let !count = length results
     Result <$> pure (decodeUtf8 index)
            <*> pure (decodeUtf8 query)
-           <*> readInt (decodeUtf8 returned)
+           <*> pure count
            <*> readInt (decodeUtf8 total)
            <*> readDouble (decodeUtf8 timing)
-           <*> parseResults (S.drop (S.length consumed) input)
+           <*> pure results
   _ -> Nothing
 
   where rx = compile "index '(.+)': query '(.+) ': \

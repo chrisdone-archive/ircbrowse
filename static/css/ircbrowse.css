@@ -1,4 +1,4 @@
-#browse .events .timestamp { color: #666; }
+#browse .events .timestamp { color: #666; width: 13em }
 #browse .events .nick { color: #333; font-weight: bold; }
 #browse .events .nick-wrap { text-align: right; }
 #browse .events .event.selected { background:  }

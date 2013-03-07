@@ -21,13 +21,14 @@ getEvents network channel tid pagination q = do
         { sPath = "/opt/sphinx/bin/search"
         , sConfig = "sphinx.conf"
         , sQuery = escapeText q
+        , sOffset = fromIntegral ((pnPage pagination - 1) * pnLimit pagination)
         }
       case result of
         Left err -> do io $ appendFile "/tmp/sphinx-error.log" (err ++"\n")
                        return (pagination { pnResults = 0 , pnTotal = 0 },[])
         Right result -> do
           results <- getEventsByResults (map fst (rResults result))
-          return (pagination { pnResults = fromIntegral (rReturned result)
+          return (pagination { pnResults = fromIntegral (length results)
                              , pnTotal = fromIntegral (rTotal result)
                              }
                  ,results)
@@ -42,7 +43,7 @@ getEventsByResults eids = do
         ,"FROM event"
         ,"WHERE id in ("
         ,intercalate ", " (map show eids)
-        ,")"]
+        ,") ORDER BY timestamp DESC"]
         ()
 
 getTimestampedEvents tid pagination = do
