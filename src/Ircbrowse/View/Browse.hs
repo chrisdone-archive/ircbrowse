@@ -15,6 +15,7 @@ import Network.URI.Params
 import Snap.App.Types
 import System.Locale
 import Data.Time
+import Prelude (min)
 
 browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> Pagination -> Maybe Text -> Html
 browse uri network channel timestamp events pagination q =
@@ -92,8 +93,8 @@ pnnav pn@Pagination{..} showTotal = do
     where results = unwords [showCount start ++ "—" ++ showCount end
                             ,"results of"
                             ,showCount pnTotal]
-          start = 1 + (pnPage - 1) * pnResults
-          end = pnPage * pnResults
+          start = 1 + (pnPage - 1)*pnLimit
+          end = Prelude.min pnTotal (pnPage * pnLimit)
 
 -- | Link to change navigation page based on a direction.
 navDirection :: Pagination -> Integer -> Text -> Html

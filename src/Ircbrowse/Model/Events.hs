@@ -28,7 +28,7 @@ getEvents network channel tid pagination q = do
                        return (pagination { pnResults = 0 , pnTotal = 0 },[])
         Right result -> do
           results <- getEventsByResults (map fst (rResults result))
-          return (pagination { pnResults = fromIntegral (length results)
+          return (pagination { pnResults = fromIntegral (rReturned result - 1)
                              , pnTotal = fromIntegral (rTotal result)
                              }
                  ,results)
