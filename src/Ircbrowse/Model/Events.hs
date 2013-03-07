@@ -42,7 +42,7 @@ getEventsByResults eids = do
         ()
 
 getPaginatedEvents pagination = do
-  count <- single ["SELECT COUNT(*) FROM event"] ()
+  count <- single ["SELECT count FROM event_count"] ()
   rows <- query ["SELECT id,timestamp,network,channel,type,nick,text FROM event"
                 ,"ORDER BY timestamp ASC"
                 ,"OFFSET ?"

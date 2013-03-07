@@ -32,4 +32,6 @@ versions = zip [1..] ms where
            exec ["alter table event add channel integer not null default 1;"] ()
 	   exec ["create index event_network_idx on event(network);"] ()
 	   exec ["create index event_channel_idx on event(channel);"] ()
+       , do exec ["create table event_count (count integer not null default 0)"] ()
+            exec ["insert into event_count values (0)"] ()
        ]

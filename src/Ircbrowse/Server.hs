@@ -13,7 +13,7 @@ import qualified Ircbrowse.Controllers as C
 
 import Database.PostgreSQL.Base   (newPool)
 import Database.PostgreSQL.Simple (Pool)
-import Snap.App (Snap,runHandler,route,runDB)
+import Snap.App
 import Snap.App.Migrate
 import Snap.Http.Server           hiding (Config)
 import Snap.Util.FileServe
@@ -29,7 +29,10 @@ runServer = do
      then do putStrLn "Running migration setup and ending."
              runDB () config pool $ migrate create versions
      else do
-       runDB () config pool $ migrate create versions
+       runDB () config pool $ do
+         migrate create versions
+         _ <- exec ["update event_count set count = (select count(*) from event)"] ()
+         return ()
        setUnicodeLocale "en_US"
        clearCache config
        httpServe server (serve config pool)
