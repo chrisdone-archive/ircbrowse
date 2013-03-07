@@ -16,9 +16,8 @@ import Snap.App.Types
 import System.Locale
 import Data.Time
 
-browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> Pagination -> Maybe Text ->
-       Double -> NominalDiffTime -> Html
-browse uri network channel timestamp events pagination q secs resecs =
+browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> Pagination -> Maybe Text -> Html
+browse uri network channel timestamp events pagination q =
   template "browse" $ do
     div !. "container-fluid" $ do
       h1 $ do
@@ -65,8 +64,7 @@ paginatedTable uri events pagination =
 
 timestamp :: URI -> ZonedTime -> String -> String -> Html
 timestamp puri t anchor secs =
-  -- a ! hrefURIWithHash uri anchor $ toHtml $ show t
-  toHtml $ show t
+  a ! hrefURIWithHash uri anchor $ toHtml $ show t
 
   where uri = updateUrlParam "timestamp" secs (clearUrlQueries puri)
 

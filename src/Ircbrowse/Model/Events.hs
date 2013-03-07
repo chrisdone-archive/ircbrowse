@@ -13,7 +13,7 @@ import Snap.App
 import Sphinx
 
 getEvents :: Maybe String -> Maybe String -> Maybe UTCTime -> Pagination -> Maybe Text
-          -> Model c s (Int,[Event],Double,NominalDiffTime)
+          -> Model c s (Pagination,[Event])
 getEvents network channel timestamp pagination q = do
   case q of
     Just q -> do
@@ -24,13 +24,17 @@ getEvents network channel timestamp pagination q = do
         }
       case result of
         Left err -> do io $ appendFile "/tmp/sphinx-error.log" (err ++"\n")
-                       return (0,[],0,0)
+                       return (pagination { pnResults = 0 , pnTotal = 0 },[])
         Right result -> do
-          now <- io getCurrentTime
           results <- getEventsByResults (map fst (rResults result))
-          after <- io getCurrentTime
-          return (rTotal result,results,rSecs result,diffUTCTime after now)
-    Nothing -> getPaginatedEvents pagination
+          return (pagination { pnResults = fromIntegral (rReturned result)
+                             , pnTotal = fromIntegral (rTotal result)
+                             }
+                 ,results)
+    Nothing -> do
+      case timestamp of
+        Nothing -> getPaginatedEvents pagination
+        Just t -> getTimestampedEvents t pagination
 
 getEventsByResults :: [Int] -> Model c s [Event]
 getEventsByResults eids = do
@@ -41,12 +45,22 @@ getEventsByResults eids = do
         ,")"]
         ()
 
+getTimestampedEvents t pagination = do
+  rowsBefore <- fmap (fromMaybe 0)
+                     (single ["SELECT COUNT(*) FROM event"
+                             ,"WHERE timestamp at time zone 'utc' < ?"]
+                             (Only t))
+  getPaginatedEvents pagination { pnPage = rowsBefore `div` pnLimit pagination + 1 }
+
 getPaginatedEvents pagination = do
   count <- single ["SELECT count FROM event_count"] ()
-  rows <- query ["SELECT id,timestamp,network,channel,type,nick,text FROM event"
-                ,"ORDER BY timestamp ASC"
-                ,"OFFSET ?"
-                ,"LIMIT ?"]
-                (max 0 (pnPage pagination - 1) * pnLimit pagination
-                ,pnLimit pagination)
-  return (fromMaybe 0 count,rows,0,0)
+  events <- query ["SELECT id,timestamp,network,channel,type,nick,text FROM event"
+                  ,"ORDER BY timestamp ASC"
+                  ,"OFFSET ?"
+                  ,"LIMIT ?"]
+                  (max 0 (pnPage pagination - 1) * pnLimit pagination
+                  ,pnLimit pagination)
+  return (pagination { pnTotal = fromMaybe 0 count
+                     , pnResults = fromIntegral (length events)
+                     }
+         ,events)

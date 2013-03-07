@@ -40,12 +40,9 @@ browse = do
   q <- getSearchText "q"
   pagination <- getPagination
   out <- cacheIf (isNothing q) (Browse network channel timestamp pagination) $ do
-    (total,logs,secs,resecs) <- model $ getEvents network channel timestamp pagination q
-    let pn = pagination { pnResults = fromIntegral (length logs)
-                        , pnTotal = fromIntegral total
-                        }
+    (pn,logs) <- model $ getEvents network channel timestamp pagination q
     uri <- getMyURI
-    return $ Just $ V.browse uri network channel timestamp logs pn q secs resecs
+    return $ Just $ V.browse uri network channel timestamp logs pn q
   maybe (return ()) outputText out
 
 --------------------------------------------------------------------------------
