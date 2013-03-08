@@ -22,16 +22,6 @@ overview network channel range stats = do
       div !. "row" $ do
         div !. "span12" $ do
           activeNicks stats
-    preEscapedText "<script type=\"text/javascript\"> var _gaq = _gaq \
-                   \|| []; _gaq.push(['_setAccount', 'UA-38975161-1']);\
-                   \ _gaq.push(['_trackPageview']); (function() {var ga\
-                   \ = document.createElement('script'); ga.type = 'tex\
-                   \t/javascript'; ga.async = true; ga.src = ('https:' \
-                   \== document.location.protocol ? 'https://ssl' : \
-                   \'http://www') + '.google-analytics.com/ga.js'; var\
-                   \ s = document.getElementsByTagName('script')[0]; \
-                   \s.parentNode.insertBefore(ga, s);})(); </script>"
-
 
 summarize :: Range -> Stats -> Html
 summarize range stats = p $ do
