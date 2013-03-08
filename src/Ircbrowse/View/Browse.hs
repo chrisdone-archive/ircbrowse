@@ -46,7 +46,8 @@ searchForm q =
         button !. "btn" ! type_ "button" $ "Go!"
 
 paginatedTable :: URI -> [Event] -> PN -> Html
-paginatedTable uri events pn = do
+paginatedTable uri events pn' = do
+  let pn = pn' { pnURI = deleteQueryKey "timestamp" (deleteQueryKey "id" uri) }
   pagination pn
   table !. "events table" $
     forM_ events $ \event -> do
@@ -71,8 +72,6 @@ paginatedTable uri events pn = do
   pagination pn { pnPn = (pnPn pn) { pnShowDesc = False }
                 , pnResultsPerPage = Nothing
                 }
-
-  where uri' = deleteQueryKey "timestamp" (deleteQueryKey "id" uri)
 
 timestamp :: URI -> Int -> ZonedTime -> String -> String -> Html
 timestamp puri eid t anchor secs =
