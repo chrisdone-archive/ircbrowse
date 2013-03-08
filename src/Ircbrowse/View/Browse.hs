@@ -30,7 +30,12 @@ browse uri network channel timestamp events pn q =
         a ! hrefURI (clearUrlQueries uri) $ do
           maybe (return ()) (\channel -> do " #"; toHtml channel) channel
       searchForm q
-      paginatedTable uri events pn
+      if null events
+         then noResults
+         else paginatedTable uri events pn
+
+noResults = do
+  p "There are no results for that search!"
 
 searchForm :: Maybe Text -> Html
 searchForm q =
@@ -43,7 +48,6 @@ searchForm q =
 paginatedTable :: URI -> [Event] -> PN -> Html
 paginatedTable uri events pn = do
   pagination pn
-  -- paginate pn $
   table !. "events table" $
     forM_ events $ \event -> do
       let secs = formatTime defaultTimeLocale "%s" (zonedTimeToUTC (eventTimestamp event))
