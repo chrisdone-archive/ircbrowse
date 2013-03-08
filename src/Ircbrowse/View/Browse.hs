@@ -8,17 +8,12 @@ module Ircbrowse.View.Browse where
 
 import Ircbrowse.View
 import Ircbrowse.View.Template
+import Ircbrowse.System
 
-import Data.Pagination
 import Data.Text (Text)
-import Data.Time
 import Network.URI
 import Network.URI.Params
 import Prelude (min)
-import Snap.App.Types
-import System.Locale
-import Text.Blaze.Linkify
-import Text.Blaze.Pagination
 
 browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
 browse uri network channel timestamp events pn q =

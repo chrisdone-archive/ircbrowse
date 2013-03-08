@@ -16,12 +16,9 @@ import           Ircbrowse.Monads
 import           Ircbrowse.System
 import           Ircbrowse.Types
 
-import           Data.Pagination
 import           Data.Text.Lazy           (Text)
 import qualified Data.Text.Lazy.IO as T
 import           Snap.App
-import           System.FilePath
-import           Text.Blaze.Pagination
 
 -- | Cache conditionally.
 cacheIf :: Bool -> Key -> Controller Config s (Maybe Html) -> Controller Config s (Maybe Text)

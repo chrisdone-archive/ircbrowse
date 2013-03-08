@@ -6,7 +6,7 @@
 module Sphinx where
 
 import           Control.Applicative
-import           Control.Monad.IO
+
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as S
 import           Data.Default
@@ -69,7 +69,7 @@ escapeText = T.intercalate "\\" . breakBy (`elem` escapedChars)
 -- | Parse the results header.
 parse :: ByteString -> Maybe Result
 parse input = case match rx input [] of
-  Just [consumed,index,query,returned,total,timing] -> do
+  Just [consumed,index,query,_returned,total,timing] -> do
     results <- parseResults (S.drop (S.length consumed) input)
     let !count = length results
     Result <$> pure (decodeUtf8 index)

@@ -6,7 +6,6 @@ module Text.Links
  (explodeLinks)
   where
 
-import           Control.Monad
 import           Data.Maybe
 import           Data.Monoid
 import           Data.Text (Text)

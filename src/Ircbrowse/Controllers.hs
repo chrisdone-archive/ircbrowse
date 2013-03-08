@@ -12,7 +12,6 @@ import           Ircbrowse.View.Browse as V
 import           Ircbrowse.View.Overview as V
 
 import           Data.ByteString (ByteString)
-import           Data.Char
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T

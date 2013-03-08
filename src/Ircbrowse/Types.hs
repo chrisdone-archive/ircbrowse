@@ -3,12 +3,12 @@
 
 module Ircbrowse.Types where
 
-import Data.Pagination
+import Ircbrowse.Data
+import Ircbrowse.Monads
+
 import Data.Text
 import Database.PostgreSQL.Simple (ConnectInfo)
 import Database.PostgreSQL.Simple.QueryResults (QueryResults(..))
-import Ircbrowse.Data
-import Ircbrowse.Monads
 import Network.Mail.Mime (Address)
 import Snap.App.Types
 import Text.Blaze.Pagination

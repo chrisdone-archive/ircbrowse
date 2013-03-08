@@ -1,8 +1,8 @@
 module Ircbrowse.Model.Stats where
 
 import Ircbrowse.Types
+import Ircbrowse.Data
 
-import Data.Maybe
 import Snap.App
 
 getStats :: Maybe String -> Maybe String -> Range -> Model c s Stats

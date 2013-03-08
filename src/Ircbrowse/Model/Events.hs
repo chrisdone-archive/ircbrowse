@@ -4,12 +4,7 @@ import Ircbrowse.Types
 import Ircbrowse.Data
 import Ircbrowse.Monads
 
-import Data.Char
-import Data.Default
-import Data.Pagination
-import Data.String
 import Data.Text (Text)
-import Data.Time
 import Snap.App
 import Sphinx
 import Text.Blaze.Pagination
