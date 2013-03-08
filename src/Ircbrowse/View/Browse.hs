@@ -9,14 +9,15 @@ module Ircbrowse.View.Browse where
 import Ircbrowse.View
 import Ircbrowse.View.Template
 
+import Data.Pagination
 import Data.Text (Text)
 import Data.Time
-import Data.Pagination
 import Network.URI
 import Network.URI.Params
 import Prelude (min)
 import Snap.App.Types
 import System.Locale
+import Text.Blaze.Linkify
 import Text.Blaze.Pagination
 
 browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
@@ -65,10 +66,10 @@ paginatedTable uri events pn' = do
                     " <"
                     span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
                     "> "
-                  td !. "text" $ toHtml $ eventText event
+                  td !. "text" $ linkify $ eventText event
           else do td !. "nick-wrap" $
                     span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
-                  td !. "text" $ toHtml $ eventText event
+                  td !. "text" $ linkify $ eventText event
   pagination pn { pnPn = (pnPn pn) { pnShowDesc = False }
                 , pnResultsPerPage = Nothing
                 }

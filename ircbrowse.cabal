@@ -35,7 +35,8 @@ executable ircbrowse
                      pcre-light,
                      process,
                      data-default,
-                     safe
+                     safe,
+                     HUnit
 
 executable ircbrowse-import-from-tunes
   main-is:           ImportTunes.hs
