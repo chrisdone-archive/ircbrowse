@@ -4,3 +4,9 @@
 #browse .events .event.selected { background:  }
 #browse .events .not-focused,#browse .events .not-focused .nick { color: #888; font-style: italic; font-weight: normal }
 #browse .events .focused { background: #efefef; }
+#browse .results-per-page { float: right; }
+#browse .results-per-page .per-page-choice { margin-left: 0.3em; }
+#browse .results-per-page .current { color: #555; pointer: default }
+#browse .results-per-page .current:hover { text-decoration: none }
+#browse .description { float: left; }
+#browse .pages { clear: both; }

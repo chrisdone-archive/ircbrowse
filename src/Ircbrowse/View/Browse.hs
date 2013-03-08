@@ -10,15 +10,17 @@ import Ircbrowse.View
 import Ircbrowse.View.Template
 
 import Data.Text (Text)
+import Data.Time
+import Data.Pagination
 import Network.URI
 import Network.URI.Params
+import Prelude (min)
 import Snap.App.Types
 import System.Locale
-import Data.Time
-import Prelude (min)
+import Text.Blaze.Pagination
 
-browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> Pagination -> Maybe Text -> Html
-browse uri network channel timestamp events pagination q =
+browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
+browse uri network channel timestamp events pn q =
   template "browse" $ do
     div !. "container-fluid" $ do
       h1 $ do
@@ -28,7 +30,7 @@ browse uri network channel timestamp events pagination q =
         a ! hrefURI (clearUrlQueries uri) $ do
           maybe (return ()) (\channel -> do " #"; toHtml channel) channel
       searchForm q
-      paginatedTable uri events pagination
+      paginatedTable uri events pn
 
 searchForm :: Maybe Text -> Html
 searchForm q =
@@ -38,30 +40,33 @@ searchForm q =
         input ! name "q" !. "span2" !# "appendedInputButton" ! type_ "text" ! value (maybe "" toValue q)
         button !. "btn" ! type_ "button" $ "Go!"
 
-paginatedTable :: URI -> [Event] -> Pagination -> Html
-paginatedTable uri events pagination =
-  paginate pagination $
-    table !. "events table" $
-      forM_ events $ \event -> do
-        let secs = formatTime defaultTimeLocale "%s" (zonedTimeToUTC (eventTimestamp event))
-            anchor = ("t" ++ secs)
-            eventClass | Just t <- lookup "timestamp" (uriParams uri),
-                         t == secs = "event info"
-                       | otherwise = "event"
-            focused | eventType event == "talk" = "focused"
-                    | otherwise = "not-focused" :: String
-        tr ! name (toValue anchor) !# (toValue anchor) !. (toValue (eventClass ++ " " ++ focused)) $ do
-          td  !. "timestamp" $ timestamp uri (eventId event) (eventTimestamp event) anchor secs
-          if eventType event == "talk"
-            then do td !. "nick-wrap" $ do
-                      " <"
-                      span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
-                      "> "
-                    td !. "text" $ toHtml $ eventText event
-            else do td !. "nick-wrap" $
-                      span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
-                    td !. "text" $ toHtml $ eventText event
+paginatedTable :: URI -> [Event] -> PN -> Html
+paginatedTable uri events pn = do
+  pagination pn
+  -- paginate pn $
+  table !. "events table" $
+    forM_ events $ \event -> do
+      let secs = formatTime defaultTimeLocale "%s" (zonedTimeToUTC (eventTimestamp event))
+          anchor = ("t" ++ secs)
+          eventClass | Just t <- lookup "timestamp" (uriParams uri),
+                       t == secs = "event info"
+                     | otherwise = "event"
+          focused | eventType event == "talk" = "focused"
+                  | otherwise = "not-focused" :: String
+      tr ! name (toValue anchor) !# (toValue anchor) !. (toValue (eventClass ++ " " ++ focused)) $ do
+        td  !. "timestamp" $ timestamp uri (eventId event) (eventTimestamp event) anchor secs
+        if eventType event == "talk"
+          then do td !. "nick-wrap" $ do
+                    " <"
+                    span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
+                    "> "
+                  td !. "text" $ toHtml $ eventText event
+          else do td !. "nick-wrap" $
+                    span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
+                  td !. "text" $ toHtml $ eventText event
 
+
+  where uri' = deleteQueryKey "timestamp" (deleteQueryKey "id" uri)
 
 timestamp :: URI -> Int -> ZonedTime -> String -> String -> Html
 timestamp puri eid t anchor secs =
@@ -70,39 +75,3 @@ timestamp puri eid t anchor secs =
   where uri = updateUrlParam "id" (show eid)
                                   (updateUrlParam "timestamp" secs
                                                   (clearUrlQueries puri))
-
--- | Render results with pagination.
-paginate :: Pagination -> Html -> Html
-paginate pn inner = do
-  pnnav pn True
-  inner
-  pnnav pn False
-
--- | Show a pagination navigation, with results count, if requested.
-pnnav :: Pagination -> Bool -> Html
-pnnav pn@Pagination{..} showTotal = do
-  div !. "row12" $
-    ul !. "pager" $ do
-        when (pnPage-1 > 0) $ li !. "previous" $ navDirection pn (-1) "← Older"
-        toHtml (" " :: Text)
-        when (pnResults == pnLimit) $ li !. "next" $ navDirection pn 1 "Newer →"
-        when showTotal $ do
-          br
-          toHtml $ results
-
-    where results = unwords [showCount start ++ "—" ++ showCount end
-                            ,"results of"
-                            ,showCount pnTotal]
-          start = 1 + (pnPage - 1)*pnLimit
-          end = Prelude.min pnTotal (pnPage * pnLimit)
-
--- | Link to change navigation page based on a direction.
-navDirection :: Pagination -> Integer -> Text -> Html
-navDirection pn@Pagination{..} change caption = do
-  a ! hrefURI uri $
-    toHtml caption
-
-  where uri = updateUrlParam "page"
-  	      		     (show (pnPage + change))
-			     (deleteQueryKey "timestamp"
-                                             (deleteQueryKey "id" pnURI))

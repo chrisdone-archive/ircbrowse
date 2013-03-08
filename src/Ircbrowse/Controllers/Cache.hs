@@ -16,10 +16,12 @@ import           Ircbrowse.Monads
 import           Ircbrowse.System
 import           Ircbrowse.Types
 
+import           Data.Pagination
 import           Data.Text.Lazy           (Text)
 import qualified Data.Text.Lazy.IO as T
 import           Snap.App
 import           System.FilePath
+import           Text.Blaze.Pagination
 
 -- | Cache conditionally.
 cacheIf :: Bool -> Key -> Controller Config s (Maybe Html) -> Controller Config s (Maybe Text)
@@ -75,9 +77,9 @@ keyToString (Overview network channel (Range from to)) =
   "overview-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
-keyToString (Browse network channel utctime pagination) =
+keyToString (Browse network channel utctime (PN _ pagination _)) =
   "browse-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ fromMaybe "" (fmap show utctime) ++
-  "-page" ++ show (pnPage pagination) ++ "-of-" ++ show (pnLimit pagination) ++ ".html"
+  "-page" ++ show (pnCurrentPage pagination) ++ "-of-" ++ show (pnPerPage pagination) ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
 

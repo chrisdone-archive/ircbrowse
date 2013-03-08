@@ -3,13 +3,15 @@
 
 module Ircbrowse.Types where
 
+import Data.Pagination
 import Data.Text
 import Database.PostgreSQL.Simple (ConnectInfo)
 import Database.PostgreSQL.Simple.QueryResults (QueryResults(..))
-import Network.Mail.Mime (Address)
 import Ircbrowse.Data
 import Ircbrowse.Monads
+import Network.Mail.Mime (Address)
 import Snap.App.Types
+import Text.Blaze.Pagination
 
 -- | Site-wide configuration.
 data Config = Config
@@ -51,7 +53,7 @@ data Range = Range
 
 data Key
   = Overview (Maybe String) (Maybe String) Range
-  | Browse (Maybe String) (Maybe String) (Maybe Integer) Pagination
+  | Browse (Maybe String) (Maybe String) (Maybe Integer) PN
 
 data Event = Event
   { eventId        :: !Int

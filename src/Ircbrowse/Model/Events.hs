@@ -5,32 +5,33 @@ import Ircbrowse.Data
 import Ircbrowse.Monads
 
 import Data.Char
-import Data.String
 import Data.Default
+import Data.Pagination
+import Data.String
 import Data.Text (Text)
 import Data.Time
 import Snap.App
 import Sphinx
+import Text.Blaze.Pagination
 
-getEvents :: Maybe String -> Maybe String -> Maybe Integer -> Pagination -> Maybe Text
+getEvents :: Maybe String -> Maybe String -> Maybe Integer -> PN -> Maybe Text
           -> Model c s (Pagination,[Event])
-getEvents network channel tid pagination q = do
+getEvents network channel tid (PN _ pagination _) q = do
   case q of
     Just q -> do
       result <- io $ search def
         { sPath = "/opt/sphinx/bin/search"
         , sConfig = "sphinx.conf"
         , sQuery = escapeText q
-        , sOffset = fromIntegral ((pnPage pagination - 1) * pnLimit pagination)
+        , sOffset = fromIntegral ((pnCurrentPage pagination - 1) * pnPerPage pagination)
+        , sLimit = fromIntegral (pnPerPage pagination)
         }
       case result of
         Left err -> do io $ appendFile "/tmp/sphinx-error.log" (err ++"\n")
-                       return (pagination { pnResults = 0 , pnTotal = 0 },[])
+                       return (pagination { pnTotal = 0 },[])
         Right result -> do
           results <- getEventsByResults (map fst (rResults result))
-          return (pagination { pnResults = fromIntegral (rReturned result - 1)
-                             , pnTotal = fromIntegral (rTotal result)
-                             }
+          return (pagination { pnTotal = fromIntegral (rTotal result) }
                  ,results)
     Nothing -> do
       case tid of
@@ -47,7 +48,7 @@ getEventsByResults eids = do
         ()
 
 getTimestampedEvents tid pagination = do
-  getPaginatedEvents pagination { pnPage = tid `div` pnLimit pagination + 1 }
+  getPaginatedEvents pagination { pnCurrentPage = tid `div` pnPerPage pagination + 1 }
 
 getPaginatedEvents pagination = do
   count <- single ["SELECT count FROM event_count"] ()
@@ -58,10 +59,8 @@ getPaginatedEvents pagination = do
                   ,"ORDER BY timestamp ASC"
                   ,"LIMIT ?"]
                   (Only limit)
-  return (pagination { pnTotal = fromMaybe 0 count
-                     , pnResults = fromIntegral (length events)
-                     }
+  return (pagination { pnTotal = fromMaybe 0 count }
          ,events)
 
-  where offset = 1 + (max 0 (pnPage pagination - 1) * pnLimit pagination)
-        limit = pnLimit pagination
+  where offset = 1 + (max 0 (pnCurrentPage pagination - 1) * pnPerPage pagination)
+        limit = pnPerPage pagination

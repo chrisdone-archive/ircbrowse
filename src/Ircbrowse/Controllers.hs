@@ -2,23 +2,24 @@
 
 module Ircbrowse.Controllers where
 
-import Ircbrowse.Controllers.Cache
-import Ircbrowse.Data
-import Ircbrowse.Model.Stats
-import Ircbrowse.Model.Events
-import Ircbrowse.Monads
-import Ircbrowse.Types
-import Ircbrowse.View.Browse as V
-import Ircbrowse.View.Overview as V
+import           Ircbrowse.Controllers.Cache
+import           Ircbrowse.Data
+import           Ircbrowse.Model.Stats
+import           Ircbrowse.Model.Events
+import           Ircbrowse.Monads
+import           Ircbrowse.Types
+import           Ircbrowse.View.Browse as V
+import           Ircbrowse.View.Overview as V
 
-import Data.ByteString (ByteString)
-import Snap.App
-import Safe
-import Data.Char
-import System.Locale
+import           Data.ByteString (ByteString)
+import           Data.Char
+import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
-import Data.Text (Text)
+import           Safe
+import           Snap.App
+import           System.Locale
+import           Text.Blaze.Pagination
 
 --------------------------------------------------------------------------------
 -- Controllers
@@ -40,11 +41,12 @@ browse = do
   network <- getStringMaybe "network"
   channel <- getStringMaybe "channel"
   q <- getSearchText "q"
-  pagination <- getPagination
-  out <- cacheIf (isNothing q) (Browse network channel evid pagination) $ do
-    (pn,logs) <- model $ getEvents network channel evid pagination q
+  pn <- getPagination "events"
+  let pn' = pn { pnResultsPerPage = Just [25,35,50,100] }
+  out <- cacheIf (isNothing q) (Browse network channel evid pn') $ do
+    (pagination,logs) <- model $ getEvents network channel evid pn' q
     uri <- getMyURI
-    return $ Just $ V.browse uri network channel timestamp logs pn q
+    return $ Just $ V.browse uri network channel timestamp logs pn' { pnPn = pagination } q
   maybe (return ()) outputText out
 
 --------------------------------------------------------------------------------
