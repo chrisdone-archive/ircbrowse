@@ -39,7 +39,7 @@ searchForm q =
     fieldset $ do
       div !. "input-append" $ do
         input ! name "q" !. "span2" !# "appendedInputButton" ! type_ "text" ! value (maybe "" toValue q)
-        button !. "btn" ! type_ "button" $ "Go!"
+        input !. "btn" ! type_ "submit" ! value "Go!"
 
 paginatedTable :: URI -> [Event] -> PN -> Html
 paginatedTable uri events pn' = do
