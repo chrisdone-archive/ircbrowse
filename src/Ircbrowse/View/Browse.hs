@@ -68,7 +68,9 @@ paginatedTable uri events pn = do
           else do td !. "nick-wrap" $
                     span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
                   td !. "text" $ toHtml $ eventText event
-
+  pagination pn { pnPn = (pnPn pn) { pnShowDesc = False }
+                , pnResultsPerPage = Nothing
+                }
 
   where uri' = deleteQueryKey "timestamp" (deleteQueryKey "id" uri)
 
