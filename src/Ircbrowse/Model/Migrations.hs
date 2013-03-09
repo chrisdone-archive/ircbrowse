@@ -47,6 +47,7 @@ versions = zip [1..] ms where
             ex ["alter table event drop id;"]
             ex ["alter table event rename number to id;"]
             ex ["create index event_id_idx on event(id);"]
+        ,do ex ["alter table event add constraint event_unique_message unique (network,channel,timestamp,nick,text)"]
        ]
 
   ex q = exec q ()
