@@ -31,6 +31,7 @@ main = do
       clearCache config
     "import-yesterday" -> do
       importYesterday config pool
+      clearCache config
     _ -> do
       db $ migrate False versions
       clearCache config
