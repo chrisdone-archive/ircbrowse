@@ -1,0 +1,11 @@
+ircbrowsedir=$1
+importdir=/tmp/ircbrowse-import-haskell/
+yesterday=`date +"%y.%m.%d" --date yesterday`
+
+mkdir -p $importdir
+cd $importdir
+wget http://tunes.org/~nef/logs/haskell/$yesterday
+$ircbrowsedir/dist/build/ircbrowse-import-from-tunes/ircbrowse-import-from-tunes $ircbrowsedir/ircbrowse.conf haskell
+rm $ircbrowsedir/cache/*
+cd $ircbrowsedir
+/opt/sphinx/bin/indexer --all --buildfreqs --buildstops sphinx/frequencies.txt 5000
