@@ -20,7 +20,7 @@ import Text.Blaze.Bootstrap
 
 browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
 browse uri network channel timestamp events pn q =
-  template "browse" $ do
+  template "browse" mempty $ do
     containerFluid $ do
       h1 $ do
         a ! href "/" $ do "IRC Browse"

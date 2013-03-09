@@ -37,4 +37,5 @@ executable ircbrowse
                      process,
                      data-default,
                      safe,
-                     HUnit
+                     HUnit,
+                     aeson

@@ -8,10 +8,10 @@ import Snap.App
 import System.Random
 
 getStats :: Maybe String -> Maybe String -> Range -> Model c s Stats
-getStats network channel (Range from to) = do
-  return sampleStats
+getStats network channel range@(Range from to) = do
+--   return sampleStats
 
-getStats' network channel (Range from to) = do
+-- getStats' network channel (Range from to) = do
   count <- single ["SELECT COUNT(*)"
                   ,"FROM event"
                   ,"WHERE timestamp > ? and timestamp < ?"]
@@ -41,15 +41,7 @@ getStats' network channel (Range from to) = do
                          ,"  GROUP BY timestamp::date"
                          ,"  ORDER BY 1 ASC) c"]
                          (from,to)
-  activenicks <- query ["SELECT nick,COUNT(*)"
-                       ,"FROM EVENT"
-                       ,"WHERE type = 'talk'"
-                       ,"AND timestamp > ?"
-                       ,"AND timestamp < ?"
-                       ,"GROUP BY nick"
-                       ,"ORDER BY 2 DESC"
-                       ,"LIMIT 50"]
-                       (from,to)
+  nickstats <- getNickStats network channel range
   networks <- queryNoParams ["SELECT name,title FROM network order by title"]
   channels <- queryNoParams ["SELECT network,name FROM channel order by name"]
   return Stats
@@ -58,10 +50,22 @@ getStats' network channel (Range from to) = do
     , stNickCount     = fromMaybe 0 nicks
     , stActiveTimes   = activetimes
     , stDailyActivity = dailyactivity
-    , stActiveNicks   = activenicks
+    , stActiveNicks   = nickstats
     , stNetworks      = networks
     , stChannels      = channels
    }
+
+getNickStats :: Maybe String -> Maybe String -> Range -> Model c s [(String,Integer)]
+getNickStats _ _ (Range from to) =
+  query ["SELECT nick,COUNT(*)"
+        ,"FROM EVENT"
+        ,"WHERE type = 'talk'"
+        ,"AND timestamp > ?"
+        ,"AND timestamp < ?"
+        ,"GROUP BY nick"
+        ,"ORDER BY 2 DESC"
+        ,"LIMIT 200"]
+        (from,to)
 
 -- | Some test stats.
 sampleStats :: Stats
@@ -72,7 +76,7 @@ sampleStats         = Stats
   , stActiveNicks   = sortBy (flip (comparing snd))
                              (zipWith (\r i -> (showHex (r+i) "",r))
                                       (randomRs (0,10000) (mkStdGen 1))
-                                      [0..10])
+                                      [1..10])
   , stActiveTimes   = zipWith (\r hour -> (hour,r))
                               (randomRs (0,60) (mkStdGen 2))
                               [0..23]

@@ -4,30 +4,26 @@
 
 -- | An overview of all the IRC gubbins, stats, charts, pretty pictures, etc.
 
-module Ircbrowse.View.Overview where
+module Ircbrowse.View.Overview
+  (overview)
+  where
 
 import Ircbrowse.View
 import Ircbrowse.View.Template
-
-import Text.Blaze.Bootstrap
+import Ircbrowse.View.Cloud
 
 overview :: Maybe String -> Maybe String -> Range -> Stats -> Html
 overview _ _ range stats = do
-  template "overview" $ do
+  template "overview" cloudScripts $ do
     container $ do
       row $ do
-        span12 $ do
-          summarize range stats
+        span12 $ summarize range stats
       row $ do
-        span6 $ do
-          mostActiveTimes stats
-        span6 $ do
-          dailyActivity range stats
+        span6 $ mostActiveTimes stats
+        span6 $ dailyActivity range stats
       row $ do
-        span6 $ do
-          activeNicks stats
-        span6 $ do
-          nickCloud stats
+        span6 $ activeNicks stats
+        span6 $ nickCloud (stActiveNicks stats)
 
 summarize :: Range -> Stats -> Html
 summarize range stats = p $ do
@@ -89,16 +85,20 @@ dailyActivity range stats = do
 
 activeNicks :: Stats -> Html
 activeNicks stats = do
-  h2 "Most Active Nicks (Top 50)"
-  table $ do
+  h2 $ do "Most Active Nicks (Top "; toHtml (show limit); ")"
+  table !. "table" $ do
     thead $ mapM_ th ["","Nick","Lines"]
     tbody $
-      forM_ (zip [1..] (stActiveNicks stats)) $ \(i,(nick,linecount)) ->
+      forM_ (zip [1..] (take limit (stActiveNicks stats))) $ \(i,(nick,linecount)) ->
         tr $ do
           td $ toHtml (show i)
           td $ toHtml nick
           td $ toHtml (showCount linecount)
 
-nickCloud :: Stats -> Html
+  where limit = 10
+
+nickCloud :: [(String,Integer)] -> Html
 nickCloud stats = do
-  return ()
+  h2 "Nicks Word Cloud"
+  cloud "overview-nicks-container" (400,400) 100 3 stats
+  p $ a ! href "/nick-cloud" $ "See full nick cloud →"

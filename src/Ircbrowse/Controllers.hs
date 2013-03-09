@@ -10,6 +10,7 @@ import           Ircbrowse.Monads
 import           Ircbrowse.Types
 import           Ircbrowse.View.Browse as V
 import           Ircbrowse.View.Overview as V
+import           Ircbrowse.View.NickCloud as V
 
 import           Data.ByteString (ByteString)
 import           Data.Text (Text)
@@ -31,6 +32,16 @@ overview = do
   out <- cache (Overview network channel range) $ do
     stats <- model $ getStats network channel range
     return $ Just $ V.overview network channel range stats
+  maybe (return ()) outputText out
+
+nickCloud :: Controller Config PState ()
+nickCloud = do
+  range <- getRange
+  network <- getStringMaybe "network"
+  channel <- getStringMaybe "channel"
+  out <- cache (NickCloud network channel range) $ do
+    nicks <- model $ getNickStats network channel range
+    return $ Just $ V.nickCloud nicks
   maybe (return ()) outputText out
 
 browse :: Controller Config PState ()

@@ -74,6 +74,10 @@ keyToString (Overview network channel (Range from to)) =
   "overview-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
+keyToString (NickCloud network channel (Range from to)) =
+  "nick-cloud-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
+    where opt Nothing = "_"
+          opt (Just x) = x
 keyToString (Browse network channel utctime (PN _ pagination _)) =
   "browse-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ fromMaybe "" (fmap show utctime) ++
   "-page" ++ show (pnCurrentPage pagination) ++ "-of-" ++ show (pnPerPage pagination) ++ ".html"
