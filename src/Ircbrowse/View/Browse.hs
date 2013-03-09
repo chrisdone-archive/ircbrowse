@@ -14,11 +14,12 @@ import Data.Text (Text)
 import Network.URI
 import Network.URI.Params
 import Prelude (min)
+import Text.Blaze.Bootstrap
 
 browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
 browse uri network channel timestamp events pn q =
   template "browse" $ do
-    div !. "container-fluid" $ do
+    containerFluid $ do
       h1 $ do
         a ! href "/" $ do "IRC Browse"
         ": "
@@ -37,7 +38,7 @@ searchForm :: Maybe Text -> Html
 searchForm q =
   form ! method "get" $
     fieldset $ do
-      div !. "input-append" $ do
+      inputAppend $ do
         input ! name "q" !. "span2" !# "appendedInputButton" ! type_ "text" ! value (maybe "" toValue q)
         input !. "btn" ! type_ "submit" ! value "Go!"
 

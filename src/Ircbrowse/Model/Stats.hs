@@ -9,6 +9,9 @@ import System.Random
 
 getStats :: Maybe String -> Maybe String -> Range -> Model c s Stats
 getStats network channel (Range from to) = do
+  return sampleStats
+
+getStats' network channel (Range from to) = do
   count <- single ["SELECT COUNT(*)"
                   ,"FROM event"
                   ,"WHERE timestamp > ? and timestamp < ?"]

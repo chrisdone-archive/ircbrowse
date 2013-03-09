@@ -7,21 +7,25 @@ module Ircbrowse.View.Overview where
 import Ircbrowse.View
 import Ircbrowse.View.Template
 
+import Text.Blaze.Bootstrap
+
 overview :: Maybe String -> Maybe String -> Range -> Stats -> Html
-overview network channel range stats = do
+overview _ _ range stats = do
   template "overview" $ do
-    div !. "container" $ do
-      div !. "row" $ do
-        div !. "span12" $ do
+    container $ do
+      row $ do
+        span12 $ do
           summarize range stats
-      div !. "row" $ do
-        div !. "span6" $ do
+      row $ do
+        span6 $ do
           mostActiveTimes stats
-        div !. "span6" $ do
+        span6 $ do
           dailyActivity range stats
-      div !. "row" $ do
-        div !. "span12" $ do
+      row $ do
+        span6 $ do
           activeNicks stats
+        span6 $ do
+          return ()
 
 summarize :: Range -> Stats -> Html
 summarize range stats = p $ do
@@ -29,8 +33,8 @@ summarize range stats = p $ do
   p $ do strong "Network(s): "
          toHtml (intercalate ", " (map snd (stNetworks stats)))
   p $ do strong "Channel(s): "
-         forM_ (stChannels stats) $ \(network,name) ->
-           a ! href (toValue ("/browse/" ++ network ++ "/" ++ name)) $ do "#"; toHtml name
+         forM_ (stChannels stats) $ \(network,chan) ->
+           a ! href (toValue ("/browse/" ++ network ++ "/" ++ chan)) $ do "#"; toHtml chan
   "During this "
   toHtml (show (diffDays (rangeTo range) (rangeFrom range)))
   "-day reporting period, a total of "
