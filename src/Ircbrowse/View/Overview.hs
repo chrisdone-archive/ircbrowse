@@ -2,6 +2,8 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS -fno-warn-unused-do-bind -fno-warn-type-defaults #-}
 
+-- | An overview of all the IRC gubbins, stats, charts, pretty pictures, etc.
+
 module Ircbrowse.View.Overview where
 
 import Ircbrowse.View
@@ -25,7 +27,7 @@ overview _ _ range stats = do
         span6 $ do
           activeNicks stats
         span6 $ do
-          return ()
+          nickCloud stats
 
 summarize :: Range -> Stats -> Html
 summarize range stats = p $ do
@@ -97,5 +99,6 @@ activeNicks stats = do
           td $ toHtml nick
           td $ toHtml (showCount linecount)
 
-fi :: (Integral a, Num b) => a -> b
-fi = fromIntegral
+nickCloud :: Stats -> Html
+nickCloud stats = do
+  return ()

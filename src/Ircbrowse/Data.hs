@@ -8,6 +8,7 @@ module Ircbrowse.Data
   ,module Data.Pagination
   ,module Data.String
   ,module Data.Ord
+  ,fi
   )
   where
 
@@ -20,3 +21,6 @@ import Data.Default
 import Data.Pagination
 import Data.String
 import Data.Ord (comparing)
+
+fi :: (Integral a, Num b) => a -> b
+fi = fromIntegral

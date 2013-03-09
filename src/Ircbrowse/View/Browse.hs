@@ -4,6 +4,8 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS -fno-warn-unused-do-bind -fno-warn-type-defaults #-}
 
+-- | Browsing and searching the logs.
+
 module Ircbrowse.View.Browse where
 
 import Ircbrowse.View
