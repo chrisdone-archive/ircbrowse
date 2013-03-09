@@ -3,9 +3,7 @@
 
 module Ircbrowse.Model.Data where
 
-import Ircbrowse.Types
 import Ircbrowse.Monads
-
 import Snap.App
 
 -- | Generate everything.

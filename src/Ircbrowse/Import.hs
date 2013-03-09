@@ -4,57 +4,30 @@
 
 -- | Importing from tunes.org.
 
-module Main where
+module Ircbrowse.Import where
 
-import           Ircbrowse.Types
-import           Ircbrowse.Config
-import           Ircbrowse.Tunes
+
+import           Ircbrowse.Data
 import           Ircbrowse.Model.Migrations
+import           Ircbrowse.Monads
+import           Ircbrowse.System
+import           Ircbrowse.Tunes
+import           Ircbrowse.Types
 
 import           Control.Concurrent
-import           Control.Monad
-import           Control.Monad.Trans
 import qualified Data.ByteString as S
-import           Data.Char
 import           Data.IRC.CLog.Parse hiding (Config)
-import           Data.List
-import           Data.Maybe
-import           Data.Monoid
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
-import           Data.Time
-import           Data.Time
-import           Database.PostgreSQL.Base (newPool)
-import           Network.Curl
+import           Database.PostgreSQL.Base.Types (Pool)
 import           Snap.App
 import           Snap.App.Migrate
-import           System.Directory
-import           System.Environment
-import           System.FilePath
-import           System.Locale
 
--- | Main entry point to start importing.
-main :: IO ()
-main = do
-  batchImport
-
-singleImport :: IO ()
-singleImport = do
-  (cpath:channel:_) <- getArgs
-  config <- getConfig cpath
-  now <- getCurrentTime
-  case channel of
-    "haskell" -> importChannel config (addDays (-1) (utctDay now)) Haskell
-    _ -> error "unknown channel"
-
-batchImport :: IO ()
-batchImport = do
-  (cpath:(parseChan -> Just channel):_) <- getArgs
+-- | Do a batch import of files in the current directory.
+batchImport :: Config -> Channel -> Pool -> IO ()
+batchImport config channel pool = do
   files <- fmap (sort . filter (not . all (=='.'))) (getDirectoryContents ".")
-  config <- getConfig cpath
-  pool <- newPool (configPostgres config)
-  runDB config () pool $ migrate False versions
   chan <- newChan
   done <- newChan
   writeList2Chan chan files
@@ -69,9 +42,15 @@ batchImport = do
       Just i  -> putStrLn $ "Completed: " ++ file ++ " (" ++ show i ++ "/" ++ show (length files) ++ ")"
       Nothing -> putStrLn $ "Bogus: " ++ file
 
+-- | Import from yesterday all available channels.
+importYesterday :: Config -> Pool -> IO ()
+importYesterday config pool = do
+  today <- fmap utctDay getCurrentTime
+  forM_ [toEnum 0 ..] $ importChannel config pool (addDays (-1) today)
+
 -- | Import the channel into the database of the given date.
-importChannel :: Config -> Day -> Channel -> IO ()
-importChannel config day channel = do
+importChannel :: Config -> Pool -> Day -> Channel -> IO ()
+importChannel config pool day channel = do
   result <- downloadLog channel day
   case result of
     Left err -> error (show err)
@@ -79,10 +58,10 @@ importChannel config day channel = do
       tmpdir <- getTemporaryDirectory
       let tmp = tmpdir </> unmakeDay day
       S.writeFile tmp bytes
-      pool <- newPool (configPostgres config)
       runDB config () pool $ migrate False versions
       runDB config () pool $ importFile channel config tmp
 
+-- | Import from the given file.
 importFile :: Channel -> Config -> FilePath -> Model c s ()
 importFile channel config path = do
   events <- liftIO $ parseLog haskellConfig path

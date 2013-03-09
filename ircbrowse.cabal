@@ -11,7 +11,7 @@ cabal-version:       >=1.8
 
 executable ircbrowse
   main-is:           Main.hs
-  ghc-options: -threaded -O2
+  ghc-options:      -threaded -O2
   hs-source-dirs:    src
   build-depends:     base >= 4 && <5,
                      clogparse,
@@ -38,26 +38,3 @@ executable ircbrowse
                      data-default,
                      safe,
                      HUnit
-
-executable ircbrowse-import-from-tunes
-  main-is:           ImportTunes.hs
-  ghc-options:       -threaded -O2
-  hs-source-dirs:    src
-  build-depends:     base >= 4 && <5,
-                     clogparse,
-                     curl,
-                     time,
-                     snap-core,
-                     snap-server,
-                     snap-app >= 0.2.1,
-                     mime-mail,
-                     text,
-                     pgsql-simple,
-                     ConfigFile,
-                     mtl,
-                     old-locale,
-                     filepath,
-                     directory,
-                     bytestring,
-                     text,
-                     data-default

@@ -2,8 +2,6 @@
 
 module Ircbrowse.Tunes where
 
-import Ircbrowse.Types
-
 import Data.ByteString
 import Data.Maybe
 import Data.Time
@@ -11,7 +9,8 @@ import Network.Curl
 import System.Locale
 
 -- | Possible supported channels.
-data Channel = Haskell | Lisp | OCaml
+data Channel = Haskell
+  deriving Enum
 
 -- | Download the log for a channel on a given day.
 downloadLog :: Channel -> Day -> IO (Either (CurlCode,ByteString) ByteString)
@@ -42,18 +41,18 @@ unmakeDay = formatTime defaultTimeLocale "%y.%m.%d"
 -- | Show a channel.
 showChan :: Channel -> String
 showChan Haskell = "haskell"
-showChan Lisp = "lisp"
-showChan OCaml = "ocaml"
+-- showChan Lisp = "lisp"
+-- showChan OCaml = "ocaml"
 
 -- | Show a channel.
 showChanInt :: Channel -> Int
 showChanInt Haskell = 1
-showChanInt Lisp = 2
-showChanInt OCaml = 3
+-- showChanInt Lisp = 2
+-- showChanInt OCaml = 3
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
 parseChan "haskell" =  Just Haskell
-parseChan "lisp" =  Just Lisp
-parseChan "ocaml" =  Just OCaml
+-- parseChan "lisp" =  Just Lisp
+-- parseChan "ocaml" =  Just OCaml
 parseChan _ = Nothing
