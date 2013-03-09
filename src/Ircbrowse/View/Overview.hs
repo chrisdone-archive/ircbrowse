@@ -74,9 +74,9 @@ dailyActivity range stats = do
               "&chxt=x,y&chd=t:" ++
               intercalate "," datas ++
               "&chs=" ++ show w ++ "x" ++ show h ++ "&cht=bvs&chbh=a"
-        labels = map (show.fst) (stDailyAcitivty stats)
+        labels = map (show.fst) (stDailyActivity stats)
         datas = map (\x -> show (round ((fi x / maxcount) * 61))) times
-        times = map snd (stDailyAcitivty stats)
+        times = map snd (stDailyActivity stats)
         maxcount = fi (maximum times)
         w = 450
         h = 200

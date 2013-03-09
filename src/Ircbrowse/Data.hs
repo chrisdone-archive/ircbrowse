@@ -7,6 +7,7 @@ module Ircbrowse.Data
   ,module Data.Default
   ,module Data.Pagination
   ,module Data.String
+  ,module Data.Ord
   )
   where
 
@@ -18,3 +19,4 @@ import Data.Char
 import Data.Default
 import Data.Pagination
 import Data.String
+import Data.Ord (comparing)

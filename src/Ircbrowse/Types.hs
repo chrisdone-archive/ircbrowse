@@ -33,11 +33,23 @@ data Stats = Stats
   , stMsgCount   :: Integer
   , stNickCount  :: Integer
   , stActiveTimes :: [(Integer,Integer)]
-  , stDailyAcitivty :: [(Integer,Integer)]
+  , stDailyActivity :: [(Integer,Integer)]
   , stActiveNicks :: [(String,Integer)]
   , stNetworks :: [(String,String)]
   , stChannels :: [(String,String)]
   } deriving Show
+
+instance Default Stats where
+  def = Stats
+    { stEventCount = 0
+    , stMsgCount   = 0
+    , stNickCount = 0
+    , stActiveNicks = []
+    , stActiveTimes = []
+    , stDailyActivity = []
+    , stNetworks = []
+    , stChannels = []
+    }
 
 instance AppLiftModel Config PState where
   liftModel action = do
