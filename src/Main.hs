@@ -11,6 +11,7 @@ import Ircbrowse.Model.Migrations
 import Ircbrowse.Server
 import Ircbrowse.Types
 import Ircbrowse.Import
+import Ircbrowse.Tunes
 
 import Database.PostgreSQL.Base   (newPool)
 import Snap.App
@@ -35,6 +36,9 @@ main = do
       clearCache config
     "generate-social-graph" -> do
       generateGraph config pool
+    "import-dir" -> do
+      batchImport config Haskell pool
+      clearCache config
     _ -> do
       db $ migrate False versions
       clearCache config
