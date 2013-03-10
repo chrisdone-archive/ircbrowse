@@ -44,6 +44,8 @@ getStats network channel range@(Range from to) = do
   nickstats <- getNickStats network channel range
   networks <- queryNoParams ["SELECT name,title FROM network order by title"]
   channels <- queryNoParams ["SELECT network,name FROM channel order by name"]
+  activitybyyear <- queryNoParams ["SELECT * FROM general_activity_by_year order by year asc"]
+  conversationbyyear <- queryNoParams ["SELECT * FROM conversation_by_year order by year asc"]
   return Stats
     { stEventCount    = fromMaybe 0 count
     , stMsgCount      = fromMaybe 0 msgcount
@@ -53,6 +55,8 @@ getStats network channel range@(Range from to) = do
     , stActiveNicks   = nickstats
     , stNetworks      = networks
     , stChannels      = channels
+    , stActivityByYear = activitybyyear
+    , stConversationByYear = conversationbyyear
    }
 
 getNickStats :: Maybe String -> Maybe String -> Range -> Model c s [(String,Integer)]
@@ -85,4 +89,6 @@ sampleStats         = Stats
                               [1..31]
   , stNetworks      = [("freenode","Freenode")]
   , stChannels      = [("freenode","haskell")]
+  , stActivityByYear = []
+  , stConversationByYear = []
   }

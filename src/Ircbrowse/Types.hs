@@ -37,6 +37,8 @@ data Stats = Stats
   , stActiveNicks :: [(String,Integer)]
   , stNetworks :: [(String,String)]
   , stChannels :: [(String,String)]
+  , stActivityByYear :: [(Integer,Integer)]
+  , stConversationByYear :: [(Integer,Integer)]
   } deriving Show
 
 instance Default Stats where
@@ -49,6 +51,8 @@ instance Default Stats where
     , stDailyActivity = []
     , stNetworks = []
     , stChannels = []
+    , stConversationByYear = []
+    , stActivityByYear = []
     }
 
 instance AppLiftModel Config PState where

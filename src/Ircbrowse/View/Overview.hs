@@ -11,6 +11,9 @@ module Ircbrowse.View.Overview
 import Ircbrowse.View
 import Ircbrowse.View.Template
 import Ircbrowse.View.Cloud
+import Ircbrowse.View.Chart
+
+import Control.Arrow
 
 overview :: Maybe String -> Maybe String -> Range -> Stats -> Html
 overview _ _ range stats = do
@@ -24,6 +27,9 @@ overview _ _ range stats = do
       row $ do
         span6 $ activeNicks stats
         span6 $ nickCloud (stActiveNicks stats)
+      row $ do
+        span6 $ activityByYear stats
+        span6 $ conversationByYear stats
 
 summarize :: Range -> Stats -> Html
 summarize range stats = p $ do
@@ -48,19 +54,7 @@ mostActiveTimes :: Stats -> Html
 mostActiveTimes stats = do
   h2 "Most Active Times"
   p "The most active times of the day in which anyone spoke."
-  p $ img ! src (toValue url)
-
-  where url = "http://chart.apis.google.com/chart?chxl=0:|" ++
-              intercalate "|" labels ++
-              "&chxt=x,y&chd=t:" ++
-              intercalate "," datas ++
-              "&chs=" ++ show w ++ "x" ++ show h ++ "&cht=bvs&chbh=a"
-        labels = map show [0..23]
-        datas = map (\x -> show (round ((fi x / maxcount) * 61))) times
-        times = map snd (stActiveTimes stats)
-        maxcount = fi (maximum times)
-        w = 450
-        h = 200
+  barChart (map (first show) (stActiveTimes stats))
 
 dailyActivity :: Range -> Stats -> Html
 dailyActivity range stats = do
@@ -69,19 +63,7 @@ dailyActivity range stats = do
           toHtml (show (diffDays (rangeTo range) (rangeFrom range)))
           " days)"
   p "The amount of conversation per day in the past month."
-  p $ img ! src (toValue url)
-
-  where url = "http://chart.apis.google.com/chart?chxl=0:|" ++
-              intercalate "|" labels ++
-              "&chxt=x,y&chd=t:" ++
-              intercalate "," datas ++
-              "&chs=" ++ show w ++ "x" ++ show h ++ "&cht=bvs&chbh=a"
-        labels = map (show.fst) (stDailyActivity stats)
-        datas = map (\x -> show (round ((fi x / maxcount) * 61))) times
-        times = map snd (stDailyActivity stats)
-        maxcount = fi (maximum times)
-        w = 450
-        h = 200
+  barChart (map (first show) (stDailyActivity stats))
 
 activeNicks :: Stats -> Html
 activeNicks stats = do
@@ -102,3 +84,15 @@ nickCloud stats = do
   h2 "Nicks Word Cloud"
   cloud "overview-nicks-container" (400,400) 100 3 stats
   p $ a ! href "/nick-cloud" $ "See full nick cloud →"
+
+activityByYear :: Stats -> Html
+activityByYear stats = do
+  h2 "Activity by Year"
+  p "Number of lines of general activity per year."
+  barChart (map (first show) (stActivityByYear stats))
+
+conversationByYear :: Stats -> Html
+conversationByYear stats = do
+  h2 "Conversation by Year"
+  p "Number of lines of conversation year."
+  barChart (map (first show) (stConversationByYear stats))
