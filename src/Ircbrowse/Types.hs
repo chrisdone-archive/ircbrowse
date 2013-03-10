@@ -70,6 +70,7 @@ data Range = Range
 data Key
   = Overview (Maybe String) (Maybe String) Range
   | NickCloud (Maybe String) (Maybe String) Range
+  | Social (Maybe String) (Maybe String) Range
   | Browse (Maybe String) (Maybe String) (Maybe Integer) PN
 
 data Event = Event

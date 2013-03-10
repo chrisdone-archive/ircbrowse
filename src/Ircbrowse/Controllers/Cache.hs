@@ -70,17 +70,17 @@ resetCacheModel key = do
    when exists $ removeFile cachePath
 
 keyToString :: Key -> String
-keyToString (Overview network channel (Range from to)) =
-  "overview-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
-    where opt Nothing = "_"
-          opt (Just x) = x
-keyToString (NickCloud network channel (Range from to)) =
-  "nick-cloud-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
-    where opt Nothing = "_"
-          opt (Just x) = x
+keyToString (Overview network channel range) = contexted "overview" network channel range
+keyToString (NickCloud network channel range) = contexted "nick-cloud" network channel range
+keyToString (Social network channel range) = contexted "social" network channel range
 keyToString (Browse network channel utctime (PN _ pagination _)) =
   "browse-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ fromMaybe "" (fmap show utctime) ++
   "-page" ++ show (pnCurrentPage pagination) ++ "-of-" ++ show (pnPerPage pagination) ++ ".html"
+    where opt Nothing = "_"
+          opt (Just x) = x
+
+contexted name network channel (Range from to) =
+  name ++ "-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
 

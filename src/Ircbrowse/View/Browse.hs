@@ -16,7 +16,6 @@ import Data.Text (Text)
 import Network.URI
 import Network.URI.Params
 import Prelude (min)
-import Text.Blaze.Bootstrap
 
 browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
 browse uri network channel timestamp events pn q =

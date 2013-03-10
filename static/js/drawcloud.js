@@ -1,4 +1,4 @@
-var drawGraph = (function(){
+var drawCloud = (function(){
   // taken from the d3 example
   var fill = d3.scale.category20();
   function drawGraph(spec) {

@@ -4,13 +4,15 @@ module Ircbrowse.Controllers where
 
 import           Ircbrowse.Controllers.Cache
 import           Ircbrowse.Data
-import           Ircbrowse.Model.Stats
 import           Ircbrowse.Model.Events
+import           Ircbrowse.Model.Stats
+import           Ircbrowse.Model.Social
 import           Ircbrowse.Monads
 import           Ircbrowse.Types
 import           Ircbrowse.View.Browse as V
-import           Ircbrowse.View.Overview as V
 import           Ircbrowse.View.NickCloud as V
+import           Ircbrowse.View.Overview as V
+import           Ircbrowse.View.Social as V
 
 import           Data.ByteString (ByteString)
 import           Data.Text (Text)
@@ -32,6 +34,16 @@ overview = do
   out <- cache (Overview network channel range) $ do
     stats <- model $ getStats network channel range
     return $ Just $ V.overview network channel range stats
+  maybe (return ()) outputText out
+
+socialGraph :: Controller Config PState ()
+socialGraph = do
+  range <- getRange
+  network <- getStringMaybe "network"
+  channel <- getStringMaybe "channel"
+  out <- cache (Social network channel range) $ do
+    graph <- model $ getSocialGraph network channel range
+    return $ Just $ V.socialGraph graph
   maybe (return ()) outputText out
 
 nickCloud :: Controller Config PState ()

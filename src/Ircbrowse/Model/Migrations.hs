@@ -52,6 +52,8 @@ versions = zip [1..] ms where
             ex ["insert into conversation_by_year select date_part('year',timestamp),count(*) from event where type in ('talk','act') group by date_part('year',timestamp) order by 1;"]
             ex ["create table general_activity_by_year (year int not null unique, lines int not null);"]
             ex ["insert into general_activity_by_year select date_part('year',timestamp),count(*) from event group by date_part('year',timestamp) order by 1;"]
+        ,do ex ["create table nick_to_nick (id serial primary key, nick1 text not null, nick2 text not null, count integer not null default 0);"]
+            ex ["create table nick_to_nick_tmp (id serial primary key, nick1 text not null, nick2 text not null, count integer not null default 0);"]
        ]
 
   ex q = exec q ()

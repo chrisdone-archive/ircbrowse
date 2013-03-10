@@ -38,4 +38,5 @@ executable ircbrowse
                      data-default,
                      safe,
                      HUnit,
-                     aeson
+                     aeson,
+                     containers
