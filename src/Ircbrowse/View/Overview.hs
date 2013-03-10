@@ -76,6 +76,7 @@ activeNicks stats = do
           td $ toHtml (show i)
           td $ toHtml nick
           td $ toHtml (showCount linecount)
+  p $ a ! href "/social" $ "See social graph →"
 
   where limit = 10
 
