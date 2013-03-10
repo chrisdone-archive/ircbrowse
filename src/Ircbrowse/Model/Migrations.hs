@@ -48,6 +48,10 @@ versions = zip [1..] ms where
             ex ["alter table event rename number to id;"]
             ex ["create index event_id_idx on event(id);"]
         ,do ex ["alter table event add constraint event_unique_message unique (network,channel,timestamp,nick,text)"]
+        ,do ex ["create table conversation_by_year (year int not null unique, lines int not null);"]
+            ex ["insert into conversation_by_year select date_part('year',timestamp),count(*) from event where type in ('talk','act') group by date_part('year',timestamp) order by 1;"]
+            ex ["create table general_activity_by_year (year int not null unique, lines int not null);"]
+            ex ["insert into general_activity_by_year select date_part('year',timestamp),count(*) from event group by date_part('year',timestamp) order by 1;"]
        ]
 
   ex q = exec q ()
