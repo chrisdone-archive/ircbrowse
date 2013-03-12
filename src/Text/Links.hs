@@ -21,7 +21,7 @@ explodeLinks = consume where
        else case T.breakOn prefix t of
               (before,"") -> [Right t]
               (before,after) ->
-                case T.span isAllowedInURI after of
+                case T.span allowed after of
                   (murl,rest) -> case parseURI (T.unpack murl) of
                     Nothing -> let leading = before <> prefix
                                in case consume (T.drop 4 after) of
@@ -30,6 +30,10 @@ explodeLinks = consume where
                     Just uri -> (if T.null before then id else (Right before :))
                                 (Left uri : explodeLinks rest)
   prefix = "http"
+  -- Because it's not normal, and it's annoying.
+  allowed '(' = False
+  allowed ')' = False
+  allowed c = isAllowedInURI c
 
 tests :: Test
 tests = TestList $ map testify
