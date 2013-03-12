@@ -11,3 +11,4 @@ ircbrowse.conf
 logs/
 sphinx/
 sphinx.conf
+static/exports
