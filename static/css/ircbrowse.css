@@ -1,6 +1,6 @@
 #browse .events .timestamp { color: #666; width: 13em }
 #browse .events .nick { color: #333; font-weight: bold; }
-#browse .events .nick-wrap { text-align: right; }
+#browse .events .nick-wrap { text-align: right; color: #ccc; }
 #browse .events .event.selected { background:  }
 #browse .events .not-focused,#browse .events .not-focused .nick { color: #888; font-style: italic; font-weight: normal }
 #browse .events .focused { background: #efefef; }

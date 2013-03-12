@@ -9,6 +9,7 @@
 module Ircbrowse.View.Browse where
 
 import Ircbrowse.View
+import Ircbrowse.View.NickColour
 import Ircbrowse.View.Template
 import Ircbrowse.System
 
@@ -56,16 +57,17 @@ paginatedTable uri events pn' = do
                      | otherwise = "event"
           focused | eventType event `elem` ["talk","act"] = "focused"
                   | otherwise = "not-focused" :: String
+          color = toValue (nickColour (fromMaybe "" (eventNick event)))
       tr ! name (toValue anchor) !# (toValue anchor) !. (toValue (eventClass ++ " " ++ focused)) $ do
         td  !. "timestamp" $ timestamp uri (eventId event) (eventTimestamp event) anchor secs
         if eventType event == "talk"
           then do td !. "nick-wrap" $ do
                     " <"
-                    span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
+                    span !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
                     "> "
                   td !. "text" $ linkify $ eventText event
           else do td !. "nick-wrap" $
-                    span !. "nick" $ toHtml $ fromMaybe " " (eventNick event)
+                    span !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
                   td !. "text" $ linkify $ eventText event
   pagination pn { pnPn = (pnPn pn) { pnShowDesc = False }
                 , pnResultsPerPage = Nothing
