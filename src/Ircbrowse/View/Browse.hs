@@ -58,16 +58,17 @@ paginatedTable uri events pn' = do
           focused | eventType event `elem` ["talk","act"] = "focused"
                   | otherwise = "not-focused" :: String
           color = toValue (nickColour (fromMaybe "" (eventNick event)))
+          nickHref = toValue ("?q=" <> (fromMaybe "" (eventNick event)))
       tr ! name (toValue anchor) !# (toValue anchor) !. (toValue (eventClass ++ " " ++ focused)) $ do
         td  !. "timestamp" $ timestamp uri (eventId event) (eventTimestamp event) anchor secs
         if eventType event == "talk"
           then do td !. "nick-wrap" $ do
                     " <"
-                    span !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
+                    a ! href nickHref !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
                     "> "
                   td !. "text" $ linkify $ eventText event
           else do td !. "nick-wrap" $
-                    span !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
+                    a ! href nickHref !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
                   td !. "text" $ linkify $ eventText event
   pagination pn { pnPn = (pnPn pn) { pnShowDesc = False }
                 , pnResultsPerPage = Nothing
