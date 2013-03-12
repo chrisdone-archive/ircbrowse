@@ -18,6 +18,7 @@ import           Control.Concurrent
 import qualified Data.ByteString as S
 import           Data.IRC.CLog.Parse hiding (Config)
 import           Data.Text (Text)
+import           Data.IORef
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import           Database.PostgreSQL.Base.Types (Pool)
@@ -30,23 +31,27 @@ batchImport config channel pool = do
   files <- fmap (sort . filter (not . all (=='.'))) (getDirectoryContents ".")
   chan <- newChan
   done <- newChan
-  writeList2Chan chan files
-  forM_ [1..2] $ \_ -> forkIO $ do
-    forever $ do
-      file <- readChan chan
-      runDB config () pool $ importFile channel config file
-      writeChan done $ file
-  forever $ do
-    file <- readChan done
-    case lookup file (zip files [1..]) of
-      Just i  -> putStrLn $ "Completed: " ++ file ++ " (" ++ show i ++ "/" ++ show (length files) ++ ")"
-      Nothing -> putStrLn $ "Bogus: " ++ file
+  forM_ files $ \file -> do
+    runDB config () pool $ importFile channel config file
+    putStrLn $ "Completed: " ++ file
 
 -- | Import from yesterday all available channels.
 importYesterday :: Config -> Pool -> IO ()
 importYesterday config pool = do
-  today <- fmap utctDay getCurrentTime
-  forM_ [toEnum 0 ..] $ importChannel config pool (addDays (-1) today)
+  v <- newIORef []
+  runDB config () pool $ do
+    row <- query ["select type,text,timestamp"
+    	   	 ,"from event"
+		 ,"order by id"
+		 ,"desc limit 1"] ()
+    io $ writeIORef v row
+  last <- readIORef v
+  case listToMaybe last of
+    Just ("log" :: Text,text,zonedTimeToUTC -> utctime)
+      | T.isPrefixOf "ended" text ->
+      forM_ [toEnum 0 ..] $ \channel ->
+        importChannel config pool (addDays (-1) (utctDay utctime)) channel
+    _ -> error "Unable to retrieve last ended log imported."
 
 -- | Import the channel into the database of the given date.
 importChannel :: Config -> Pool -> Day -> Channel -> IO ()
@@ -65,7 +70,10 @@ importChannel config pool day channel = do
 importFile :: Channel -> Config -> FilePath -> Model c s ()
 importFile channel config path = do
   events <- liftIO $ parseLog haskellConfig path
-  importEvents channel events
+  case reverse events of
+    (EventAt _ (decompose -> GenericEvent typ _ (T.concat -> text)):_)
+      | show typ == "Log" && T.isPrefixOf "ended" text -> importEvents channel events
+    _ -> error $ "Log is incomplete (no 'ended' entry)."
 
 -- | Import an event.
 importEvents :: Channel -> [EventAt] -> Model c s ()

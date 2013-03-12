@@ -29,7 +29,7 @@ generateGraph config pool = db $ do
   io $ putStrLn "Retrieving references ..."
   events <- query ["select nick,text"
                   ,"from event"
-                  ,"where type = 'talk' and timestamp > '2013-01-01'"
+                  ,"where type = 'talk'"
                   ,"and text ~ E'^[a-zA-Z][a-zA-Z0-9\\\\-\\\\[\\\\]\\\\\\\\`^{}]*[,:] '"]
                   ()
   io $ putStrLn "Got events. Gonna generate a graph now."
@@ -45,8 +45,8 @@ generateGraph config pool = db $ do
   io $ putStrLn "Pruning invalid nicknames from the graph ..."
   exec ["insert into nick_to_nick"
        ,"select * from nick_to_nick_tmp"
-       ,"where nick1 in (select nick from event where timestamp >= '2013-01-01')"
-       ,"and   nick2 in (select nick from event where timestamp >= '2013-01-01');"
+       ,"where nick1 in (select nick from event)"
+       ,"and   nick2 in (select nick from event);"
        ,"delete from nick_to_nick_tmp;"]
        ()
   io $ putStrLn "Done!"

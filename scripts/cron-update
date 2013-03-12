@@ -1,9 +1,20 @@
 ircbrowsedir=$1
 cd $ircbrowsedir
 
+# Just bail out if anything fails.
+set -e
+
+echo "`date`: Start:" >> /tmp/ircbrowse-cron.log
+
 # Import and regenerate data.
+echo "`date`: Importing yesterday ..." >> /tmp/ircbrowse-cron.log
 dist/build/ircbrowse/ircbrowse ircbrowse.conf import-yesterday
+
+echo "`date`: Regenerating data ..." >> /tmp/ircbrowse-cron.log
 dist/build/ircbrowse/ircbrowse ircbrowse.conf generate-data
 
 # Regenerate sphinx index.
+echo "`date`: Regenerating index and stop words ..." >> /tmp/ircbrowse-cron.log
 /opt/sphinx/bin/indexer --all --buildfreqs --buildstops sphinx/frequencies.txt 5000
+
+echo "`date`: Done." >> /tmp/ircbrowse-cron.log
