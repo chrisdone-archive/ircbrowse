@@ -13,6 +13,9 @@ dist/build/ircbrowse/ircbrowse ircbrowse.conf import-yesterday
 echo "`date`: Regenerating data ..." >> /tmp/ircbrowse-cron.log
 dist/build/ircbrowse/ircbrowse ircbrowse.conf generate-data
 
+echo "`date`: Restarting server ..."
+scripts/server-restart
+
 # Regenerate sphinx index.
 echo "`date`: Regenerating index and stop words ..." >> /tmp/ircbrowse-cron.log
 /opt/sphinx/bin/indexer --all --buildfreqs --buildstops sphinx/frequencies.txt 5000

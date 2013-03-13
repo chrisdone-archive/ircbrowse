@@ -16,7 +16,9 @@ data Channel = Haskell
 downloadLog :: Channel -> Day -> IO (Either (CurlCode,ByteString) ByteString)
 downloadLog channel day = do
   withCurlDo $ do
-    (code,resp) <- curlGetString_ (makeUrl channel day) []
+    let dl = (makeUrl channel day)
+    Prelude.putStrLn $ "Downloading " ++ dl
+    (code,resp) <- curlGetString_ dl []
     case code of
       CurlOK -> return (Right resp)
       _ -> return (Left (code,resp))
@@ -28,6 +30,10 @@ makeDay = fromJust . parseDay
 -- | Parse a day from a string.
 parseDay :: String -> Maybe Day
 parseDay = parseTime defaultTimeLocale "%Y-%m-%d"
+
+-- | Parse a day from a string.
+parseTunesDay :: String -> Maybe Day
+parseTunesDay = parseTime defaultTimeLocale "%y.%m.%d"
 
 -- | Make a URL for tunes.org.
 makeUrl :: FormatTime t => Channel -> t -> URLString

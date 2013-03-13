@@ -40,17 +40,20 @@ importYesterday :: Config -> Pool -> IO ()
 importYesterday config pool = do
   v <- newIORef []
   runDB config () pool $ do
-    row <- query ["select type,text,timestamp"
+    row <- query ["select type,text"
     	   	 ,"from event"
 		 ,"order by id"
 		 ,"desc limit 1"] ()
     io $ writeIORef v row
   last <- readIORef v
   case listToMaybe last of
-    Just ("log" :: Text,text,zonedTimeToUTC -> utctime)
-      | T.isPrefixOf "ended" text ->
-      forM_ [toEnum 0 ..] $ \channel ->
-        importChannel config pool (addDays (-1) (utctDay utctime)) channel
+    Just event@("log" :: Text,text)
+      | T.isPrefixOf "ended" text -> do
+      case parseTunesDay (T.unpack (T.drop 1 (T.dropWhile (/='/') text))) of
+        Nothing -> error $ "Unable to parse last ended date."
+        Just lastdate -> do
+          forM_ [toEnum 0 ..] $ \channel ->
+            importChannel config pool (addDays 1 lastdate) channel
     _ -> error "Unable to retrieve last ended log imported."
 
 -- | Import the channel into the database of the given date.
