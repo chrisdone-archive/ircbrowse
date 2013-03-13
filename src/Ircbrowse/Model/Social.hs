@@ -16,8 +16,8 @@ import           Ircbrowse.Monads
 import           Ircbrowse.Types
 import           Snap.App
 
-getSocialGraph :: a -> b -> r -> Model c s [(Text,Text,Int)]
-getSocialGraph _ _ _ = do
+getSocialGraph :: b -> r -> Model c s [(Text,Text,Int)]
+getSocialGraph _ _ = do
   query ["select nick1,nick2,count"
         ,"from nick_to_nick"
         ,"order by count desc"]

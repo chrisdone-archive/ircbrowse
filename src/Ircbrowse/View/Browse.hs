@@ -8,26 +8,26 @@
 
 module Ircbrowse.View.Browse where
 
+import Ircbrowse.System
+import Ircbrowse.Tunes
 import Ircbrowse.View
 import Ircbrowse.View.NickColour
 import Ircbrowse.View.Template
-import Ircbrowse.System
 
 import Data.Text (Text)
 import Network.URI
 import Network.URI.Params
 import Prelude (min)
 
-browse :: URI -> Maybe String -> Maybe String -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
-browse uri network channel timestamp events pn q =
+browse :: URI -> Channel -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
+browse uri channel timestamp events pn q =
   template "browse" mempty $ do
     containerFluid $ do
       h1 $ do
         a ! href "/" $ do "IRC Browse"
         ": "
-        maybe (return ()) (\network -> do toHtml network; ": ") network
         a ! hrefURI (clearUrlQueries uri) $ do
-          maybe (return ()) (\channel -> do " #"; toHtml channel) channel
+          " #"; toHtml (showChan channel)
       searchForm q
       if null events
          then noResults

@@ -4,6 +4,7 @@
 module Ircbrowse.Types where
 
 import Ircbrowse.Data
+import Ircbrowse.Tunes
 import Ircbrowse.Monads
 
 import Data.Text
@@ -68,10 +69,10 @@ data Range = Range
   deriving (Eq,Show)
 
 data Key
-  = Overview (Maybe String) (Maybe String) Range
-  | NickCloud (Maybe String) (Maybe String) Range
-  | Social (Maybe String) (Maybe String) Range
-  | Browse (Maybe String) (Maybe String) (Maybe Integer) PN
+  = Overview (Maybe Channel) Range
+  | NickCloud (Maybe Channel) Range
+  | Social (Maybe Channel) Range
+  | Browse Channel (Maybe Integer) PN
 
 data Event = Event
   { eventId        :: !Int

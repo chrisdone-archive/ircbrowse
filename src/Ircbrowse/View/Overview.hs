@@ -12,11 +12,12 @@ import Ircbrowse.View
 import Ircbrowse.View.Template
 import Ircbrowse.View.Cloud
 import Ircbrowse.View.Chart
+import Ircbrowse.Tunes
 
 import Control.Arrow
 
-overview :: Maybe String -> Maybe String -> Range -> Stats -> Html
-overview _ _ range stats = do
+overview :: Maybe Channel -> Range -> Stats -> Html
+overview _ range stats = do
   template "overview" cloudScripts $ do
     container $ do
       row $ do
@@ -34,11 +35,9 @@ overview _ _ range stats = do
 summarize :: Range -> Stats -> Html
 summarize range stats = p $ do
   h1 $ "IRC Browse"
-  p $ do strong "Network(s): "
-         toHtml (intercalate ", " (map snd (stNetworks stats)))
   p $ do strong "Channel(s): "
-         forM_ (stChannels stats) $ \(network,chan) ->
-           a ! href (toValue ("/browse/" ++ network ++ "/" ++ chan)) $ do "#"; toHtml chan
+         htmlCommasAnd $ flip map (stChannels stats) $ \(network,chan) ->
+           a ! href (toValue ("/browse/" ++ chan)) $ do "#"; toHtml chan
   "During this "
   toHtml (show (diffDays (rangeTo range) (rangeFrom range)))
   "-day reporting period, a total of "

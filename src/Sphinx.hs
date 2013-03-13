@@ -25,10 +25,11 @@ data Sphinx = Sphinx
   , sConfig :: !FilePath
   , sLimit  :: !Int
   , sOffset :: !Int
+  , sFilters  :: [(String,Int)]
   } deriving Show
 
 instance Default Sphinx where
-  def = Sphinx "sphinx" "" "./sphinx.conf" 35 0
+  def = Sphinx "sphinx" "" "./sphinx.conf" 35 0 []
 
 data Result = Result
   { rIndex    :: !Text
@@ -54,10 +55,12 @@ search sphinx = do
                         return (Left err)
 
   where n = Nothing
-        args = ["--config",sConfig sphinx,T.unpack (sQuery sphinx)
-               ,"--limit",show (sLimit sphinx)
-               ,"--offset",show (sOffset sphinx)
-               ,"--sort=date"]
+        args = (["--config",sConfig sphinx
+                ,"--limit",show (sLimit sphinx)
+                ,"--offset",show (sOffset sphinx)
+                ,"--sort=date"] ++
+                (concat (map (\(key,val) -> ["--filter",key,show val]) (sFilters sphinx)))) ++
+                [T.unpack (sQuery sphinx)]
 
 -- | Escape the text.
 escapeText :: Text -> Text

@@ -2,16 +2,14 @@ module Ircbrowse.Model.Stats where
 
 import Ircbrowse.Types
 import Ircbrowse.Data
+import Ircbrowse.Tunes
 
 import Numeric
 import Snap.App
 import System.Random
 
-getStats :: Maybe String -> Maybe String -> Range -> Model c s Stats
-getStats network channel range@(Range from to) = do
---   return sampleStats
-
--- getStats' network channel (Range from to) = do
+getStats :: Maybe Channel -> Range -> Model c s Stats
+getStats channel range@(Range from to) = do
   count <- single ["SELECT COUNT(*)"
                   ,"FROM event"
                   ,"WHERE timestamp > ? and timestamp < ?"]
@@ -41,7 +39,7 @@ getStats network channel range@(Range from to) = do
                          ,"  GROUP BY timestamp::date"
                          ,"  ORDER BY 1 ASC) c"]
                          (from,to)
-  nickstats <- getNickStats network channel range
+  nickstats <- getNickStats channel range
   networks <- queryNoParams ["SELECT name,title FROM network order by title"]
   channels <- queryNoParams ["SELECT network,name FROM channel order by name"]
   activitybyyear <- queryNoParams ["SELECT * FROM general_activity_by_year order by year asc"]
@@ -59,8 +57,8 @@ getStats network channel range@(Range from to) = do
     , stConversationByYear = conversationbyyear
    }
 
-getNickStats :: Maybe String -> Maybe String -> Range -> Model c s [(String,Integer)]
-getNickStats _ _ (Range from to) =
+getNickStats :: Maybe Channel -> Range -> Model c s [(String,Integer)]
+getNickStats _ (Range from to) =
   query ["SELECT nick,COUNT(*)"
         ,"FROM EVENT"
         ,"WHERE type = 'talk'"

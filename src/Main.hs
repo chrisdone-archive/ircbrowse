@@ -13,6 +13,7 @@ import Ircbrowse.Types
 import Ircbrowse.Import
 import Ircbrowse.Tunes
 
+import Data.Maybe
 import Database.PostgreSQL.Base   (newPool)
 import Snap.App
 import Snap.App.Migrate
@@ -37,8 +38,11 @@ main = do
     "generate-social-graph" -> do
       generateGraph config pool
     "import-dir" -> do
-      batchImport config Haskell pool
-      clearCache config
+      case action of
+        [_,name] -> do
+          batchImport config (fromMaybe (error "Can't parse channel name.") (parseChan name)) pool
+          clearCache config
+        _ -> error "Bad arguments to import-dir."
     _ -> do
       db $ migrate False versions
       clearCache config

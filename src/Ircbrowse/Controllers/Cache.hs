@@ -12,6 +12,7 @@ module Ircbrowse.Controllers.Cache
 
 import           Ircbrowse.Blaze
 import           Ircbrowse.Data
+import           Ircbrowse.Tunes
 import           Ircbrowse.Monads
 import           Ircbrowse.System
 import           Ircbrowse.Types
@@ -70,17 +71,17 @@ resetCacheModel key = do
    when exists $ removeFile cachePath
 
 keyToString :: Key -> String
-keyToString (Overview network channel range) = contexted "overview" network channel range
-keyToString (NickCloud network channel range) = contexted "nick-cloud" network channel range
-keyToString (Social network channel range) = contexted "social" network channel range
-keyToString (Browse network channel utctime (PN _ pagination _)) =
-  "browse-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ fromMaybe "" (fmap show utctime) ++
+keyToString (Overview channel range) = contexted "overview" channel range
+keyToString (NickCloud channel range) = contexted "nick-cloud" channel range
+keyToString (Social channel range) = contexted "social" channel range
+keyToString (Browse channel utctime (PN _ pagination _)) =
+  "browse-" ++ opt (Just (showChan channel)) ++ "-" ++ fromMaybe "" (fmap show utctime) ++
   "-page" ++ show (pnCurrentPage pagination) ++ "-of-" ++ show (pnPerPage pagination) ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
 
-contexted name network channel (Range from to) =
-  name ++ "-" ++ opt network ++ "-" ++ opt channel ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
+contexted name channel (Range from to) =
+  name ++ "-" ++ opt (fmap showChan channel) ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
 

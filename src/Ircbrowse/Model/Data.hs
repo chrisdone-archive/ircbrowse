@@ -9,4 +9,6 @@ import Snap.App
 -- | Generate everything.
 generateData :: Model c s ()
 generateData = do
-  void $ exec ["update event_count set count = (select count(*) from event)"] ()
+  void $ exec ["delete from event_count;"
+              ,"insert into event_count select (select count(*) from event where channel = c.id),id from channel c;"]
+              ()

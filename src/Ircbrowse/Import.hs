@@ -83,16 +83,19 @@ importEvents :: Channel -> [EventAt] -> Model c s ()
 importEvents channel events = do
   qins <- processQuery "INSERT INTO event (timestamp,network,channel,type,nick,text) VALUES"
                        ()
-  qrows <- forM (zip [0..] events) $ \(i,event) ->
+  qrows <- forM (zip [0..] (nub events)) $ \(i,event) ->
     case event of
       EventAt time (decompose -> GenericEvent typ mnick texts) -> do
-        processQuery (if i == 0 then "(?,?,?,?,?,?)" else ",(?,?,?,?,?,?)")
-                     (time
-                     ,1::Int
-                     ,showChanInt channel
-                     ,map toLower (show typ)
-                     ,fmap unNick mnick
-                     ,T.concat texts)
+        let text = T.concat texts
+        if T.null (T.strip text)
+           then return mempty
+           else processQuery (if i == 0 then "(?,?,?,?,?,?)" else ",(?,?,?,?,?,?)")
+                             (time
+                             ,1::Int
+                             ,showChanInt channel
+                             ,map toLower (show typ)
+                             ,fmap unNick mnick
+                             ,text)
       NoParse text -> do liftIO $ T.putStrLn $ mappend "Unable to import line: " text
                          return mempty
   [] :: [Only Int] <- queryProcessed (mappend qins (mconcat qrows))

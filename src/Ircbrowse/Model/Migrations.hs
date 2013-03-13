@@ -54,6 +54,23 @@ versions = zip [1..] ms where
             ex ["insert into general_activity_by_year select date_part('year',timestamp),count(*) from event group by date_part('year',timestamp) order by 1;"]
         ,do ex ["create table nick_to_nick (id serial primary key, nick1 text not null, nick2 text not null, count integer not null default 0);"]
             ex ["create table nick_to_nick_tmp (id serial primary key, nick1 text not null, nick2 text not null, count integer not null default 0);"]
+         -- Wed Mar 13 20:40:10 CET 2013
+         -- Here's where I start supporting multiple channels.
+        ,do ex ["insert into channel values ('freenode','lisp');"]
+            ex ["create index event_channel_idx on event(channel);"]
+            ex ["alter table event_count add channel integer"]
+            ex ["alter table channel add id serial not null primary key"]
+            ex ["create table event_order_index (id int not null, origin int not null);"]
+            ex ["alter table event_order_index add constraint event_order_id_origin unique (id,origin);"]
+            ex ["create index event_order_idx on event_order_index(id);"]
+            ex ["alter table event_order_index add idx int;"]
+            ex ["create index event_order_idx_idx on event_order_index(idx);"]
+            ex ["create index event_order_origin_dx on event_order_index(origin)"]
+         -- This query might be relevant:
+         --
+         -- insert into event_order_index select rank() over(order by timestamp asc) as id,id as origin,1000 as idx from event where channel = 1 order by timestamp asc;
+         --
+         -- It's how the event order index is populated.
        ]
 
   ex q = exec q ()
