@@ -8,16 +8,17 @@
 
 module Ircbrowse.View.Browse where
 
-import Ircbrowse.System
-import Ircbrowse.Tunes
-import Ircbrowse.View
-import Ircbrowse.View.NickColour
-import Ircbrowse.View.Template
+import           Ircbrowse.System
+import           Ircbrowse.Tunes
+import           Ircbrowse.View
+import           Ircbrowse.View.NickColour
+import           Ircbrowse.View.Template
 
-import Data.Text (Text)
-import Network.URI
-import Network.URI.Params
-import Prelude (min)
+import           Data.Text (Text)
+import qualified Data.Text as T
+import           Network.URI
+import           Network.URI.Params
+import           Prelude (min)
 
 browse :: URI -> Channel -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
 browse uri channel timestamp events pn q =
@@ -58,17 +59,17 @@ paginatedTable uri events pn' = do
           focused | eventType event `elem` ["talk","act"] = "focused"
                   | otherwise = "not-focused" :: String
           color = toValue (nickColour (fromMaybe "" (eventNick event)))
-          nickHref = toValue ("?q=" <> (fromMaybe "" (eventNick event)))
+          nickHref = hrefSet uri "q" (T.unpack (fromMaybe "" (eventNick event)))
       tr ! name (toValue anchor) !# (toValue anchor) !. (toValue (eventClass ++ " " ++ focused)) $ do
         td  !. "timestamp" $ timestamp uri (eventId event) (eventTimestamp event) anchor secs
         if eventType event == "talk"
           then do td !. "nick-wrap" $ do
                     " <"
-                    a ! href nickHref !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
+                    a ! nickHref !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
                     "> "
                   td !. "text" $ linkify $ eventText event
           else do td !. "nick-wrap" $
-                    a ! href nickHref !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
+                    a ! nickHref !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
                   td !. "text" $ linkify $ eventText event
   pagination pn { pnPn = (pnPn pn) { pnShowDesc = False }
                 , pnResultsPerPage = Nothing
