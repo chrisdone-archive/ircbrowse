@@ -59,7 +59,7 @@ paginatedTable uri events pn' = do
           focused | eventType event `elem` ["talk","act"] = "focused"
                   | otherwise = "not-focused" :: String
           color = toValue (nickColour (fromMaybe "" (eventNick event)))
-          nickHref = hrefSet uri "q" (T.unpack (fromMaybe "" (eventNick event)))
+          nickHref = hrefSet (clearUrlQueries uri) "q" (T.unpack (fromMaybe "" (eventNick event)))
       tr ! name (toValue anchor) !# (toValue anchor) !. (toValue (eventClass ++ " " ++ focused)) $ do
         td  !. "timestamp" $ timestamp uri (eventId event) (eventTimestamp event) anchor secs
         if eventType event == "talk"
