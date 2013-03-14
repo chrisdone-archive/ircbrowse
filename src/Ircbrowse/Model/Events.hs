@@ -46,7 +46,11 @@ getEventsByResults channel eids = do
         ()
 
 getTimestampedEvents channel tid pagination = do
-  getPaginatedEvents channel pagination { pnCurrentPage = tid `div` pnPerPage pagination + 1 }
+  getPaginatedEvents channel pagination
+    { pnCurrentPage = if mod tid (pnPerPage pagination) == 0
+                         then tid `div` pnPerPage pagination
+                         else tid `div` pnPerPage pagination + 1
+    }
 
 getPaginatedEvents channel pagination = do
   count <- single ["SELECT count FROM event_count where channel = ?"] (Only (showChanInt channel))
