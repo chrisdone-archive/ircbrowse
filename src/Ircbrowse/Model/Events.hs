@@ -51,14 +51,14 @@ getTimestampedEvents channel tid pagination = do
 getPaginatedEvents channel pagination = do
   count <- single ["SELECT count FROM event_count where channel = ?"] (Only (showChanInt channel))
   now <- io getCurrentTime
-  events <- query ["SELECT id,timestamp,network,channel,type,nick,text FROM event"
-                  ,"WHERE id in (SELECT origin FROM event_order_index WHERE idx = ? and id >= ? and id < ? LIMIT ?)"
+  events <- query ["SELECT idx.id,e.timestamp,e.network,e.channel,e.type,e.nick,e.text FROM event e,"
+                  ,"event_order_index idx"
+                  ,"WHERE e.id = idx.origin and idx.idx = ? and idx.id >= ? and idx.id < ?"
                   ,"ORDER BY timestamp ASC"
                   ,"LIMIT ?"]
                   (idxNum channel
                   ,offset
                   ,offset + limit
-                  ,limit
                   ,limit)
   after <- io getCurrentTime
   return (pagination { pnTotal = fromMaybe 0 count }
