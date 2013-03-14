@@ -42,7 +42,7 @@ getEventsByResults channel eids = do
         ,"FROM event"
         ,"WHERE id IN ("
         ,intercalate ", " (map show eids)
-        ,") ORDER BY timestamp DESC"]
+        ,") ORDER BY timestamp DESC,id desc"]
         ()
 
 getTimestampedEvents channel tid pagination = do
@@ -58,7 +58,7 @@ getPaginatedEvents channel pagination = do
   events <- query ["SELECT idx.id,e.timestamp,e.network,e.channel,e.type,e.nick,e.text FROM event e,"
                   ,"event_order_index idx"
                   ,"WHERE e.id = idx.origin and idx.idx = ? and idx.id >= ? and idx.id < ?"
-                  ,"ORDER BY timestamp ASC"
+                  ,"ORDER BY timestamp ASC, e.id asc"
                   ,"LIMIT ?"]
                   (idxNum channel
                   ,offset
