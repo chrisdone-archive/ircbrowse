@@ -1,3 +1,7 @@
+## About
+
+IRC Browse is a web service for browsing IRC logs. The [IRC Browse site is here](http://ircbrowse.net/).
+
 ## Database setup
 
 Create the PostgreSQL database:
