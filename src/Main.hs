@@ -43,6 +43,13 @@ main = do
           batchImport config (fromMaybe (error "Can't parse channel name.") (parseChan name)) pool
           clearCache config
         _ -> error "Bad arguments to import-dir."
+    "update-order-index" -> do
+      case action of
+        [_,name] -> do
+          updateChannelIndex config pool
+                                    (fromMaybe (error "Can't parse channel name.") (parseChan name))
+          clearCache config
+        _ -> error "Bad arguments to update-order-index."
     _ -> do
       db $ migrate False versions
       clearCache config

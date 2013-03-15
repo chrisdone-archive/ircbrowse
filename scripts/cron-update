@@ -8,16 +8,13 @@ echo "`date`: Start:" >> /tmp/ircbrowse-cron.log
 
 # Import and regenerate data.
 echo "`date`: Importing yesterday ..." >> /tmp/ircbrowse-cron.log
-dist/build/ircbrowse/ircbrowse ircbrowse.conf import-yesterday
-
-echo "`date`: Regenerating data ..." >> /tmp/ircbrowse-cron.log
-dist/build/ircbrowse/ircbrowse ircbrowse.conf generate-data
+dist/build/ircbrowse/ircbrowse ircbrowse.conf import-yesterday >> /tmp/ircbrowse-cron.log
 
 echo "`date`: Restarting server ..."
-scripts/server-restart
+scripts/server-restart >> /tmp/ircbrowse-cron.log
 
 # Regenerate sphinx index.
 echo "`date`: Regenerating index and stop words ..." >> /tmp/ircbrowse-cron.log
-/opt/sphinx/bin/indexer --all --buildfreqs --buildstops sphinx/frequencies.txt 5000
+/opt/sphinx/bin/indexer --all --buildfreqs --buildstops sphinx/frequencies.txt 1000 >> /tmp/ircbrowse-cron.log
 
 echo "`date`: Done." >> /tmp/ircbrowse-cron.log

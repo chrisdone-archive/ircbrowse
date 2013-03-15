@@ -8,6 +8,7 @@ module Ircbrowse.Import where
 
 
 import           Ircbrowse.Data
+import           Ircbrowse.Model.Data
 import           Ircbrowse.Model.Migrations
 import           Ircbrowse.Monads
 import           Ircbrowse.System
@@ -39,23 +40,31 @@ batchImport config channel pool = do
 -- | Import from yesterday all available channels.
 importYesterday :: Config -> Pool -> IO ()
 importYesterday config pool = do
-  v <- newIORef []
-  runDB config () pool $ do
-    row <- query ["select type,text"
-    	   	 ,"from event"
-		 ,"order by id"
-		 ,"desc limit 1"] ()
-    io $ writeIORef v row
-  last <- readIORef v
-  case listToMaybe last of
-    Just event@("log" :: Text,text)
-      | T.isPrefixOf "ended" text -> do
-      case parseTunesDay (T.unpack (T.drop 1 (T.dropWhile (/='/') text))) of
-        Nothing -> error $ "Unable to parse last ended date."
-        Just lastdate -> do
-          forM_ [toEnum 0 ..] $ \channel ->
-            importChannel config pool (addDays 1 lastdate) channel
-    _ -> error "Unable to retrieve last ended log imported."
+  forM_ [Haskell,Lisp,OCaml,Scheme] $ \channel -> do
+    putStrLn $ "Importing channel: " ++ showChan channel
+    v <- newIORef []
+    runDB config () pool $ do
+      row <- query ["select type,text"
+		   ,"from event"
+		   ,"where channel = ?"
+		   ,"order by id"
+		   ,"desc limit 1"]
+                   (Only (showChanInt channel))
+      io $ writeIORef v row
+    last <- readIORef v
+    case listToMaybe last of
+      Just event@("log" :: Text,text)
+	| T.isPrefixOf "ended" text -> do
+	case parseTunesDay (T.unpack (T.drop 1 (T.dropWhile (/='/') text))) of
+	  Nothing -> error $ "Unable to parse last ended date."
+	  Just lastdate -> do
+	    importChannel config pool (addDays 1 lastdate) channel
+            putStrLn $ "Imported channel " ++ showChan channel
+      _ -> error "Unable to retrieve last ended log imported."
+  putStrLn "Running ANALYZE ..."
+  runDB config () pool $ void $ exec ["ANALYZE event_order_index"] ()
+  putStrLn "Running data regeneration ..."
+  runDB config () pool $ generateData
 
 -- | Import the channel into the database of the given date.
 importChannel :: Config -> Pool -> Day -> Channel -> IO ()
@@ -67,8 +76,36 @@ importChannel config pool day channel = do
       tmpdir <- getTemporaryDirectory
       let tmp = tmpdir </> unmakeDay day
       S.writeFile tmp bytes
-      runDB config () pool $ migrate False versions
-      runDB config () pool $ importFile channel config tmp
+      let db = runDB config () pool
+      db $ migrate False versions
+      db $ importFile channel config tmp
+      updateChannelIndex config pool channel
+
+-- | Update the event order index for the given channel.
+updateChannelIndex :: Config -> Pool -> Channel -> IO ()
+updateChannelIndex config pool channel = runDB config () pool $ do
+  io $ putStrLn $ "Updating order indexes for " ++ showChan channel ++ " ..."
+  result <- query ["SELECT id,origin"
+                  ,"FROM event_order_index"
+                  ,"WHERE idx = ?"
+                  ,"ORDER BY id DESC"
+                  ,"LIMIT 1"]
+                  (Only (idxNum channel))
+  case result of
+    [] -> error $ "Unable to get information for updating the channel index: " ++ showChan channel
+    ((lastId::Int,lastOrigin::Int):_) -> void $
+      exec ["INSERT INTO event_order_index"
+	   ,"SELECT ? + RANK() OVER(ORDER BY id ASC) AS id,"
+	   ,"id AS ORIGIN,"
+	   ,"? AS idx"
+	   ,"FROM event"
+	   ,"WHERE channel = ?"
+	   ,"AND id > ?"
+	   ,"ORDER BY id ASC;"]
+	   (lastId
+	   ,idxNum channel
+	   ,showChanInt channel
+	   ,lastOrigin)
 
 -- | Import from the given file.
 importFile :: Channel -> Config -> FilePath -> Model c s ()
