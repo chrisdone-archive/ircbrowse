@@ -10,7 +10,7 @@ import Ircbrowse.Model.Social
 import Ircbrowse.Model.Migrations
 import Ircbrowse.Server
 import Ircbrowse.Types
-import Ircbrowse.Import
+import Ircbrowse.ImportTunes
 import Ircbrowse.Tunes
 
 import Data.Maybe

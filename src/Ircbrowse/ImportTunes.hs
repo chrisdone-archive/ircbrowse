@@ -4,8 +4,7 @@
 
 -- | Importing from tunes.org.
 
-module Ircbrowse.Import where
-
+module Ircbrowse.ImportTunes where
 
 import           Ircbrowse.Data
 import           Ircbrowse.Model.Data
