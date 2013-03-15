@@ -9,7 +9,7 @@ import Network.Curl
 import System.Locale
 
 -- | Possible supported channels.
-data Channel = Haskell | Lisp
+data Channel = Haskell | Lisp | Emacs | OCaml | Scheme
   deriving Enum
 
 -- | Download the log for a channel on a given day.
@@ -48,17 +48,30 @@ unmakeDay = formatTime defaultTimeLocale "%y.%m.%d"
 showChan :: Channel -> String
 showChan Haskell = "haskell"
 showChan Lisp = "lisp"
--- showChan OCaml = "ocaml"
+showChan Emacs = "emacs"
+showChan OCaml = "ocaml"
+showChan Scheme = "scheme"
 
 -- | Show a channel.
 showChanInt :: Channel -> Int
 showChanInt Haskell = 1
 showChanInt Lisp = 2
--- showChanInt OCaml = 3
+showChanInt Emacs = 3
+showChanInt OCaml = 4
+showChanInt Scheme = 5
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
 parseChan "haskell" =  Just Haskell
 parseChan "lisp" =  Just Lisp
--- parseChan "ocaml" =  Just OCaml
+parseChan "emacs" = Just Emacs
+parseChan "ocaml" =  Just OCaml
+parseChan "scheme" =  Just Scheme
 parseChan _ = Nothing
+
+idxNum :: Channel -> Int
+idxNum Haskell = 1000
+idxNum Lisp = 2000
+idxNum Emacs = 3000
+idxNum OCaml = 4000
+idxNum Scheme = 5000

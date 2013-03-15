@@ -71,6 +71,3 @@ getPaginatedEvents channel pagination = do
   where offset = 1 + (max 0 (pnCurrentPage pagination - 1) * pnPerPage pagination)
         limit = pnPerPage pagination
 
-idxNum :: Channel -> Int
-idxNum Lisp = 2000
-idxNum Haskell = 1000

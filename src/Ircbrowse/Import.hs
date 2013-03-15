@@ -29,11 +29,12 @@ import           Snap.App.Migrate
 batchImport :: Config -> Channel -> Pool -> IO ()
 batchImport config channel pool = do
   files <- fmap (sort . filter (not . all (=='.'))) (getDirectoryContents ".")
-  chan <- newChan
-  done <- newChan
+  hSetBuffering stdout NoBuffering
   forM_ files $ \file -> do
+    putStr $ "Importing " ++ file ++ " ... "
     runDB config () pool $ importFile channel config file
-    putStrLn $ "Completed: " ++ file
+    putStrLn $ "Done."
+    removeFile file
 
 -- | Import from yesterday all available channels.
 importYesterday :: Config -> Pool -> IO ()
