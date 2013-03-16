@@ -39,7 +39,7 @@ batchImport config channel pool = do
 -- | Import from yesterday all available channels.
 importYesterday :: Config -> Pool -> IO ()
 importYesterday config pool = do
-  forM_ [Haskell,Lisp,OCaml,Scheme] $ \channel -> do
+  forM_ [Haskell,Ocaml,Scheme,Lisp] $ \channel -> do
     putStrLn $ "Importing channel: " ++ showChan channel
     v <- newIORef []
     runDB config () pool $ do
