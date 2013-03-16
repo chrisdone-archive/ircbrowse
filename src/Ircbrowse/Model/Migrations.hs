@@ -4,10 +4,11 @@
 
 module Ircbrowse.Model.Migrations where
 
+import GHC.Int
 import Snap.App
 
 -- | Migrations.
-versions :: [(Int,Model c s Integer)]
+versions :: [(Int,Model c s Int64)]
 versions = zip [1..] ms where
   ms = [ex ["CREATE TABLE event"
              ,"(id serial primary key"

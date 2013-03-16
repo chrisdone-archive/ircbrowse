@@ -21,7 +21,6 @@ import           Data.Text (Text)
 import           Data.IORef
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
-import           Database.PostgreSQL.Base.Types (Pool)
 import           Snap.App
 import           Snap.App.Migrate
 

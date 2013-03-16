@@ -7,9 +7,10 @@ import Ircbrowse.Data
 import Ircbrowse.Tunes
 import Ircbrowse.Monads
 
+import Control.Applicative
 import Data.Text
-import Database.PostgreSQL.Simple (ConnectInfo)
-import Database.PostgreSQL.Simple.QueryResults (QueryResults(..))
+import Database.PostgreSQL.Simple
+import Database.PostgreSQL.Simple.FromRow
 import Network.Mail.Mime (Address)
 import Snap.App.Types
 import Text.Blaze.Pagination
@@ -84,14 +85,5 @@ data Event = Event
   , eventText      :: !Text
   }
 
-instance QueryResults Event where
-  convertResults field values = Event
-    { eventId = _1
-    , eventTimestamp = _2
-    , eventNetwork = _3
-    , eventChannel = _4
-    , eventType = _5
-    , eventNick = _6
-    , eventText = _7
-    }
-    where (_1,_2,_3,_4,_5,_6,_7) = convertResults field values
+instance FromRow Event where
+  fromRow = Event <$> field <*> field <*> field <*> field <*> field <*> field <*> field

@@ -8,7 +8,6 @@ module Ircbrowse.Server where
 import           Ircbrowse.Types
 import qualified Ircbrowse.Controllers as C
 
-import           Database.PostgreSQL.Simple (Pool)
 import           Snap.App
 import           Snap.Http.Server           hiding (Config)
 import           Snap.Util.FileServe
