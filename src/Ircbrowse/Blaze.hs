@@ -10,7 +10,7 @@ module Ircbrowse.Blaze
     where
 
 import Text.Blaze.Extra
-import Text.Blaze.Html5 hiding (output,map,i,title,cite,style,summary,object)
+import Text.Blaze.Html5 hiding (output,map,i,title,cite,style,summary,object,footer)
 import Text.Blaze.Html5.Attributes hiding (label,span,cite,form,summary)
 import Text.Blaze.Renderer.Text
 import Text.Blaze.Linkify

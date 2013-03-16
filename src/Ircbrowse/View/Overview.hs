@@ -31,6 +31,7 @@ overview _ range stats = do
       row $ do
         span6 $ activityByYear stats
         span6 $ conversationByYear stats
+    footer
 
 summarize :: Range -> Stats -> Html
 summarize range stats = p $ do

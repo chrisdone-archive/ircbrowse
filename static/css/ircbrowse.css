@@ -10,3 +10,6 @@
 #browse .results-per-page .current:hover { text-decoration: none }
 #browse .description { float: left; }
 #browse .pages { clear: both; }
+
+#footer .container .credit { margin: 20px 0; }
+#footer { margin-top: 5em; background: #f5f5f5; border-top: 1px solid #f0f0f0 }

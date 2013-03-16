@@ -29,3 +29,15 @@ showCount :: (Show n,Integral n) => n -> String
 showCount = reverse . foldr merge "" . zip ("000,00,00,00"::String) . reverse . show where
   merge (f,c) rest | f == ',' = "," ++ [c] ++ rest
                    | otherwise = [c] ++ rest
+
+footer =
+  div !# "footer" $
+    div !. "container" $ do
+      p !. "muted credit" $ do
+        a ! href "http://ircbrowse.net" $ "IRC Browse"
+        " by "
+        a ! href "http://chrisdone.com" $ "Chris Done"
+        " | "
+        a ! href "https://github.com/chrisdone/ircbrowse" $ "Source code"
+        " | "
+        a ! href "http://haskell.org/" $ "Haskell"
