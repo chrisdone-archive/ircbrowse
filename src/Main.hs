@@ -4,15 +4,12 @@
 module Main where
 
 import Ircbrowse.Config
-import Ircbrowse.Controllers.Cache
-import Ircbrowse.Model.Data
-import Ircbrowse.Model.Social
 import Ircbrowse.Model.Migrations
 import Ircbrowse.Server
 import Ircbrowse.Types
 
-import Data.Maybe
 import Snap.App
+import Snap.App.Cache
 import Snap.App.Migrate
 import System.Environment
 

@@ -2,7 +2,6 @@
 
 module Ircbrowse.Controllers where
 
-import           Ircbrowse.Controllers.Cache
 import           Ircbrowse.Data
 import           Ircbrowse.Model.Events
 import           Ircbrowse.Model.Stats
@@ -21,6 +20,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import           Safe
 import           Snap.App
+import           Snap.App.Cache
 import           System.Locale
 import           Text.Blaze.Pagination
 
@@ -31,28 +31,25 @@ overview :: Controller Config PState ()
 overview = do
   range <- getRange
   channel <- getChannelMaybe
-  out <- cache (Overview channel range) $ do
+  viewCached (Overview channel range) $ do
     stats <- model $ getStats channel range
-    return $ Just $ V.overview channel range stats
-  maybe (return ()) outputText out
+    return $ V.overview channel range stats
 
 socialGraph :: Controller Config PState ()
 socialGraph = do
   range <- getRange
   channel <- getChannelMaybe
-  out <- cache (Social channel range) $ do
+  viewCached (Social channel range) $ do
     graph <- model $ getSocialGraph channel range
-    return $ Just $ V.socialGraph graph
-  maybe (return ()) outputText out
+    return $ V.socialGraph graph
 
 nickCloud :: Controller Config PState ()
 nickCloud = do
   range <- getRange
   channel <- getChannelMaybe
-  out <- cache (NickCloud channel range) $ do
+  viewCached (NickCloud channel range) $ do
     nicks <- model $ getNickStats channel range
-    return $ Just $ V.nickCloud nicks
-  maybe (return ()) outputText out
+    return $ V.nickCloud nicks
 
 browse :: Controller Config PState ()
 browse = do

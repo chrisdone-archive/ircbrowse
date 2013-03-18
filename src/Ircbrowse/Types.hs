@@ -12,7 +12,9 @@ import Data.Text
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromRow
 import Network.Mail.Mime (Address)
+import Snap.App.Cache
 import Snap.App.Types
+import System.Locale
 import Text.Blaze.Pagination
 
 -- | Site-wide configuration.
@@ -26,6 +28,9 @@ data Config = Config
 
 instance AppConfig Config where
   getConfigDomain = configDomain
+
+instance CacheDir Config where
+  getCacheDir = configCacheDir
 
 data PState = PState
 
@@ -69,11 +74,29 @@ data Range = Range
   { rangeFrom :: Day, rangeTo :: Day }
   deriving (Eq,Show)
 
-data Key
+data CacheKey
   = Overview (Maybe Channel) Range
   | NickCloud (Maybe Channel) Range
   | Social (Maybe Channel) Range
   | Browse Channel (Maybe Integer) PN
+
+instance Key CacheKey where
+  keyToString (Overview channel range) = contexted "overview" channel range
+  keyToString (NickCloud channel range) = contexted "nick-cloud" channel range
+  keyToString (Social channel range) = contexted "social" channel range
+  keyToString (Browse channel utctime (PN _ pagination _)) =
+    "browse-" ++ opt (Just (showChan channel)) ++ "-" ++ fromMaybe "" (fmap show utctime) ++
+    "-page" ++ show (pnCurrentPage pagination) ++ "-of-" ++ show (pnPerPage pagination) ++ ".html"
+      where opt Nothing = "_"
+            opt (Just x) = x
+
+contexted name channel (Range from to) =
+  name ++ "-" ++ opt (fmap showChan channel) ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
+    where opt Nothing = "_"
+          opt (Just x) = x
+
+showDay :: Day -> String
+showDay = formatTime defaultTimeLocale "%Y-%m-%d"
 
 data Event = Event
   { eventId        :: !Int
