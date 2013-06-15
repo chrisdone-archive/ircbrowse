@@ -24,8 +24,7 @@ getEvents channel tid (PN _ pagination _) q = do
         , sFilters = [("channel",showChanInt channel)]
         }
       case result of
-        Left err -> do io $ appendFile "/tmp/sphinx-error.log" (err ++"\n")
-                       return (pagination { pnTotal = 0 },[])
+        Left err -> return (pagination { pnTotal = 0 },[])
         Right result -> do
           results <- getEventsByResults channel (map fst (rResults result))
           return (pagination { pnTotal = fromIntegral (rTotal result) }
