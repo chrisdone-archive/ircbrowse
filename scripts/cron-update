@@ -4,6 +4,9 @@ cd $ircbrowsedir
 # Just bail out if anything fails.
 set -e
 
+logger -t ircbrowse "Clearing server logs ..."
+rm log/*
+
 logger -t ircbrowse "Importing yesterday ..."
 dist/build/ircbrowse/ircbrowse ircbrowse.conf import-yesterday >> /tmp/ircbrowse-cron.log
 
