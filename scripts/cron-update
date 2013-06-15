@@ -4,17 +4,13 @@ cd $ircbrowsedir
 # Just bail out if anything fails.
 set -e
 
-echo "`date`: Start:" >> /tmp/ircbrowse-cron.log
-
-# Import and regenerate data.
-echo "`date`: Importing yesterday ..." >> /tmp/ircbrowse-cron.log
+logger -t ircbrowse "Importing yesterday ..."
 dist/build/ircbrowse/ircbrowse ircbrowse.conf import-yesterday >> /tmp/ircbrowse-cron.log
 
-echo "`date`: Restarting server ..."
+logger -t ircbrowse "Restarting server ..."
 scripts/server-restart >> /tmp/ircbrowse-cron.log
 
-# Regenerate sphinx index.
-echo "`date`: Regenerating index and stop words ..." >> /tmp/ircbrowse-cron.log
+logger -t ircbrowse "Regenerating Sphinx index ..."
 /opt/sphinx/bin/indexer --all >> /tmp/ircbrowse-cron.log
 
-echo "`date`: Done." >> /tmp/ircbrowse-cron.log
+logger -t ircbrowse "Import finished."

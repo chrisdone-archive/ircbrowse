@@ -38,7 +38,7 @@ batchImport config channel pool = do
 -- | Import from yesterday all available channels.
 importYesterday :: Config -> Pool -> IO ()
 importYesterday config pool = do
-  forM_ [Haskell,OCaml,Scheme,Lisp] $ \channel -> do
+  forM_ [Haskell,Lisp] $ \channel -> do
     putStrLn $ "Importing channel: " ++ showChan channel
     v <- newIORef []
     runDB config () pool $ do
@@ -70,14 +70,12 @@ importChannel config pool day channel = do
   result <- downloadLog channel day
   case result of
     Left err -> error (show err)
-    Right bytes -> do
-      tmpdir <- getTemporaryDirectory
-      let tmp = tmpdir </> unmakeDay day
-      S.writeFile tmp bytes
+    Right tmp -> do
       let db = runDB config () pool
       db $ migrate False versions
       db $ importFile channel config tmp
       updateChannelIndex config pool channel
+      removeFile tmp
 
 -- | Update the event order index for the given channel.
 updateChannelIndex :: Config -> Pool -> Channel -> IO ()
@@ -112,31 +110,27 @@ importFile channel config path = do
   case reverse events of
     (EventAt _ (decompose -> GenericEvent typ _ (T.concat -> text)):_)
       | show typ == "Log" && T.isPrefixOf "ended" text -> importEvents channel events
-    _ -> error $ "Log is incomplete (no 'ended' entry)."
+    _ -> do liftIO $ removeFile path
+      	    error $ "Log is incomplete (no 'ended' entry). (Removed file cache.)"
 
 -- | Import an event.
 importEvents :: Channel -> [EventAt] -> Model c s ()
 importEvents channel events = do
-  qins <- processQuery "INSERT INTO event (timestamp,network,channel,type,nick,text) VALUES"
-                       ()
-  qrows <- forM (zip [0..] (nub events)) $ \(i,event) ->
+   forM_ (nub events) $ \event ->
     case event of
       EventAt time (decompose -> GenericEvent typ mnick texts) -> do
         let text = T.concat texts
-        if T.null (T.strip text)
-           then return mempty
-           else processQuery (if i == 0 then "(?,?,?,?,?,?)" else ",(?,?,?,?,?,?)")
-                             (time
-                             ,1::Int
-                             ,showChanInt channel
-                             ,map toLower (show typ)
-                             ,fmap unNick mnick
-                             ,text)
+        unless (T.null (T.strip text)) $ void $
+          exec ["INSERT INTO event (timestamp,network,channel,type,nick,text) VALUES"
+	       ,"(?,?,?,?,?,?)"]
+               (time
+	       ,1::Int
+	       ,showChanInt channel
+	       ,map toLower (show typ)
+	       ,fmap unNick mnick
+	       ,text)
       NoParse text -> do liftIO $ T.putStrLn $ mappend "Unable to import line: " text
                          return mempty
-  [] :: [Only Int] <- queryProcessed (mappend qins (mconcat qrows))
-  return ()
-
 
   where unNick (Nick t) = t
 
