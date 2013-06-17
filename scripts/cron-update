@@ -8,12 +8,12 @@ logger -t ircbrowse "Clearing server logs ..."
 rm log/*
 
 logger -t ircbrowse "Importing yesterday ..."
-dist/build/ircbrowse/ircbrowse ircbrowse.conf import-yesterday >> /tmp/ircbrowse-cron.log
+dist/build/ircbrowse/ircbrowse ircbrowse.conf import-yesterday
 
 logger -t ircbrowse "Restarting server ..."
-scripts/server-restart >> /tmp/ircbrowse-cron.log
+killall ircbrowse
 
 logger -t ircbrowse "Regenerating Sphinx index ..."
-/opt/sphinx/bin/indexer --all >> /tmp/ircbrowse-cron.log
+/opt/sphinx/bin/indexer --all
 
 logger -t ircbrowse "Import finished."
