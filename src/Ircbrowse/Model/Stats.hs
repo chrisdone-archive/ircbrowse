@@ -1,3 +1,5 @@
+-- | General statistics.
+
 module Ircbrowse.Model.Stats where
 
 import Ircbrowse.Types

@@ -6,6 +6,7 @@ import           Ircbrowse.Data
 import           Ircbrowse.Model.Events
 import           Ircbrowse.Model.Stats
 import           Ircbrowse.Model.Social
+import           Ircbrowse.Model.Profile
 import           Ircbrowse.Monads
 import           Ircbrowse.Types
 import           Ircbrowse.Tunes
@@ -13,6 +14,7 @@ import           Ircbrowse.View.Browse as V
 import           Ircbrowse.View.NickCloud as V
 import           Ircbrowse.View.Overview as V
 import           Ircbrowse.View.Social as V
+import           Ircbrowse.View.Profile as V
 
 import           Data.ByteString (ByteString)
 import           Data.Text (Text)
@@ -34,6 +36,13 @@ overview = do
   viewCached (Overview channel range) $ do
     stats <- model $ getStats channel range
     return $ V.overview channel range stats
+
+nickProfile :: Controller Config PState ()
+nickProfile = do
+  nick <- getText "nick"
+  hours <- model $ activeHours nick
+  viewCached (Profile nick) $ do
+    return $ V.nickProfile nick hours
 
 socialGraph :: Controller Config PState ()
 socialGraph = do
@@ -102,6 +111,11 @@ getTextMaybe :: ByteString -> Controller c s (Maybe Text)
 getTextMaybe name = do
   pid <- fmap (fmap T.decodeUtf8) (getParam name)
   return pid
+
+-- | Get text (maybe).
+getText :: ByteString -> Controller c s Text
+getText name = do
+  getTextMaybe name >>= maybe (error "expected param") return
 
 -- | Get integer parmater.
 getIntegerMaybe :: ByteString -> Controller c s (Maybe Integer)
