@@ -12,7 +12,7 @@ import Ircbrowse.View.Cloud
 
 nickCloud :: [(String,Integer)] -> Html
 nickCloud stats = do
-  template "nick-cloud" cloudScripts $ do
+  template "nick-cloud" "Nick Cloud" cloudScripts $ do
     containerFluid $ do
       row $ do
         span12 $ do

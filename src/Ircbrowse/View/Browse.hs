@@ -22,7 +22,7 @@ import           Prelude (min)
 
 browse :: URI -> Channel -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
 browse uri channel timestamp events pn q =
-  template "browse" mempty $ do
+  template "browse" ("Browse #" <> T.pack (showChan channel)) mempty $ do
     containerFluid $ do
       h1 $ do
         a ! href "/" $ do "IRC Browse"
@@ -32,7 +32,7 @@ browse uri channel timestamp events pn q =
       searchForm q
       if null events
          then noResults
-         else paginatedTable uri events pn
+         else paginatedTable channel uri events pn
 
 noResults = do
   p "There are no results for that search!"
@@ -45,8 +45,8 @@ searchForm q =
         input ! name "q" !. "span2" !# "appendedInputButton" ! type_ "text" ! value (maybe "" toValue q)
         input !. "btn" ! type_ "submit" ! value "Go!"
 
-paginatedTable :: URI -> [Event] -> PN -> Html
-paginatedTable uri events pn' = do
+paginatedTable :: Channel -> URI -> [Event] -> PN -> Html
+paginatedTable channel uri events pn' = do
   let pn = pn' { pnURI = deleteQueryKey "timestamp" (deleteQueryKey "id" uri) }
   pagination pn
   table !. "events table" $
@@ -59,17 +59,19 @@ paginatedTable uri events pn' = do
           focused | eventType event `elem` ["talk","act"] = "focused"
                   | otherwise = "not-focused" :: String
           color = toValue (nickColour (fromMaybe "" (eventNick event)))
-          nickHref = hrefSet (clearUrlQueries uri) "q" (T.unpack (fromMaybe "" (eventNick event)))
+          nickLink = maybe ""
+                           (\nick -> toValue ("/nick/" <> nick))
+                           (eventNick event)
       tr ! name (toValue anchor) !# (toValue anchor) !. (toValue (eventClass ++ " " ++ focused)) $ do
         td  !. "timestamp" $ timestamp uri (eventId event) (eventTimestamp event) anchor secs
         if eventType event == "talk"
           then do td !. "nick-wrap" $ do
                     " <"
-                    a ! nickHref !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
+                    a ! href nickLink !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
                     "> "
                   td !. "text" $ linkify $ eventText event
           else do td !. "nick-wrap" $
-                    a ! nickHref !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
+                    a ! href nickLink !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
                   td !. "text" $ linkify $ eventText event
   pagination pn { pnPn = (pnPn pn) { pnShowDesc = False }
                 , pnResultsPerPage = Nothing

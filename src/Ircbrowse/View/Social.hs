@@ -16,7 +16,7 @@ import Data.Text.Lazy.Builder
 
 socialGraph :: [(Text,Text,Int)] -> Html
 socialGraph graph = do
-  template "nick-cloud" graphScripts $ do
+  template "nick-cloud" "Social Graph" graphScripts $ do
     containerFluid $ do
       row $ do
         span12 $ do

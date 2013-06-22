@@ -18,7 +18,7 @@ import Control.Arrow
 
 overview :: Maybe Channel -> Range -> Stats -> Html
 overview _ range stats = do
-  template "overview" cloudScripts $ do
+  template "overview" "IRC Browse" cloudScripts $ do
     container $ do
       row $ do
         span12 $ summarize range stats

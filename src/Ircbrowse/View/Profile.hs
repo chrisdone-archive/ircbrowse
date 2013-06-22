@@ -16,14 +16,14 @@ import Ircbrowse.View.Chart
 import Ircbrowse.Model.Profile
 import Ircbrowse.Tunes
 
-import qualified Text.Blaze.Html5 as H
 import Data.Text (Text)
+import qualified Data.Text as T
 import Control.Arrow
 import Text.Printf
 
 nickProfile :: Text -> Bool -> NickStats -> Html
 nickProfile nick showrecent ns@NickStats{..} = do
-  template "nick-profile" (H.title (toHtml nick)) $ do
+  template "nick-profile" nick mempty $ do
     container $ do
       h1 (toHtml nick)
       case nickQuote of
@@ -38,12 +38,13 @@ nickProfile nick showrecent ns@NickStats{..} = do
       row $
         span12 $
           if nickLines == 0
-             then p $ do toHtml nick; " hasn't said anything in the past month."
+             then p $ do toHtml nick; " hasn't said anything in the past month."; logsLink nick
              else profileSections nick showrecent ns
     footer
 
 profileSections nick showrecent ns@NickStats{..} =
   do summary nick showrecent ns
+     logsLink nick
      row $ do
        span7 $ do
          h2 "Active Hours (by line)"
@@ -105,3 +106,10 @@ summary nick showrecent NickStats{..} =
 
 maximumBy' f [] = (0,0,0,0)
 maximumBy' f xs = maximumBy f xs
+
+logsLink :: Text -> Html
+logsLink nick = do
+  "Logs involving this nick: "
+  htmlCommas $ flip map [toEnum 0 ..] $ \chan ->
+    a ! href (toValue ("/browse/" <> T.pack (showChan chan) <> "?q=" <> nick)) $
+      toHtml $ "#" ++ showChan chan
