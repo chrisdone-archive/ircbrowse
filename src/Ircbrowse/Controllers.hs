@@ -6,6 +6,7 @@ import           Ircbrowse.Data
 import           Ircbrowse.Model.Events
 import           Ircbrowse.Model.Stats
 import           Ircbrowse.Model.Social
+import           Ircbrowse.Model.Nicks
 import           Ircbrowse.Model.Profile
 import           Ircbrowse.Monads
 import           Ircbrowse.Types

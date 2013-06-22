@@ -54,7 +54,7 @@ mostActiveTimes :: Stats -> Html
 mostActiveTimes stats = do
   h2 "Most Active Times"
   p "The most active times of the day in which anyone spoke."
-  barChart (map (first show) (stActiveTimes stats))
+  radarChart (map (first show) (stActiveTimes stats))
 
 dailyActivity :: Range -> Stats -> Html
 dailyActivity range stats = do

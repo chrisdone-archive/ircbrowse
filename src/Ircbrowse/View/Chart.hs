@@ -34,9 +34,10 @@ radarChart values = img ! src (toValue url)
   where url = "http://chart.apis.google.com/chart?" ++
               "chxl=0:|" ++ intercalate "|" xlabels ++
               "&chxt=x&chd=t:" ++
-              intercalate "," datas ++
+              intercalate "," (datas ++ take 1 datas) ++
               "&chs=" ++ show w ++ "x" ++ show h ++ "&cht=rs&" ++
-              "&chxr=0|1,0," ++ show maxcount
+              "&chxr=0|1,0," ++ show maxcount ++
+              "&chm=B,FFCC3399,0,1.0,5.0"
         xlabels = map fst values
         ylabels = map show [10,20,30,40,50]
         datas = map (\x -> show (round ((fi x / maxcount) * 100))) times
