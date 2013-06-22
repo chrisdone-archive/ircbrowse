@@ -15,6 +15,7 @@ import           Ircbrowse.View.NickCloud as V
 import           Ircbrowse.View.Overview as V
 import           Ircbrowse.View.Social as V
 import           Ircbrowse.View.Profile as V
+import           Ircbrowse.View.Nicks as V
 
 import           Data.ByteString (ByteString)
 import           Data.Text (Text)
@@ -45,6 +46,12 @@ nickProfile = do
   viewCached (Profile nick recent range) $ do
     hours <- model $ activeHours nick recent range
     return $ V.nickProfile nick recent hours
+
+allNicks :: Controller Controller PState ()
+allNicks = do
+  viewCached AllNicks $ do
+    nicks <- model $ getNicks 100
+    return $ V.nicks nicks
 
 socialGraph :: Controller Config PState ()
 socialGraph = do
