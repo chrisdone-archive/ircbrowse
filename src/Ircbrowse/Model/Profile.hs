@@ -14,6 +14,7 @@ data NickStats = NickStats
   , nickYears :: [(Int,Int,Int,Int,Int)]
   , nickLines :: Int
   , nickQuote :: Maybe (Text,Text)
+  , nickQuotes :: [Text]
   }
 
 activeHours :: Text -> Bool -> Range -> Model c s NickStats
@@ -56,9 +57,19 @@ activeHours nick recent (Range from to) = do
                   ,"OFFSET random()*?"
                   ,"LIMIT 1"]
                   (nick,recent,from,to,lines)
+  quotes <- query ["SELECT"
+                  ,"REGEXP_REPLACE(text,'^@remember ([^ ]+)','')"
+                  ,"FROM event"
+                  ,"WHERE TYPE in ('talk','act') AND"
+                  ,"(NOT ? OR (timestamp > ? AND timestamp < ?))"
+                  ,"AND text LIKE '@remember %'"
+                  ,"AND REGEXP_REPLACE(text,'^@remember ([^ ]+).*',E'\\\\1') = ?"
+                  ,"ORDER BY timestamp DESC"]
+                  (recent,from,to,nick)
   return $
     NickStats { nickHours = hours
               , nickYears = years
               , nickLines = lines
               , nickQuote = listToMaybe rquote
+              , nickQuotes = nub (map (\(Only t) -> t) quotes)
               }
