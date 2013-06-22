@@ -38,7 +38,8 @@ nickProfile nick showrecent ns@NickStats{..} = do
       row $
         span12 $
           if nickLines == 0
-             then p $ do toHtml nick; " hasn't said anything in the past month."; logsLink nick
+             then do p $ do toHtml nick; " hasn't said anything in the past month."
+                     logsLink nick
              else profileSections nick showrecent ns
     footer
 

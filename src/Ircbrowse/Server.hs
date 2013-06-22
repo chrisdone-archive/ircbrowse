@@ -30,6 +30,7 @@ serve config pool = route routes where
            ,("/nick-cloud",run C.nickCloud)
            ,("/social",run C.socialGraph)
            ,("/nick/:nick",run C.nickProfile)
+           ,("/nicks",run C.allNicks)
            ,("/",run C.overview)
            ]
   run = runHandler PState config pool

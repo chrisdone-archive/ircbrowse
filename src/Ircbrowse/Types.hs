@@ -80,6 +80,7 @@ data CacheKey
   | Social (Maybe Channel) Range
   | Browse Channel (Maybe Integer) PN
   | Profile Text Bool Range
+  | AllNicks Bool Range
 
 instance Key CacheKey where
   keyToString (Overview channel range) = contexted "overview" channel range
@@ -92,6 +93,9 @@ instance Key CacheKey where
             opt (Just x) = x
   keyToString (Profile nick recent (Range from to)) =
     "profile-" ++ unpack nick ++ "-" ++ (if recent then "recent-" else "all-") ++
+    showDay from ++ "-" ++ showDay to ++ ".html"
+  keyToString (AllNicks recent (Range from to)) =
+    "nicks-" ++ "-" ++ (if recent then "recent-" else "all-") ++
     showDay from ++ "-" ++ showDay to ++ ".html"
 
 contexted name channel (Range from to) =

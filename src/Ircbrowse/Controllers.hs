@@ -41,17 +41,20 @@ overview = do
 nickProfile :: Controller Config PState ()
 nickProfile = do
   nick <- getText "nick"
-  recent <- fmap (maybe True (=="true")) (getTextMaybe "recent")
+  recent <- getBoolean "recent" True
   range <- getRange
   viewCached (Profile nick recent range) $ do
     hours <- model $ activeHours nick recent range
     return $ V.nickProfile nick recent hours
 
-allNicks :: Controller Controller PState ()
+allNicks :: Controller Config PState ()
 allNicks = do
-  viewCached AllNicks $ do
-    nicks <- model $ getNicks 100
-    return $ V.nicks nicks
+  recent <- getBoolean "recent" True
+  range <- getRange
+  viewCached (AllNicks recent range) $ do
+    nicks <- model $ getNicks 100 recent range
+    count <- model $ getNickCount recent range
+    return $ V.nicks count nicks recent
 
 socialGraph :: Controller Config PState ()
 socialGraph = do
@@ -131,3 +134,7 @@ getIntegerMaybe :: ByteString -> Controller c s (Maybe Integer)
 getIntegerMaybe name = do
   pid <- fmap (>>= readMay) (getStringMaybe name)
   return pid
+
+-- | Get a boolean value.
+getBoolean :: ByteString -> Bool -> Controller c s Bool
+getBoolean key def = fmap (maybe def (=="true")) (getTextMaybe key)
