@@ -55,3 +55,9 @@ containerFluid x = div !. "container-fluid" $ x
 
 inputAppend :: Html -> Html
 inputAppend x = div !. "input-append" $ x
+
+pillNav :: Html -> Html
+pillNav x = div !. "nav nav-pills" $ x
+
+tabNav :: Html -> Html
+tabNav x = div !. "nav nav-tabs" $ x

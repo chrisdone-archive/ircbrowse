@@ -74,7 +74,7 @@ activeNicks stats = do
       forM_ (zip [1..] (take limit (stActiveNicks stats))) $ \(i,(nick,linecount)) ->
         tr $ do
           td $ toHtml (show i)
-          td $ toHtml nick
+          td $ a ! href (toValue ("/nick/" ++ nick)) $ toHtml nick
           td $ toHtml (showCount linecount)
   p $ a ! href "/social" $ "See social graph →"
 

@@ -40,9 +40,11 @@ overview = do
 nickProfile :: Controller Config PState ()
 nickProfile = do
   nick <- getText "nick"
-  hours <- model $ activeHours nick
-  viewCached (Profile nick) $ do
-    return $ V.nickProfile nick hours
+  recent <- fmap (maybe True (=="true")) (getTextMaybe "recent")
+  range <- getRange
+  viewCached (Profile nick recent range) $ do
+    hours <- model $ activeHours nick recent range
+    return $ V.nickProfile nick recent hours
 
 socialGraph :: Controller Config PState ()
 socialGraph = do

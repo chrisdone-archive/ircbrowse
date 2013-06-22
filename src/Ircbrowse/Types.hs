@@ -79,7 +79,7 @@ data CacheKey
   | NickCloud (Maybe Channel) Range
   | Social (Maybe Channel) Range
   | Browse Channel (Maybe Integer) PN
-  | Profile Text
+  | Profile Text Bool Range
 
 instance Key CacheKey where
   keyToString (Overview channel range) = contexted "overview" channel range
@@ -90,7 +90,9 @@ instance Key CacheKey where
     "-page" ++ show (pnCurrentPage pagination) ++ "-of-" ++ show (pnPerPage pagination) ++ ".html"
       where opt Nothing = "_"
             opt (Just x) = x
-  keyToString (Profile text) = "profile-" ++ unpack text
+  keyToString (Profile nick recent (Range from to)) =
+    "profile-" ++ unpack nick ++ "-" ++ (if recent then "recent-" else "all-") ++
+    showDay from ++ "-" ++ showDay to ++ ".html"
 
 contexted name channel (Range from to) =
   name ++ "-" ++ opt (fmap showChan channel) ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
