@@ -26,13 +26,19 @@ nickProfile nick showrecent NickStats{..} = do
   template "nick-profile" (H.title (toHtml nick)) $ do
     container $ do
       h1 (toHtml nick)
+      case nickQuote of
+        Nothing -> mempty
+        Just (typ,quote) -> blockquote $
+          case typ of
+            "act" -> em (do toHtml nick; " "; toHtml quote)
+            "talk" -> do em (toHtml ("“" <> quote <> "”")); " — "; toHtml nick
       tabNav $ do
         li !. (if showrecent then "active" else "") $ a ! href "?recent=true" $ "Recent"
         li !. (if not showrecent then "active" else "") $ a ! href "?recent=false" $ "All Time"
       row $
         span12 $
           if nickLines == 0
-             then p $ do toHtml nick; " hasn't said anything."
+             then p $ do toHtml nick; " hasn't said anything in the past month."
              else do p $ do toHtml nick; " has written "
                             toHtml (showCount nickWords); " words "
                             toHtml (showCount nickLines); " lines"
@@ -79,8 +85,7 @@ nickProfile nick showrecent NickStats{..} = do
 
     footer
 
-  where nickLines = sum (map (\(_,_,_,_,lines) -> lines) nickYears)
-        nickWords = sum (map (\(_,_,_,sum,_) -> sum) nickYears)
+  where nickWords = sum (map (\(_,_,_,sum,_) -> sum) nickYears)
         nickAvg   = round (fromIntegral (sum (map (\(_,avg,_,_,_) -> avg) nickYears)) /
                            fromIntegral (length nickYears))
 
