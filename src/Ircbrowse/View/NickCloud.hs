@@ -16,9 +16,8 @@ nickCloud stats = do
     containerFluid $ do
       row $ do
         span12 $ do
-          h1 $ do
-            a ! href "/" $ do "IRC Browse"
-            ": Nick Word Cloud"
+          mainHeading $ do
+            "Nick Word Cloud"
           p $ do "Below is a nick cloud in logarithmic scale, "
                  "because IRC channels tend to have top contributors, "
                  "rather than an evenly distributed user contribution. "

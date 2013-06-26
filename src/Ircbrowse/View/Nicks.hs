@@ -16,7 +16,7 @@ import qualified Data.Text as T
 nicks count ns showrecent = do
   template "nicks-page" ("Top " <> T.pack (showCount (length ns)) <> " Nicks") mempty $ do
     container $ do
-      h1 $ do "Top "; toHtml (showCount (length ns)); " Nicks"
+      mainHeading $ do "Top "; toHtml (showCount (length ns)); " Nicks"
       row $
         span12 $
           p $ do "There have been many to enter the grizzly and chocolate flavoured world of IRC. "

@@ -24,9 +24,7 @@ browse :: URI -> Channel -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
 browse uri channel timestamp events pn q =
   template "browse" ("Browse #" <> T.pack (showChan channel)) mempty $ do
     containerFluid $ do
-      h1 $ do
-        a ! href "/" $ do "IRC Browse"
-        ": "
+      mainHeading $
         a ! hrefURI (clearUrlQueries uri) $ do
           " #"; toHtml (showChan channel)
       searchForm q

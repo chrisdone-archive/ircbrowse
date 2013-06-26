@@ -45,3 +45,8 @@ footer =
         a ! href "https://github.com/chrisdone/ircbrowse" $ "Source code"
         " | "
         a ! href "http://haskell.org/" $ "Haskell"
+
+mainHeading inner = h1 $ do
+  a ! href "/" $ do "IRC Browse"
+  ": "
+  inner

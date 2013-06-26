@@ -25,7 +25,7 @@ nickProfile :: Text -> Bool -> NickStats -> Html
 nickProfile nick showrecent ns@NickStats{..} = do
   template "nick-profile" nick mempty $ do
     container $ do
-      h1 (toHtml nick)
+      mainHeading $ toHtml nick
       case nickQuote of
         Nothing -> mempty
         Just (typ,quote) -> blockquote $
@@ -110,7 +110,7 @@ maximumBy' f xs = maximumBy f xs
 
 logsLink :: Text -> Html
 logsLink nick = do
-  "Logs involving this nick: "
+  "Search logs for this nick: "
   htmlCommas $ flip map [toEnum 0 ..] $ \chan ->
     a ! href (toValue ("/browse/" <> T.pack (showChan chan) <> "?q=" <> nick)) $
       toHtml $ "#" ++ showChan chan
