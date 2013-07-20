@@ -95,8 +95,17 @@ quotes = do
   qs <- model $ getRecentQuotes 30
   outputRSS "IRCBrowse Quotes"
             "http://ircbrowse.net/quotes.rss"
-            (map (\(date,title) -> (date,title,""))
+            (map (\(eid,date,title) -> (date,title,"",T.pack (makeLink eid date)))
                  qs)
+
+  where makeLink eid t =
+          concat ["http://ircbrowse.net/browse/haskell?id="
+                 ,show eid
+                 ,"&timestamp="
+                 ,secs
+                 ,"#t"
+                 ,secs]
+         where secs = formatTime defaultTimeLocale "%s" t
 
 --------------------------------------------------------------------------------
 -- Utilities
