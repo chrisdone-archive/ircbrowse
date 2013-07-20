@@ -8,6 +8,7 @@ import           Ircbrowse.Model.Stats
 import           Ircbrowse.Model.Social
 import           Ircbrowse.Model.Nicks
 import           Ircbrowse.Model.Profile
+import           Ircbrowse.Model.Quotes
 import           Ircbrowse.Monads
 import           Ircbrowse.Types
 import           Ircbrowse.Tunes
@@ -24,6 +25,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import           Safe
 import           Snap.App
+import           Snap.App.RSS
 import           Snap.App.Cache
 import           System.Locale
 import           Text.Blaze.Pagination
@@ -86,6 +88,15 @@ browse = do
     uri <- getMyURI
     return $ Just $ V.browse uri channel timestamp logs pn' { pnPn = pagination } q
   maybe (return ()) outputText out
+
+quotes :: Controller Config PState ()
+quotes = do
+  return ()
+  qs <- model $ getRecentQuotes 30
+  outputRSS "IRCBrowse Quotes"
+            "http://ircbrowse.net/quotes.rss"
+            (map (\(date,title) -> (date,title,""))
+                 qs)
 
 --------------------------------------------------------------------------------
 -- Utilities
