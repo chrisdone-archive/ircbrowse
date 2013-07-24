@@ -16,6 +16,7 @@ import Ircbrowse.View.Chart
 import Ircbrowse.Model.Profile
 import Ircbrowse.Tunes
 
+import System.Locale
 import Data.Text (Text)
 import qualified Data.Text as T
 import Control.Arrow
@@ -79,13 +80,25 @@ profileSections nick showrecent ns@NickStats{..} =
        row $
          span12 $ do
            h2 "Memorable Quotes"
-           forM_ nickQuotes $ \quote -> do
-             blockquote $ toHtml quote
+           forM_ nickQuotes $ \(idx,time,quote) -> do
+             blockquote $ do
+               toHtml quote
+               " — "
+               toHtml $
+                 a ! href (toValue (makeLink idx time)) $ toHtml $ show time
 
   where verbosity = span5 $ do
                       h2 "Verbosity (by words/line)"
                       p $ do
                         radarChart (map (\(h,avg,_,_) -> (show h,avg)) nickHours)
+        makeLink eid t =
+          concat ["http://ircbrowse.net/browse/haskell?id="
+                 ,show eid
+                 ,"&timestamp="
+                 ,secs
+                 ,"#t"
+                 ,secs]
+         where secs = formatTime defaultTimeLocale "%s" t
 
 summary nick showrecent NickStats{..} =
   p $ do toHtml nick; " has written "
