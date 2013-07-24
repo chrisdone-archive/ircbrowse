@@ -52,7 +52,7 @@ summarize range stats = p $ do
 
 mostActiveTimes :: Stats -> Html
 mostActiveTimes stats = do
-  h2 "Most Active Times"
+  h2 "Most Active Times (UTC)"
   p "The most active times of the day in which anyone spoke."
   radarChart (map (first show) (stActiveTimes stats))
 
