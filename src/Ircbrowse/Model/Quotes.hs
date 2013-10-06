@@ -3,7 +3,7 @@
 module Ircbrowse.Model.Quotes where
 
 import Ircbrowse.Types
-import Ircbrowse.Tunes
+import Ircbrowse.Types.Import
 
 import Data.Text
 import Data.Time

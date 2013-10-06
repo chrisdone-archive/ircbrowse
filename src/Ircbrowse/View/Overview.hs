@@ -8,11 +8,11 @@ module Ircbrowse.View.Overview
   (overview)
   where
 
+import Ircbrowse.Types.Import
 import Ircbrowse.View
-import Ircbrowse.View.Template
-import Ircbrowse.View.Cloud
 import Ircbrowse.View.Chart
-import Ircbrowse.Tunes
+import Ircbrowse.View.Cloud
+import Ircbrowse.View.Template
 
 import Control.Arrow
 

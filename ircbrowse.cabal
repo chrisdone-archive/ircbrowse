@@ -40,4 +40,7 @@ executable ircbrowse
                      safe,
                      HUnit,
                      aeson,
-                     containers
+                     containers,
+                     timezone-olson,
+                     timezone-series,
+                     attoparsec

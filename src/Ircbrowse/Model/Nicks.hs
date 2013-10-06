@@ -2,9 +2,9 @@
 
 module Ircbrowse.Model.Nicks where
 
-import Ircbrowse.Types
 import Ircbrowse.Data
-import Ircbrowse.Tunes
+import Ircbrowse.Types
+import Ircbrowse.Types.Import
 
 import Snap.App
 import Data.Text (Text)

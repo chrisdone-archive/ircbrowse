@@ -4,7 +4,7 @@ module Ircbrowse.Model.Stats where
 
 import Ircbrowse.Types
 import Ircbrowse.Data
-import Ircbrowse.Tunes
+import Ircbrowse.Types.Import
 
 import Numeric
 import Snap.App

@@ -9,18 +9,18 @@ module Ircbrowse.View.Profile
   (nickProfile)
   where
 
-import Ircbrowse.View
-import Ircbrowse.View.Template
-import Ircbrowse.View.Cloud
-import Ircbrowse.View.Chart
-import Ircbrowse.Model.Profile
-import Ircbrowse.Tunes
+import           Ircbrowse.Model.Profile
+import           Ircbrowse.Types.Import
+import           Ircbrowse.View
+import           Ircbrowse.View.Chart
+import           Ircbrowse.View.Cloud
+import           Ircbrowse.View.Template
 
-import System.Locale
-import Data.Text (Text)
+import           System.Locale
+import           Data.Text (Text)
 import qualified Data.Text as T
-import Control.Arrow
-import Text.Printf
+import           Control.Arrow
+import           Text.Printf
 
 nickProfile :: Text -> Bool -> NickStats -> Html
 nickProfile nick showrecent ns@NickStats{..} = do

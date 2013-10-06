@@ -11,7 +11,7 @@ import           Ircbrowse.Model.Profile
 import           Ircbrowse.Model.Quotes
 import           Ircbrowse.Monads
 import           Ircbrowse.Types
-import           Ircbrowse.Tunes
+import           Ircbrowse.Types.Import
 import           Ircbrowse.View.Browse as V
 import           Ircbrowse.View.NickCloud as V
 import           Ircbrowse.View.Overview as V

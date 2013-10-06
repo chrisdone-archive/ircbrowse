@@ -8,7 +8,7 @@ import Ircbrowse.Model.Migrations
 import Ircbrowse.Server
 import Ircbrowse.Types
 import Ircbrowse.Model.Data
-import Ircbrowse.ImportTunes
+import Ircbrowse.Import
 
 import Snap.App
 import Snap.App.Cache
@@ -27,7 +27,7 @@ main = do
       importYesterday config pool
     "generate-data" -> do
       db $ migrate False versions
-      db $ generateData     
+      db $ generateData
       clearCache config
     _ -> do
       db $ migrate False versions

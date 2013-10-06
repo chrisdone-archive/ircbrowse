@@ -4,7 +4,7 @@
 module Ircbrowse.Types where
 
 import Ircbrowse.Data
-import Ircbrowse.Tunes
+import Ircbrowse.Types.Import
 import Ircbrowse.Monads
 
 import Control.Applicative

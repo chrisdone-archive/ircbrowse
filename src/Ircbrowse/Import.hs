@@ -2,21 +2,22 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
--- | Importing from tunes.org.
+-- | Importing from logs.
 
-module Ircbrowse.ImportTunes where
+module Ircbrowse.Import where
 
 import           Ircbrowse.Data
 import           Ircbrowse.Model.Data
 import           Ircbrowse.Model.Migrations
 import           Ircbrowse.Monads
 import           Ircbrowse.System
-import           Ircbrowse.Tunes
 import           Ircbrowse.Types
+import           Ircbrowse.Types.Import
 
 import           Control.Concurrent
 import qualified Data.ByteString as S
-import           Data.IRC.CLog.Parse hiding (Config)
+import           Data.IRC.CLog.Parse hiding (Config,parseLog)
+import           Data.IRC.Znc.Parse hiding (Config)
 import           Data.Text (Text)
 import           Data.IORef
 import qualified Data.Text as T
@@ -42,7 +43,7 @@ importYesterday config pool = do
     putStrLn $ "Importing channel: " ++ showChan channel
     v <- newIORef []
     runDB config () pool $ do
-      row <- query ["select type,text"
+      row <- query ["select timestamp,type"
 		   ,"from event"
 		   ,"where channel = ?"
 		   ,"order by id"
@@ -51,31 +52,35 @@ importYesterday config pool = do
       io $ writeIORef v row
     last <- readIORef v
     case listToMaybe last of
-      Just event@("log" :: Text,text)
-	| T.isPrefixOf "ended" text -> do
-	case parseTunesDay (T.unpack (T.drop 1 (T.dropWhile (/='/') text))) of
-	  Nothing -> error $ "Unable to parse last ended date."
-	  Just lastdate -> do
-	    importChannel config pool (addDays 1 lastdate) channel
-            putStrLn $ "Imported channel " ++ showChan channel
+      Just event@(lastdate::UTCTime,"log" :: Text) -> do
+        importChannel config pool (addDays 1 (utctDay lastdate)) channel
+        putStrLn $ "Imported channel " ++ showChan channel
       _ -> error "Unable to retrieve last ended log imported."
-  putStrLn "Running ANALYZE ..."
-  runDB config () pool $ void $ exec ["ANALYZE event_order_index"] ()
-  putStrLn "Running data regeneration ..."
-  runDB config () pool $ generateData
+  -- putStrLn "Running ANALYZE ..."
+  -- runDB config () pool $ void $ exec ["ANALYZE event_order_index"] ()
+  -- putStrLn "Running data regeneration ..."
+  -- runDB config () pool $ generateData
 
 -- | Import the channel into the database of the given date.
 importChannel :: Config -> Pool -> Day -> Channel -> IO ()
 importChannel config pool day channel = do
-  result <- downloadLog channel day
-  case result of
-    Left err -> error (show err)
-    Right tmp -> do
-      let db = runDB config () pool
-      db $ migrate False versions
-      db $ importFile channel config tmp
-      updateChannelIndex config pool channel
-      removeFile tmp
+  tmp <- copyLog channel day
+  let db = runDB config () pool
+  -- db $ migrate False versions
+  db $ importFile channel config tmp
+  -- updateChannelIndex config pool channel
+  removeFile tmp
+
+  where copyLog chan day = do
+          let fp = "#" ++ showChan chan ++ "_" ++ unmakeDay day ++ ".log"
+          tmp <- getTemporaryDirectory
+          let tmpfile = tmp </> fp
+          copyFile ("/home/chris/.znc/users/ircbrowse/moddata/log/" ++ fp)
+                   tmpfile
+          return tmpfile
+
+unmakeDay :: FormatTime t => t -> String
+unmakeDay = formatTime defaultTimeLocale "%Y%m%d"
 
 -- | Update the event order index for the given channel.
 updateChannelIndex :: Config -> Pool -> Channel -> IO ()
@@ -106,12 +111,19 @@ updateChannelIndex config pool channel = runDB config () pool $ do
 -- | Import from the given file.
 importFile :: Channel -> Config -> FilePath -> Model c s ()
 importFile channel config path = do
-  events <- liftIO $ parseLog haskellConfig path
-  case reverse events of
-    (EventAt _ (decompose -> GenericEvent typ _ (T.concat -> text)):_)
-      | show typ == "Log" && T.isPrefixOf "ended" text -> importEvents channel events
-    _ -> do liftIO $ removeFile path
-      	    error $ "Log is incomplete (no 'ended' entry). (Removed file cache.)"
+  events <- liftIO $ parseLog ircbrowseConfig path
+  io $ putStrLn "Would import the following events (limited output):"
+  io $ forM_ (take 10 events) $ \event ->
+    print event
+  -- importEvents channel events
+
+  -- This code is no longer applicable for ZNC. It was for tunes.org logs.
+  --
+  -- case reverse events of
+  --   (EventAt _ (decompose -> GenericEvent typ _ (T.concat -> text)):_)
+  --     | show typ == "Log" && T.isPrefixOf "ended" text -> importEvents channel events
+  --   _ -> do liftIO $ removeFile path
+  --     	    error $ "Log is incomplete (no 'ended' entry). (Removed file cache.)"
 
 -- | Import an event.
 importEvents :: Channel -> [EventAt] -> Model c s ()

@@ -7,7 +7,7 @@
 module Ircbrowse.View.Nicks where
 
 import Ircbrowse.View
-import Ircbrowse.Tunes
+import Ircbrowse.Types.Import
 import Ircbrowse.View.Template
 import Ircbrowse.View.Cloud
 

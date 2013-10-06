@@ -9,7 +9,7 @@
 module Ircbrowse.View.Browse where
 
 import           Ircbrowse.System
-import           Ircbrowse.Tunes
+import           Ircbrowse.Types.Import
 import           Ircbrowse.View
 import           Ircbrowse.View.NickColour
 import           Ircbrowse.View.Template

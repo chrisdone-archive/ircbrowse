@@ -3,7 +3,7 @@ module Ircbrowse.Model.Events where
 import Ircbrowse.Types
 import Ircbrowse.Data
 import Ircbrowse.Monads
-import Ircbrowse.Tunes
+import Ircbrowse.Types.Import
 
 import Data.Text (Text)
 import Snap.App
@@ -69,4 +69,3 @@ getPaginatedEvents channel pagination = do
 
   where offset = 1 + (max 0 (pnCurrentPage pagination - 1) * pnPerPage pagination)
         limit = pnPerPage pagination
-
