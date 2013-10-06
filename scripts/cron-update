@@ -5,7 +5,7 @@ cd $ircbrowsedir
 set -e
 
 logger -t ircbrowse "Clearing server logs ..."
-rm log/*
+rm -r log/*
 
 logger -t ircbrowse "Importing yesterday ..."
 dist/build/ircbrowse/ircbrowse ircbrowse.conf import-yesterday
