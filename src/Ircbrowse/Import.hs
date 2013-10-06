@@ -25,25 +25,25 @@ import qualified Data.Text.IO as T
 import           Snap.App
 import           Snap.App.Migrate
 
--- | Do a batch import of files in the current directory.
-batchImport :: Config -> Channel -> Pool -> IO ()
-batchImport config channel pool = do
-  files <- fmap (sort . filter (not . all (=='.'))) (getDirectoryContents ".")
-  hSetBuffering stdout NoBuffering
-  forM_ files $ \file -> do
-    putStr $ "Importing " ++ file ++ " ... "
-    runDB config () pool $ importFile channel config file
-    putStrLn $ "Done."
-    removeFile file
+-- -- | Do a batch import of files in the current directory.
+-- batchImport :: Config -> Channel -> Pool -> IO ()
+-- batchImport config channel pool = do
+--   files <- fmap (sort . filter (not . all (=='.'))) (getDirectoryContents ".")
+--   hSetBuffering stdout NoBuffering
+--   forM_ files $ \file -> do
+--     putStr $ "Importing " ++ file ++ " ... "
+--     runDB config () pool $ importFile channel config file
+--     putStrLn $ "Done."
+--     removeFile file
 
 -- | Import from yesterday all available channels.
 importYesterday :: Config -> Pool -> IO ()
 importYesterday config pool = do
-  forM_ [Haskell,Lisp] $ \channel -> do
+  forM_ [Haskell,Lisp,HaskellGame] $ \channel -> do
     putStrLn $ "Importing channel: " ++ showChan channel
     v <- newIORef []
     runDB config () pool $ do
-      row <- query ["select timestamp,type"
+      row <- query ["select timestamp"
 		   ,"from event"
 		   ,"where channel = ?"
 		   ,"order by id"
@@ -52,30 +52,53 @@ importYesterday config pool = do
       io $ writeIORef v row
     last <- readIORef v
     case listToMaybe last of
-      Just event@(lastdate::UTCTime,"log" :: Text) -> do
-        importChannel config pool (addDays 1 (utctDay lastdate)) channel
+      Just event@(Only (lastdate::UTCTime)) -> do
+        now <- getCurrentTime
+        let today = utctDay now
+        putStrLn $ "Last date: " ++ show lastdate
+        putStrLn $ "Importing from day: " ++ show (utctDay lastdate)
+        when (utctDay lastdate /= today) $
+          putStrLn $ "And also day: " ++ show (addDays 1 (utctDay lastdate))
+        importChannel lastdate config pool (utctDay lastdate) channel
+        when (utctDay lastdate /= today) $
+          importChannel lastdate config pool (addDays 1 (utctDay lastdate)) channel
         putStrLn $ "Imported channel " ++ showChan channel
-      _ -> error "Unable to retrieve last ended log imported."
-  -- putStrLn "Running ANALYZE ..."
-  -- runDB config () pool $ void $ exec ["ANALYZE event_order_index"] ()
-  -- putStrLn "Running data regeneration ..."
-  -- runDB config () pool $ generateData
+      _ -> do
+        logs <- fmap (sort) (getDirectoryContents (configLogDir config))
+        case find (isInfixOf ("#" ++ showChan channel ++ "_")) logs of
+          Nothing -> error $ "Unable to get last import time, or find the first log of this channel: " ++ showChan channel
+          Just fp ->
+            case parseFileTime fp of
+              Nothing -> error $ "Found log of this channel in the log dir, but couldn't parse date from the filename: " ++ fp
+              Just lastdate -> do
+                putStrLn $ "This channel has never been imported: " ++ showChan channel
+                putStrLn $ "Going to import from: " ++ show (lastdate :: UTCTime)
+                importChannel lastdate config pool (utctDay lastdate) channel
+                return ()
+  putStrLn "Running ANALYZE ..."
+  runDB config () pool $ void $ exec ["ANALYZE event_order_index"] ()
+  putStrLn "Running data regeneration ..."
+  runDB config () pool $ generateData
+
+parseFileTime (drop 1 . dropWhile (/='_') -> date) =
+  parseTime defaultTimeLocale "%Y%m%d.log" date
 
 -- | Import the channel into the database of the given date.
-importChannel :: Config -> Pool -> Day -> Channel -> IO ()
-importChannel config pool day channel = do
+importChannel :: UTCTime -> Config -> Pool -> Day -> Channel -> IO ()
+importChannel last config pool day channel = do
   tmp <- copyLog channel day
   let db = runDB config () pool
-  -- db $ migrate False versions
-  db $ importFile channel config tmp
-  -- updateChannelIndex config pool channel
+  db $ migrate False versions
+  db $ importFile last channel config tmp
+  updateChannelIndex config pool channel
   removeFile tmp
 
   where copyLog chan day = do
           let fp = "#" ++ showChan chan ++ "_" ++ unmakeDay day ++ ".log"
           tmp <- getTemporaryDirectory
+          putStrLn $ "Importing from file " ++ fp
           let tmpfile = tmp </> fp
-          copyFile ("/home/chris/.znc/users/ircbrowse/moddata/log/" ++ fp)
+          copyFile (configLogDir config ++ fp)
                    tmpfile
           return tmpfile
 
@@ -93,7 +116,19 @@ updateChannelIndex config pool channel = runDB config () pool $ do
                   ,"LIMIT 1"]
                   (Only (idxNum channel))
   case result of
-    [] -> error $ "Unable to get information for updating the channel index: " ++ showChan channel
+    -- [] -> error $ "Unable to get information for updating the channel index: " ++ showChan channel
+    [] -> void $ exec ["INSERT INTO event_order_index"
+                     ,"SELECT ? + RANK() OVER(ORDER BY id ASC) AS id,"
+                     ,"id AS ORIGIN,"
+                     ,"? AS idx"
+                     ,"FROM event"
+                     ,"WHERE channel = ?"
+                     ,"AND id > ?"
+                     ,"ORDER BY id ASC;"]
+                     (0::Int
+                     ,idxNum channel
+                     ,showChanInt channel
+                     ,0::Int)
     ((lastId::Int,lastOrigin::Int):_) -> void $
       exec ["INSERT INTO event_order_index"
 	   ,"SELECT ? + RANK() OVER(ORDER BY id ASC) AS id,"
@@ -109,13 +144,14 @@ updateChannelIndex config pool channel = runDB config () pool $ do
 	   ,lastOrigin)
 
 -- | Import from the given file.
-importFile :: Channel -> Config -> FilePath -> Model c s ()
-importFile channel config path = do
-  events <- liftIO $ parseLog ircbrowseConfig path
-  io $ putStrLn "Would import the following events (limited output):"
-  io $ forM_ (take 10 events) $ \event ->
-    print event
-  -- importEvents channel events
+importFile :: UTCTime -> Channel -> Config -> FilePath -> Model c s ()
+importFile last channel config path = do
+   events' <- liftIO $ parseLog ircbrowseConfig path
+   io $ putStrLn "Importing the following events:"
+   let events = dropWhile (not.(\ (EventAt t _) -> t > last)) events'
+   io $ forM_ events $ \event ->
+     print event
+   importEvents channel events
 
   -- This code is no longer applicable for ZNC. It was for tunes.org logs.
   --
@@ -145,7 +181,3 @@ importEvents channel events = do
                          return mempty
 
   where unNick (Nick t) = t
-
--- | Import failed lines of text (to be logged and debugged).
-importFailed :: Text -> Model c s ()
-importFailed text = return ()

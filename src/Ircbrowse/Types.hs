@@ -24,6 +24,7 @@ data Config = Config
   , configAdmin           :: Address
   , configSiteAddy        :: Address
   , configCacheDir        :: FilePath
+  , configLogDir          :: FilePath
   }
 
 instance AppConfig Config where
@@ -86,8 +87,8 @@ instance Key CacheKey where
   keyToString (Overview channel range) = contexted "overview" channel range
   keyToString (NickCloud channel range) = contexted "nick-cloud" channel range
   keyToString (Social channel range) = contexted "social" channel range
-  keyToString (Browse channel utctime (PN _ pagination _)) =
-    "browse-" ++ opt (Just (showChan channel)) ++ "-" ++ fromMaybe "" (fmap show utctime) ++
+  keyToString (Browse channel evid (PN _ pagination _)) =
+    "browse-" ++ opt (Just (showChan channel)) ++ maybe "" (("-"++).show) evid ++
     "-page" ++ show (pnCurrentPage pagination) ++ "-of-" ++ show (pnPerPage pagination) ++ ".html"
       where opt Nothing = "_"
             opt (Just x) = x

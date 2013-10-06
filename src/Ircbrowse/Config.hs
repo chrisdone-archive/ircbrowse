@@ -25,6 +25,9 @@ getConfig conf = do
         [admin,siteaddy]
           <- mapM (get c "ADDRESSES")
 	     	  ["admin","site_addy"]
+        [ldir]
+          <- mapM (get c "IMPORT")
+                  ["log_dir"]
 
         return Config {
            configPostgres = ConnectInfo pghost (read pgport) pguser pgpass pgdb
@@ -32,6 +35,7 @@ getConfig conf = do
 	 , configAdmin = Address Nothing (T.pack admin)
 	 , configSiteAddy = Address Nothing (T.pack siteaddy)
 	 , configCacheDir = cache
+         , configLogDir = ldir
          }
   case config of
     Left cperr -> error $ show cperr
