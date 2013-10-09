@@ -32,6 +32,8 @@ serve config pool = route routes where
            ,("/nick/:nick",run C.nickProfile)
            ,("/nicks",run C.allNicks)
 	   ,("/quotes.rss",run C.quotes)
+           ,("/pdfs/:channel/:unique",run C.pdfs)
+           ,("/pdfs/:channel",run C.pdfs)
            ,("/",run C.overview)
            ]
   run = runHandler PState config pool

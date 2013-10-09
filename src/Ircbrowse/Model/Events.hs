@@ -53,7 +53,6 @@ getTimestampedEvents channel tid pagination = do
 
 getPaginatedEvents channel pagination = do
   count <- single ["SELECT count FROM event_count where channel = ?"] (Only (showChanInt channel))
-  now <- io getCurrentTime
   events <- query ["SELECT idx.id,e.timestamp,e.network,e.channel,e.type,e.nick,e.text FROM event e,"
                   ,"event_order_index idx"
                   ,"WHERE e.id = idx.origin and idx.idx = ? and idx.id >= ? and idx.id < ?"
@@ -63,9 +62,36 @@ getPaginatedEvents channel pagination = do
                   ,offset
                   ,offset + limit
                   ,limit)
-  after <- io getCurrentTime
   return (pagination { pnTotal = fromMaybe 0 count }
          ,events)
 
   where offset = 1 + (max 0 (pnCurrentPage pagination - 1) * pnPerPage pagination)
         limit = pnPerPage pagination
+
+getPaginatedPdfs channel (PN _ pagination _) = do
+  count <- single ["SELECT COUNT(*) FROM event_order_index WHERE idx = ?"]
+                  (Only (idxNum channel + 1))
+  events <- query ["SELECT idx.id,e.timestamp,e.network,e.channel,e.type,e.nick,e.text FROM event e,"
+                  ,"event_order_index idx"
+                  ,"WHERE e.id = idx.origin and idx.idx = ? and idx.id >= ? and idx.id < ?"
+                  ,"ORDER BY idx.id asc"
+                  ,"LIMIT ?"]
+                  (idxNum channel + 1
+                  ,offset
+                  ,offset + limit
+                  ,limit)
+  return (pagination { pnTotal = fromMaybe 0 count }
+         ,events)
+
+  where offset = 1 + (max 0 (pnCurrentPage pagination - 1) * pnPerPage pagination)
+        limit = pnPerPage pagination
+
+getAllPdfs :: Channel -> Model c s [Text]
+getAllPdfs channel = do
+  events <- query ["SELECT e.text FROM event e,"
+                  ,"event_order_index idx"
+                  ,"WHERE e.id = idx.origin and idx.idx = ?"
+                  ,"ORDER BY idx.id asc"]
+                  (Only (idxNum channel + 1))
+  return (map (\(Only x) -> x)
+              events)

@@ -82,8 +82,11 @@ data CacheKey
   | Browse Channel (Maybe Integer) PN
   | Profile Text Bool Range
   | AllNicks Bool Range
+  | PDFs Channel PN
+  | UniquePDFs Channel
 
 instance Key CacheKey where
+  keyToString (UniquePDFs channel) = "unique-pdfs-" ++ showChan channel
   keyToString (Overview channel range) = contexted "overview" channel range
   keyToString (NickCloud channel range) = contexted "nick-cloud" channel range
   keyToString (Social channel range) = contexted "social" channel range
@@ -98,6 +101,11 @@ instance Key CacheKey where
   keyToString (AllNicks recent (Range from to)) =
     "nicks-" ++ "-" ++ (if recent then "recent-" else "all-") ++
     showDay from ++ "-" ++ showDay to ++ ".html"
+  keyToString (PDFs channel (PN _ pagination _)) =
+    "pdfs-" ++ opt (Just (showChan channel)) ++
+    "-page" ++ show (pnCurrentPage pagination) ++ "-of-" ++ show (pnPerPage pagination) ++ ".html"
+      where opt Nothing = "_"
+            opt (Just x) = x
 
 contexted name channel (Range from to) =
   name ++ "-" ++ opt (fmap showChan channel) ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"

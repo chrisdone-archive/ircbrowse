@@ -86,8 +86,32 @@ browse = do
   out <- cacheIf (isNothing q) (Browse channel evid pn') $ do
     (pagination,logs) <- model $ getEvents channel evid pn' q
     uri <- getMyURI
-    return $ Just $ V.browse uri channel timestamp logs pn' { pnPn = pagination } q
+    return $ Just $ V.browse channel uri timestamp logs pn' { pnPn = pagination } q
   maybe (return ()) outputText out
+
+pdfs :: Controller Config PState ()
+pdfs = do
+  unique <- fmap isJust (getTextMaybe "unique")
+  if unique
+     then uniquePdfs
+     else paginatedPdfs
+
+uniquePdfs = do
+  channel <- getChannel
+  uri <- getMyURI
+  viewCached (UniquePDFs channel) $ do
+    pdfs <- model $ getAllPdfs channel
+    return $ V.allPdfs uri channel pdfs
+
+paginatedPdfs = do
+  channel <- getChannel
+  timestamp <- getTimestamp
+  pn <- getPagination "events"
+  let pn' = pn { pnResultsPerPage = Just [25,35,50,100] }
+  viewCached (PDFs channel pn') $ do
+    (pagination,logs) <- model $ getPaginatedPdfs channel pn'
+    uri <- getMyURI
+    return $ V.pdfs channel uri timestamp logs pn' { pnPn = pagination } Nothing
 
 quotes :: Controller Config PState ()
 quotes = do

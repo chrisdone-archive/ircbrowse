@@ -23,8 +23,10 @@ main = do
   pool <- newPool (configPostgres config)
   let db = runDB () config pool
   case foldr const "" action of
-    "import-yesterday" ->
-      importYesterday config pool
+    "complete-import" ->
+      importRecent False config pool
+    "fast-import" ->
+      importRecent True config pool
     "generate-data" -> do
       db $ migrate False versions
       db $ generateData

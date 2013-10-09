@@ -7,9 +7,11 @@ import Data.Text (Text)
 import Text.Blaze.Html5
 import Text.Blaze.Html5.Attributes
 import Text.Links
+import Data.String.Extra
 
 -- | Render some text to HTML, replacing any URIs with actual links.
 linkify :: Text -> Html
 linkify = mapM_ renderOrLeave . explodeLinks where
   renderOrLeave (Right text) = toHtml text
-  renderOrLeave (Left uri) = a ! href (toValue (show uri)) $ toHtml (show uri)
+  renderOrLeave (Left uri) = a ! href (toValue (show uri)) $
+    toHtml (limitLen 100 (show uri))

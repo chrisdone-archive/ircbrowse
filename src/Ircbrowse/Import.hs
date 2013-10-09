@@ -16,13 +16,14 @@ import           Ircbrowse.Types.Import
 
 import           Control.Concurrent
 import qualified Data.ByteString as S
+import           Data.IORef
 import           Data.IRC.CLog.Parse hiding (Config,parseLog)
 import           Data.IRC.Znc.Parse hiding (Config)
 import           Data.Text (Text)
-import           Data.IORef
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import           Snap.App
+import           Snap.App.Cache
 import           Snap.App.Migrate
 
 -- -- | Do a batch import of files in the current directory.
@@ -36,9 +37,9 @@ import           Snap.App.Migrate
 --     putStrLn $ "Done."
 --     removeFile file
 
--- | Import from yesterday all available channels.
-importYesterday :: Config -> Pool -> IO ()
-importYesterday config pool = do
+-- | Import most recent logs all available channels.
+importRecent :: Bool -> Config -> Pool -> IO ()
+importRecent quick config pool = do
   forM_ [Haskell,Lisp,HaskellGame] $ \channel -> do
     putStrLn $ "Importing channel: " ++ showChan channel
     v <- newIORef []
@@ -75,10 +76,13 @@ importYesterday config pool = do
                 putStrLn $ "Going to import from: " ++ show (lastdate :: UTCTime)
                 importChannel lastdate config pool (utctDay lastdate) channel
                 return ()
-  putStrLn "Running ANALYZE ..."
-  runDB config () pool $ void $ exec ["ANALYZE event_order_index"] ()
-  putStrLn "Running data regeneration ..."
-  runDB config () pool $ generateData
+  unless quick $ do
+    putStrLn "Running ANALYZE ..."
+    runDB config () pool $ void $ exec ["ANALYZE event_order_index"] ()
+    putStrLn "Running data regeneration ..."
+    runDB config () pool $ generateData
+  putStrLn "Clearing cache ..."
+  clearCache config
 
 parseFileTime (drop 1 . dropWhile (/='_') -> date) =
   parseTime defaultTimeLocale "%Y%m%d.log" date
@@ -90,7 +94,6 @@ importChannel last config pool day channel = do
   let db = runDB config () pool
   db $ migrate False versions
   db $ importFile last channel config tmp
-  updateChannelIndex config pool channel
   removeFile tmp
 
   where copyLog chan day = do
@@ -106,8 +109,8 @@ unmakeDay :: FormatTime t => t -> String
 unmakeDay = formatTime defaultTimeLocale "%Y%m%d"
 
 -- | Update the event order index for the given channel.
-updateChannelIndex :: Config -> Pool -> Channel -> IO ()
-updateChannelIndex config pool channel = runDB config () pool $ do
+updateChannelIndex :: Config -> Channel -> Int -> Model c s ()
+updateChannelIndex config channel insertions = do
   io $ putStrLn $ "Updating order indexes for " ++ showChan channel ++ " ..."
   result <- query ["SELECT id,origin"
                   ,"FROM event_order_index"
@@ -142,6 +145,10 @@ updateChannelIndex config pool channel = runDB config () pool $ do
 	   ,idxNum channel
 	   ,showChanInt channel
 	   ,lastOrigin)
+  io $ putStrLn $  "Updating event count (+" ++ show insertions ++ ") for " ++ showChan channel ++ " ..."
+  void $ exec ["update event_count set \"count\" = \"count\" + ? where channel = ?;"]
+             (insertions
+             ,showChanInt channel)
 
 -- | Import from the given file.
 importFile :: UTCTime -> Channel -> Config -> FilePath -> Model c s ()
@@ -152,6 +159,7 @@ importFile last channel config path = do
    io $ forM_ events $ \event ->
      print event
    importEvents channel events
+   updateChannelIndex config channel (length events)
 
   -- This code is no longer applicable for ZNC. It was for tunes.org logs.
   --

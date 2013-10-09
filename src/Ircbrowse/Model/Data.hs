@@ -4,16 +4,32 @@
 module Ircbrowse.Model.Data where
 
 import Ircbrowse.Monads
+import Ircbrowse.Types
+import           Ircbrowse.Data
+import           Ircbrowse.Model.Migrations
+import           Ircbrowse.Monads
+import           Ircbrowse.System
+import           Ircbrowse.Types
+import           Ircbrowse.Types.Import
+
 import Snap.App
 
 -- | Generate everything.
 generateData :: Model c s ()
 generateData = do
   void $ do
-         exec ["delete from event_count;"
-              ,"insert into event_count select (select count(*) from event where channel = c.id),id from channel c;"]
-              ()
-	 exec ["delete from conversation_by_year"] ()
-	 exec ["insert into conversation_by_year select date_part('year',timestamp),count(*) from event where type in ('talk','act') group by date_part('year',timestamp) order by 1;"] ()
-	 exec ["delete from general_activity_by_year"] ()
-	 exec ["insert into general_activity_by_year select date_part('year',timestamp),count(*) from event group by date_part('year',timestamp) order by 1;"] ()
+    exec ["delete from conversation_by_year"] ()
+    exec ["insert into conversation_by_year select date_part('year',timestamp),count(*) from event where type in ('talk','act') group by date_part('year',timestamp) order by 1;"] ()
+    exec ["delete from general_activity_by_year"] ()
+    exec ["insert into general_activity_by_year select date_part('year',timestamp),count(*) from event group by date_part('year',timestamp) order by 1;"] ()
+    forM_ [toEnum 0..] $ \channel ->
+      exec ["insert into event_order_index"
+           ,"SELECT RANK() OVER(ORDER BY id desc) AS id,"
+           ,"id as origin, "
+           ,"(channel * 1000) + 1 as idx "
+           ,"FROM event "
+           ,"WHERE channel = ? and "
+           ,"text LIKE '%http%.pdf%' AND "
+           ,"text ~ E'https?://[^ ]+\\.pdf' "
+           ,"order by id asc;"]
+           (Only (idxNum channel))

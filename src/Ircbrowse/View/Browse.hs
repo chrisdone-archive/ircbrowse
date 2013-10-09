@@ -10,25 +10,36 @@ module Ircbrowse.View.Browse where
 
 import           Ircbrowse.System
 import           Ircbrowse.Types.Import
-import           Ircbrowse.View
+import           Ircbrowse.View hiding (id)
 import           Ircbrowse.View.NickColour
 import           Ircbrowse.View.Template
 
+import           Control.Arrow
+import           Data.Either
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Network.URI
 import           Network.URI.Params
+import           Prelude (id)
 import           Prelude (min)
+import qualified Text.Blaze.Html5.Attributes as A
+import           Text.Links
 
-browse :: URI -> Channel -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
-browse uri channel timestamp events pn q =
-  template "browse" ("Browse #" <> T.pack (showChan channel)) mempty $ do
+browse channel = browser True ("Browse #" <> T.pack (showChan channel)) channel $ mempty
+
+pdfs channel = browser False ("PDFs linked in #" <> T.pack (showChan channel)) channel $ do
+  p $ a ! A.href (toValue ("/pdfs/" ++ showChan channel ++ "/unique")) $ do
+    "Show unique PDF links →"
+
+browser :: Bool -> Text -> Channel -> Html -> URI -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
+browser search title channel extra uri timestamp events pn q =
+  template "browse" title mempty $ do
     containerFluid $ do
       mainHeading $
-        a ! hrefURI (clearUrlQueries uri) $ do
-          " #"; toHtml (showChan channel)
-      searchForm q
-      if null events
+        a ! hrefURI (clearUrlQueries uri) $ toHtml title
+      when search $ searchForm q
+      extra
+      if null events && isJust q
          then noResults
          else paginatedTable channel uri events pn
 
@@ -82,3 +93,30 @@ timestamp puri eid t anchor secs =
   where uri = updateUrlParam "id" (show eid)
                                   (updateUrlParam "timestamp" secs
                                                   (clearUrlQueries puri))
+
+allPdfs :: URI -> Channel -> [Text] -> Html
+allPdfs uri channel lines = do
+  template "pdfs" title mempty $ do
+    containerFluid $ do
+      mainHeading $
+        a ! hrefURI (clearUrlQueries uri) $ toHtml title
+      p $ a ! A.href (toValue ("/pdfs/" ++ showChan channel)) $ do
+          "← Browse all links in context"
+      let urls = sortBy (flip (comparing fst))
+               $ map (length &&& id)
+               $ group
+               $ sort
+               $ concat
+               $ map (filter (isSuffixOf ".pdf") . map show . lefts . explodeLinks)
+               $ lines
+      table !. "table" $ do
+        tr $ do
+          th "Linked"
+          th "URL"
+        forM_ urls $ \(i,url) -> do
+          tr $ do
+            td (toHtml (show i))
+            forM_ (take 1 url) $ \url ->
+              td (a ! A.href (toValue url) ! target "_blank" $ toHtml url)
+
+  where title = ("Unique PDFs linked in #" <> T.pack (showChan channel))

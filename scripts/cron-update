@@ -8,8 +8,8 @@ logger -t ircbrowse "Clearing server logs ..."
 rm -r log/*
 rm cache/*
 
-logger -t ircbrowse "Importing yesterday ..."
-dist/build/ircbrowse/ircbrowse ircbrowse.conf import-yesterday
+logger -t ircbrowse "Importing latest logs ..."
+dist/build/ircbrowse/ircbrowse ircbrowse.conf complete-import
 
 logger -t ircbrowse "Restarting server ..."
 killall ircbrowse
