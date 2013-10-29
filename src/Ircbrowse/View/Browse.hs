@@ -1,6 +1,7 @@
 {-# LANGUAGE PatternGuards #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS -fno-warn-unused-do-bind -fno-warn-type-defaults #-}
 
@@ -16,6 +17,7 @@ import           Ircbrowse.View.Template
 
 import           Control.Arrow
 import           Data.Either
+import           Data.Function
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Network.URI
@@ -94,7 +96,7 @@ timestamp puri eid t anchor secs =
                                   (updateUrlParam "timestamp" secs
                                                   (clearUrlQueries puri))
 
-allPdfs :: URI -> Channel -> [Text] -> Html
+allPdfs :: URI -> Channel -> [(Int,ZonedTime,Text)] -> Html
 allPdfs uri channel lines = do
   template "pdfs" title mempty $ do
     containerFluid $ do
@@ -104,19 +106,31 @@ allPdfs uri channel lines = do
           "← Browse all links in context"
       let urls = sortBy (flip (comparing fst))
                $ map (length &&& id)
-               $ group
-               $ sort
+               $ groupBy (on (==) (\(_,_,url) -> url))
+               $ sortBy (comparing (\(_,_,url) -> url))
                $ concat
-               $ map (filter (isSuffixOf ".pdf") . map show . lefts . explodeLinks)
+               $ map (\(id,time,text) -> map (id,time,) . filter (isSuffixOf ".pdf") . map show . lefts . explodeLinks $ text)
                $ lines
       table !. "table" $ do
         tr $ do
           th "Linked"
           th "URL"
-        forM_ urls $ \(i,url) -> do
+        forM_ urls $ \(i,urls) -> do
           tr $ do
             td (toHtml (show i))
-            forM_ (take 1 url) $ \url ->
-              td (a ! A.href (toValue url) ! target "_blank" $ toHtml url)
+            forM_ (take 1 urls) $ \(_,_,url) ->
+              td $ do
+                a ! A.href (toValue url) ! target "_blank" $ toHtml url
+                " — "
+                a ! A.href (toValue ("http://ircbrowse.net/browse/" ++ showChan channel ++ "?q=" ++ url)) $
+                  "Search results"
+                " — Context"; (if length urls == 1 then "" else "s"); ": "
+                forM_ (take 30 (zip [1..] urls)) $ \(j,(i,t,_)) -> do
+                  let secs = formatTime defaultTimeLocale "%s" (zonedTimeToUTC t)
+                  a ! A.href (toValue ("/browse/" ++ showChan channel ++ "?id=" ++ show i ++
+                                      "&timestamp=" ++ secs ++ "#t" ++ secs)) $
+                   toHtml (show j)
+                  " "
+                when (length urls > 30) $ " …"
 
   where title = ("Unique PDFs linked in #" <> T.pack (showChan channel))

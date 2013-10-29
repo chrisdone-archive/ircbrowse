@@ -36,13 +36,13 @@ getEvents channel tid (PN _ pagination _) q = do
 
 getEventsByResults :: Channel -> [Int] -> Model c s [Event]
 getEventsByResults channel eids = do
-  query ["SELECT (SELECT id FROM event_order_index WHERE origin = event.id),"
+  query ["SELECT (SELECT id FROM event_order_index WHERE origin = event.id AND idx  = ? limit 1),"
         ,"timestamp,network,channel,type,nick,text"
         ,"FROM event"
         ,"WHERE id IN ("
         ,intercalate ", " (map show eids)
         ,") ORDER BY id desc"]
-        ()
+        (Only (idxNum channel))
 
 getTimestampedEvents channel tid pagination = do
   getPaginatedEvents channel pagination
@@ -86,12 +86,11 @@ getPaginatedPdfs channel (PN _ pagination _) = do
   where offset = 1 + (max 0 (pnCurrentPage pagination - 1) * pnPerPage pagination)
         limit = pnPerPage pagination
 
-getAllPdfs :: Channel -> Model c s [Text]
+getAllPdfs :: Channel -> Model c s [(Int,ZonedTime,Text)]
 getAllPdfs channel = do
-  events <- query ["SELECT e.text FROM event e,"
+  events <- query ["SELECT e.id,e.timestamp,e.text FROM event e,"
                   ,"event_order_index idx"
                   ,"WHERE e.id = idx.origin and idx.idx = ?"
                   ,"ORDER BY idx.id asc"]
                   (Only (idxNum channel + 1))
-  return (map (\(Only x) -> x)
-              events)
+  return events

@@ -22,7 +22,9 @@ generateData = do
     exec ["insert into conversation_by_year select date_part('year',timestamp),count(*) from event where type in ('talk','act') group by date_part('year',timestamp) order by 1;"] ()
     exec ["delete from general_activity_by_year"] ()
     exec ["insert into general_activity_by_year select date_part('year',timestamp),count(*) from event group by date_part('year',timestamp) order by 1;"] ()
-    forM_ [toEnum 0..] $ \channel ->
+    forM_ [toEnum 0..] $ \channel -> do
+      exec ["delete from event_order_index where idx = (? * 1000) + 1"]
+           (Only (idxNum channel))
       exec ["insert into event_order_index"
            ,"SELECT RANK() OVER(ORDER BY id desc) AS id,"
            ,"id as origin, "
@@ -30,6 +32,6 @@ generateData = do
            ,"FROM event "
            ,"WHERE channel = ? and "
            ,"text LIKE '%http%.pdf%' AND "
-           ,"text ~ E'https?://[^ ]+\\.pdf' "
+           ,"text ~ ?"
            ,"order by id asc;"]
-           (Only (idxNum channel))
+           (idxNum channel,"https?://[^ ]+\\.pdf")
