@@ -1,0 +1,13 @@
+cd $1
+
+dist/build/ircbrowse/ircbrowse ircbrowse.conf fast-import
+sleep 20
+
+dist/build/ircbrowse/ircbrowse ircbrowse.conf fast-import
+sleep 20
+
+dist/build/ircbrowse/ircbrowse ircbrowse.conf fast-import
+sleep 20
+
+dist/build/ircbrowse/ircbrowse ircbrowse.conf fast-import
+
