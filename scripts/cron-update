@@ -5,11 +5,10 @@ cd $ircbrowsedir
 set -e
 
 logger -t ircbrowse "Clearing server logs ..."
-rm -r log/*
-rm cache/*
+rm -rf log/*
+rm -f cache/*
 
-logger -t ircbrowse "Importing latest logs ..."
-dist/build/ircbrowse/ircbrowse ircbrowse.conf complete-import
+dist/build/ircbrowse/ircbrowse ircbrowse.conf generate-data
 
 logger -t ircbrowse "Restarting server ..."
 killall ircbrowse
