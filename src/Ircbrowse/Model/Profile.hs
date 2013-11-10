@@ -72,13 +72,15 @@ activeHours nick recent (Range from to) = do
                   ,"AND REGEXP_REPLACE(text,'^@remember ([^ ]+).*',E'\\\\1') = ?"
                   ,"ORDER BY timestamp DESC"]
                   (idxNum Haskell,recent,from,to,nick)
-  karma <- single ["select count (*) from event where text like ?"]
-                  (Only (nick <> "++%"))
+  karmap <- single ["select count(*) from event where text like ?"]
+                   (Only (nick <> "++%"))
+  karmam <- single ["select count(*) from event where text like ?"]
+                   (Only (nick <> "--%"))
   return $
     NickStats { nickHours = hours
               , nickYears = years
               , nickLines = lines
               , nickQuote = listToMaybe rquote
               , nickQuotes = quotes
-              , nickKarma = fromMaybe 0 karma
+              , nickKarma = fromMaybe 0 karmap - fromMaybe 0 karmam
               }
