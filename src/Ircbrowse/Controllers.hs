@@ -16,6 +16,7 @@ import           Ircbrowse.View.Browse as V
 import           Ircbrowse.View.NickCloud as V
 import           Ircbrowse.View.Overview as V
 import           Ircbrowse.View.Social as V
+import           Ircbrowse.View.Calendar as V
 import           Ircbrowse.View.Profile as V
 import           Ircbrowse.View.Nicks as V
 
@@ -40,6 +41,14 @@ overview = do
   viewCached (Overview channel range) $ do
     stats <- model $ getStats channel range
     return $ V.overview channel range stats
+
+calendar :: Controller Config PState ()
+calendar = do
+  channel <- getChannel
+  viewCached (Calendar channel) $ do
+    years <- return []
+    today <- fmap utctDay (io getCurrentTime)
+    return $ V.calendar today years channel
 
 nickProfile :: Controller Config PState ()
 nickProfile = do
@@ -74,6 +83,24 @@ nickCloud = do
   viewCached (NickCloud channel range) $ do
     nicks <- model $ getNickStats channel range
     return $ V.nickCloud nicks
+
+browseDay :: Controller Config PState ()
+browseDay = do
+  year <- getText "year"
+  month <- getText "month"
+  day <- getText "day"
+  let datetext = year <> "/" <> month <> "/" <> day
+  case parseTime defaultTimeLocale "%Y/%m/%d" (T.unpack datetext) of
+    Nothing -> return ()
+    Just day -> do
+      evid <- getIntegerMaybe "id"
+      timestamp <- getTimestamp
+      channel <- getChannel
+      out <- cache (BrowseDay day) $ do
+        events <- model $ getEventsByDay channel day
+        uri <- getMyURI
+        return $ Just $ V.browseDay datetext events uri
+      maybe (return ()) outputText out
 
 browse :: Controller Config PState ()
 browse = do

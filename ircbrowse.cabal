@@ -43,4 +43,5 @@ executable ircbrowse
                      containers,
                      timezone-olson,
                      timezone-series,
-                     attoparsec
+                     attoparsec,
+                     split

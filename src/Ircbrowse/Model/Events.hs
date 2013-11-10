@@ -36,13 +36,23 @@ getEvents channel tid (PN _ pagination _) q = do
 
 getEventsByResults :: Channel -> [Int] -> Model c s [Event]
 getEventsByResults channel eids = do
-  query ["SELECT (SELECT id FROM event_order_index WHERE origin = event.id AND idx  = ? limit 1),"
+  query ["SELECT (SELECT id FROM event_order_index WHERE origin = event.id AND idx = ? limit 1),"
         ,"timestamp,network,channel,type,nick,text"
         ,"FROM event"
         ,"WHERE id IN ("
         ,intercalate ", " (map show eids)
-        ,") ORDER BY id desc"]
+        ,") ORDER BY id DESC"]
         (Only (idxNum channel))
+
+getEventsByDay :: Channel -> Day -> Model c s [Event]
+getEventsByDay channel day = do
+  query ["SELECT * FROM (SELECT (SELECT id FROM event_order_index WHERE origin = event.id AND idx = ? limit 1) as id,"
+        ,"timestamp,network,channel,type,nick,text"
+        ,"FROM event"
+        ,"WHERE timestamp::date = ?::date"
+        ,"ORDER BY id ASC) c where not c.id is null"]
+        (idxNum channel
+        ,day)
 
 getTimestampedEvents channel tid pagination = do
   getPaginatedEvents channel pagination

@@ -29,6 +29,8 @@ serve config pool = route routes where
            ,("/browse/:channel",run C.browse)
            ,("/nick-cloud",run C.nickCloud)
            ,("/social",run C.socialGraph)
+           ,("/calendar/:channel",run C.calendar)
+           ,("/day/:channel/:year/:month/:day",run C.browseDay)
            ,("/nick/:nick",run C.nickProfile)
            ,("/nicks",run C.allNicks)
 	   ,("/quotes.rss",run C.quotes)

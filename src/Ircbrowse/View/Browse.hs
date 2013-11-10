@@ -45,8 +45,18 @@ browser search title channel extra uri timestamp events pn q =
          then noResults
          else paginatedTable channel uri events pn
 
+browseDay :: Text -> [Event] -> URI -> Html
+browseDay date events uri = do
+  template "browse" date mempty $ do
+    containerFluid $ do
+      mainHeading $ toHtml date
+      if null events
+         then noResults
+         else eventsTable events uri
+    footer
+
 noResults = do
-  p "There are no results for that search!"
+  p "There are no results!"
 
 searchForm :: Maybe Text -> Html
 searchForm q =
@@ -60,6 +70,12 @@ paginatedTable :: Channel -> URI -> [Event] -> PN -> Html
 paginatedTable channel uri events pn' = do
   let pn = pn' { pnURI = deleteQueryKey "timestamp" (deleteQueryKey "id" uri) }
   pagination pn
+  eventsTable events uri
+  pagination pn { pnPn = (pnPn pn) { pnShowDesc = False }
+                , pnResultsPerPage = Nothing
+                }
+
+eventsTable events uri =
   table !. "events table" $
     forM_ events $ \event -> do
       let secs = formatTime defaultTimeLocale "%s" (zonedTimeToUTC (eventTimestamp event))
@@ -84,9 +100,6 @@ paginatedTable channel uri events pn' = do
           else do td !. "nick-wrap" $
                     a ! href nickLink !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
                   td !. "text" $ linkify $ eventText event
-  pagination pn { pnPn = (pnPn pn) { pnShowDesc = False }
-                , pnResultsPerPage = Nothing
-                }
 
 timestamp :: URI -> Int -> ZonedTime -> String -> String -> Html
 timestamp puri eid t anchor secs =

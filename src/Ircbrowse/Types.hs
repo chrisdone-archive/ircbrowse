@@ -80,13 +80,17 @@ data CacheKey
   | NickCloud (Maybe Channel) Range
   | Social (Maybe Channel) Range
   | Browse Channel (Maybe Integer) PN
+  | BrowseDay Day
   | Profile Text Bool Range
   | AllNicks Bool Range
   | PDFs Channel PN
   | UniquePDFs Channel
+  | Calendar Channel
 
 instance Key CacheKey where
-  keyToString (UniquePDFs channel) = "unique-pdfs-" ++ showChan channel
+  keyToString (Calendar channel) = "calendar-" ++ showChan channel ++ ".html"
+  keyToString (BrowseDay day) = "browse-day-" ++ showDay day ++ ".html"
+  keyToString (UniquePDFs channel) = "unique-pdfs-" ++ showChan channel ++ ".html"
   keyToString (Overview channel range) = contexted "overview" channel range
   keyToString (NickCloud channel range) = contexted "nick-cloud" channel range
   keyToString (Social channel range) = contexted "social" channel range
@@ -123,7 +127,7 @@ data Event = Event
   , eventType      :: !Text
   , eventNick      :: !(Maybe Text)
   , eventText      :: !Text
-  }
+  } deriving (Show)
 
 instance FromRow Event where
   fromRow = Event <$> field <*> field <*> field <*> field <*> field <*> field <*> field
