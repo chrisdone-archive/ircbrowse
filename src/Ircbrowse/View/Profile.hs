@@ -100,7 +100,7 @@ profileSections nick showrecent ns@NickStats{..} =
                  ,secs]
          where secs = formatTime defaultTimeLocale "%s" t
 
-summary nick showrecent NickStats{..} =
+summary nick showrecent NickStats{..} = do
   p $ do toHtml nick; " has written "
          toHtml (showCount nickWords); " words, "
          toHtml (showCount nickLines); " lines"
@@ -113,6 +113,7 @@ summary nick showrecent NickStats{..} =
          "most active at around "
          toHtml (printf "%.0d" (let (z,_,_,_) = (maximumBy' (comparing (\(_,_,_,z) -> z)) nickHours) in z) :: String)
          ":00 (UTC)."
+  p $ do toHtml nick; " has a karma of "; toHtml (show nickKarma)
 
   where nickWords = sum (map (\(_,_,_,sum,_) -> sum) nickYears)
         nickAvg   = round (fromIntegral (sum (map (\(_,avg,_,_,_) -> avg) nickYears)) /

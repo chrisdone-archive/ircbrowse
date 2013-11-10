@@ -46,6 +46,7 @@ getStats channel range@(Range from to) = do
   channels <- queryNoParams ["SELECT network,name FROM channel order by name"]
   activitybyyear <- queryNoParams ["SELECT * FROM general_activity_by_year order by year asc"]
   conversationbyyear <- queryNoParams ["SELECT * FROM conversation_by_year order by year asc"]
+
   return Stats
     { stEventCount    = fromMaybe 0 count
     , stMsgCount      = fromMaybe 0 msgcount

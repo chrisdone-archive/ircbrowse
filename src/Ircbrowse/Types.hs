@@ -19,12 +19,12 @@ import Text.Blaze.Pagination
 
 -- | Site-wide configuration.
 data Config = Config
-  { configPostgres        :: ConnectInfo
-  , configDomain          :: String
-  , configAdmin           :: Address
-  , configSiteAddy        :: Address
-  , configCacheDir        :: FilePath
-  , configLogDir          :: FilePath
+  { configPostgres        :: !ConnectInfo
+  , configDomain          :: !String
+  , configAdmin           :: !Address
+  , configSiteAddy        :: !Address
+  , configCacheDir        :: !FilePath
+  , configLogDir          :: !FilePath
   }
 
 instance AppConfig Config where
@@ -37,16 +37,16 @@ data PState = PState
 
 -- | Statistics.
 data Stats = Stats
-  { stEventCount :: Integer
-  , stMsgCount   :: Integer
-  , stNickCount  :: Integer
-  , stActiveTimes :: [(Integer,Integer)]
-  , stDailyActivity :: [(Integer,Integer)]
-  , stActiveNicks :: [(String,Integer)]
-  , stNetworks :: [(String,String)]
-  , stChannels :: [(String,String)]
-  , stActivityByYear :: [(Integer,Integer)]
-  , stConversationByYear :: [(Integer,Integer)]
+  { stEventCount         :: !Integer
+  , stMsgCount           :: !Integer
+  , stNickCount          :: !Integer
+  , stActiveTimes        :: ![(Integer,Integer)]
+  , stDailyActivity      :: ![(Integer,Integer)]
+  , stActiveNicks        :: ![(String,Integer)]
+  , stNetworks           :: ![(String,String)]
+  , stChannels           :: ![(String,String)]
+  , stActivityByYear     :: ![(Integer,Integer)]
+  , stConversationByYear :: ![(Integer,Integer)]
   } deriving Show
 
 instance Default Stats where
@@ -72,7 +72,7 @@ instance AppLiftModel Config PState where
     io $ runReaderT (runModel action) st
 
 data Range = Range
-  { rangeFrom :: Day, rangeTo :: Day }
+  { rangeFrom :: !Day, rangeTo :: !Day }
   deriving (Eq,Show)
 
 data CacheKey
