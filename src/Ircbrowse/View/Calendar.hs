@@ -27,13 +27,21 @@ import System.Locale
 
 startYear = 2001
 
-calendar :: Day -> [Day] -> Channel -> Html
-calendar today days channel = do
-  let title = "Calendar: #" <> T.pack (showChan channel)
-  template "calendar" title (return ()) $ do
+calendar :: Day -> Day -> Channel -> Html
+calendar firstDay today channel = do
+  let title = do "Calendar: "
+                 a ! href (toValue ("/browse/" ++ showChan channel)) $
+                   toHtml (T.pack ("#" ++ showChan channel))
+  template "calendar" (T.pack ("#" ++ showChan channel)) (return ()) $ do
     container $ do
-      mainHeading $ toHtml title
-      forM_ (years today) $ \year ->
+      mainHeading $ title
+      p $ a ! href (toValue ("/browse/" ++ showChan channel)) $ do
+        "Browse and search all "; toHtml ("#" ++ showChan channel); " logs →"
+      p $ a ! href (toValue ("/day/" ++ showChan channel ++ "/today")) $ do
+        "View today's complete log →"
+      p $ a ! href (toValue ("/day/" ++ showChan channel ++ "/today?mode=recent")) $ do
+        "View recent logs from today →"
+      forM_ (years firstDay today) $ \year ->
         case year of
           [] -> return ()
           ((yearsample:_):_) -> do
@@ -57,11 +65,13 @@ calendar today days channel = do
                                      toHtml (showDayOfMonth day)
     footer
 
-years :: Day -> [[[Day]]]
-years today = reverse (map (groupBy (on (==) showMonth))
-                           (groupBy (on (==) showYear)
-                                    (takeWhile (<= today)
-                                               [fromOrdinalDate startYear 01 ..])))
+years :: Day -> Day -> [[[Day]]]
+years firstDay today =
+  reverse (map (groupBy (on (==) showMonth))
+               (groupBy (on (==) showYear)
+                        (takeWhile (<= today)
+                                   (dropWhile (<firstDay)
+                                              [fromOrdinalDate startYear 01 ..]))))
 
 showYear :: FormatTime t => t -> String
 showYear = formatTime defaultTimeLocale "%Y"

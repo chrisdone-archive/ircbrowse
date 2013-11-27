@@ -80,7 +80,7 @@ data CacheKey
   | NickCloud (Maybe Channel) Range
   | Social (Maybe Channel) Range
   | Browse Channel (Maybe Integer) PN
-  | BrowseDay Day
+  | BrowseDay Channel Day Text
   | Profile Text Bool Range
   | AllNicks Bool Range
   | PDFs Channel PN
@@ -89,7 +89,7 @@ data CacheKey
 
 instance Key CacheKey where
   keyToString (Calendar channel) = "calendar-" ++ showChan channel ++ ".html"
-  keyToString (BrowseDay day) = "browse-day-" ++ showDay day ++ ".html"
+  keyToString (BrowseDay channel day mode) = "browse-day-" ++ showDay day ++ "-" ++ showChan channel ++ "-" ++ unpack mode ++ ".html"
   keyToString (UniquePDFs channel) = "unique-pdfs-" ++ showChan channel ++ ".html"
   keyToString (Overview channel range) = contexted "overview" channel range
   keyToString (NickCloud channel range) = contexted "nick-cloud" channel range

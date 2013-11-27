@@ -14,4 +14,10 @@
 #footer .container .credit { margin: 20px 0; }
 #footer { margin-top: 5em; background: #f5f5f5; border-top: 1px solid #f0f0f0 }
 
-#nick-profile
+body#calendar td {
+  padding: 0.25em;
+}
+
+body#calendar td a:visited {
+  color: #888;
+}

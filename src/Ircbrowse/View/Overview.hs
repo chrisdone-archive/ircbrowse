@@ -38,7 +38,7 @@ summarize range stats = p $ do
   h1 $ "IRC Browse"
   p $ do strong "Channel(s): "
          htmlCommasAnd $ flip map (stChannels stats) $ \(network,chan) ->
-           a ! href (toValue ("/browse/" ++ chan)) $ do "#"; toHtml chan
+           a ! href (toValue ("/calendar/" ++ chan)) $ do "#"; toHtml chan
   "During this "
   toHtml (show (diffDays (rangeTo range) (rangeFrom range)))
   "-day reporting period, a total of "

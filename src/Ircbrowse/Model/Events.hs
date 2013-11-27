@@ -34,6 +34,17 @@ getEvents channel tid (PN _ pagination _) q = do
         Nothing -> getPaginatedEvents channel pagination
         Just t -> getTimestampedEvents channel t pagination
 
+getFirstEventDate :: Channel -> Model c s Day
+getFirstEventDate channel = do
+  today <- fmap utctDay (io getCurrentTime)
+  fmap (fromMaybe today)
+       (single ["SELECT timestamp"
+               ,"FROM event"
+               ,"WHERE channel = ?"
+               ,"ORDER BY timestamp"
+               ,"ASC LIMIT 1"]
+               (Only (idxNum channel)))
+
 getEventsByResults :: Channel -> [Int] -> Model c s [Event]
 getEventsByResults channel eids = do
   query ["SELECT (SELECT id FROM event_order_index WHERE origin = event.id AND idx = ? limit 1),"
@@ -44,15 +55,36 @@ getEventsByResults channel eids = do
         ,") ORDER BY id DESC"]
         (Only (idxNum channel))
 
-getEventsByDay :: Channel -> Day -> Model c s [Event]
-getEventsByDay channel day = do
+getEventsByDay :: Channel -> Day -> Bool -> Model c s [Event]
+getEventsByDay channel day everything =
+  if everything
+     then getAllEventsByDay channel day
+     else getRecentEventsByDay channel day
+
+getRecentEventsByDay :: Channel -> Day -> Model c s [Event]
+getRecentEventsByDay channel day = do
+  count <- single ["SELECT count FROM event_count where channel = ?"] (Only (showChanInt channel))
+  let offset = fromMaybe 0 count - limit
+  query ["SELECT idx.id,e.timestamp,e.network,e.channel,e.type,e.nick,e.text FROM event e,"
+         ,"event_order_index idx"
+         ,"WHERE e.id = idx.origin and idx.idx = ? and idx.id >= ?"
+         ,"ORDER BY e.id DESC"
+         ,"LIMIT ?"]
+         (idxNum channel
+         ,offset
+         ,limit)
+
+  where limit = 50 :: Int
+
+getAllEventsByDay :: Channel -> Day -> Model c s [Event]
+getAllEventsByDay channel day =
   query ["SELECT * FROM (SELECT (SELECT id FROM event_order_index WHERE origin = event.id AND idx = ? limit 1) as id,"
-        ,"timestamp,network,channel,type,nick,text"
-        ,"FROM event"
-        ,"WHERE timestamp::date = ?::date"
-        ,"ORDER BY id ASC) c where not c.id is null"]
-        (idxNum channel
-        ,day)
+       ,"timestamp,network,channel,type,nick,text"
+       ,"FROM event"
+       ,"WHERE timestamp::date = ?::date"
+       ,"ORDER BY id ASC) c where not c.id is null"]
+       (idxNum channel
+       ,day)
 
 getTimestampedEvents channel tid pagination = do
   getPaginatedEvents channel pagination

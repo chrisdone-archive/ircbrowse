@@ -45,15 +45,31 @@ browser search title channel extra uri timestamp events pn q =
          then noResults
          else paginatedTable channel uri events pn
 
-browseDay :: Text -> [Event] -> URI -> Html
-browseDay date events uri = do
+browseDay :: Channel -> Text -> Text -> [Event] -> URI -> Html
+browseDay channel current date events uri = do
   template "browse" date mempty $ do
     containerFluid $ do
-      mainHeading $ toHtml date
+      mainHeading $ do a ! href (toValue ("/calendar/" ++ showChan channel)) $
+                         toHtml $ "#" ++ showChan channel
+                       ": "
+                       toHtml date
+      row $
+        span12 $
+          ul !. "nav nav-pills" $ do
+            mode current "everything" "Everything"
+            mode current "recent" "Recent"
       if null events
          then noResults
-         else eventsTable events uri
+         else do when (current == "recent")
+                      (do p "Newest at the top")
+                 eventsTable events uri
     footer
+  when (current == "recent") $ script ! src "/js/recent.js" $ mempty
+
+  where mode current label title =
+          li !. modeClass $ a ! A.href (toValue ("?mode=" <> label :: Text)) $ title
+            where modeClass | current == label = "active"
+                            | otherwise = ""
 
 noResults = do
   p "There are no results!"

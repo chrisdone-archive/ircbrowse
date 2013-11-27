@@ -46,9 +46,9 @@ calendar :: Controller Config PState ()
 calendar = do
   channel <- getChannel
   viewCached (Calendar channel) $ do
-    years <- return []
+    day <- model $ getFirstEventDate channel
     today <- fmap utctDay (io getCurrentTime)
-    return $ V.calendar today years channel
+    return $ V.calendar day today channel
 
 nickProfile :: Controller Config PState ()
 nickProfile = do
@@ -84,23 +84,33 @@ nickCloud = do
     nicks <- model $ getNickStats channel range
     return $ V.nickCloud nicks
 
-browseDay :: Controller Config PState ()
-browseDay = do
+browseDay :: Bool -> Controller Config PState ()
+browseDay today =
+  if today
+    then do today <- io (fmap utctDay getCurrentTime)
+            browseSomeDay today (T.pack (formatTime defaultTimeLocale "%Y/%m/%d" today))
+    else browseGivenDate
+
+browseGivenDate = do
   year <- getText "year"
   month <- getText "month"
   day <- getText "day"
   let datetext = year <> "/" <> month <> "/" <> day
   case parseTime defaultTimeLocale "%Y/%m/%d" (T.unpack datetext) of
     Nothing -> return ()
-    Just day -> do
-      evid <- getIntegerMaybe "id"
-      timestamp <- getTimestamp
-      channel <- getChannel
-      out <- cache (BrowseDay day) $ do
-        events <- model $ getEventsByDay channel day
-        uri <- getMyURI
-        return $ Just $ V.browseDay datetext events uri
-      maybe (return ()) outputText out
+    Just day -> browseSomeDay day datetext
+
+browseSomeDay :: Day -> Text -> Controller Config PState ()
+browseSomeDay day datetext = do
+  evid <- getIntegerMaybe "id"
+  timestamp <- getTimestamp
+  channel <- getChannel
+  mode <- fmap (fromMaybe "everything") (getTextMaybe "mode")
+  out <- cache (BrowseDay channel day mode) $ do
+    events <- model $ getEventsByDay channel day (mode == "everything")
+    uri <- getMyURI
+    return $ Just $ V.browseDay channel mode datetext events uri
+  maybe (return ()) outputText out
 
 browse :: Controller Config PState ()
 browse = do
@@ -199,7 +209,7 @@ getTextMaybe name = do
 -- | Get text (maybe).
 getText :: ByteString -> Controller c s Text
 getText name = do
-  getTextMaybe name >>= maybe (error "expected param") return
+  getTextMaybe name >>= maybe (error ("expected param: " ++ show name)) return
 
 -- | Get integer parmater.
 getIntegerMaybe :: ByteString -> Controller c s (Maybe Integer)
