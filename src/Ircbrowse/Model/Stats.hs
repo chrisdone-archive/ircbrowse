@@ -10,42 +10,44 @@ import Numeric
 import Snap.App
 import System.Random
 
-getStats :: Maybe Channel -> Range -> Model c s Stats
+getStats :: Channel -> Range -> Model c s Stats
 getStats channel range@(Range from to) = do
   count <- single ["SELECT COUNT(*)"
                   ,"FROM event"
-                  ,"WHERE timestamp > ? and timestamp < ?"]
-                  (from,to)
+                  ,"WHERE channel = ? and timestamp > ? and timestamp < ?"]
+                  (cid,from,to)
   msgcount <- single ["SELECT COUNT(*)"
                      ,"FROM event"
                      ,"WHERE type = 'talk'"
-                     ,"AND timestamp > ? and timestamp < ?"]
-                     (from,to)
+                     ,"AND channel = ? and timestamp > ? and timestamp < ?"]
+                     (cid,from,to)
   nicks <- single ["SELECT COUNT(DISTINCT nick)"
                   ,"FROM event"
-                  ,"WHERE type = 'talk'"
+                  ,"WHERE channel = ? and type = 'talk'"
                   ,"AND timestamp > ? and timestamp < ?"]
-                  (from,to)
+                  (cid,from,to)
   activetimes <- query ["SELECT DATE_PART('HOUR',timestamp)::int,COUNT(*)"
                        ,"FROM EVENT"
-                       ,"WHERE type = 'talk'"
+                       ,"WHERE channel = ? and type = 'talk'"
                        ,"AND timestamp > ? AND timestamp < ?"
                        ,"GROUP BY DATE_PART('HOUR',timestamp)"
                        ,"ORDER BY 1 ASC"]
-                       (from,to)
+                       (cid,from,to)
   dailyactivity <- query ["SELECT date_part('day',date)::int,count FROM"
                          ," (SELECT timestamp::date as date,COUNT(*) as count"
                          ,"  FROM EVENT"
-                         ,"  WHERE type = 'talk'"
+                         ,"  WHERE channel = ? and type = 'talk'"
                          ,"  AND timestamp > ? AND timestamp < ?"
                          ,"  GROUP BY timestamp::date"
                          ,"  ORDER BY 1 ASC) c"]
-                         (from,to)
+                         (cid,from,to)
   nickstats <- getNickStats channel range
   networks <- queryNoParams ["SELECT name,title FROM network order by title"]
   channels <- queryNoParams ["SELECT network,name FROM channel order by name"]
-  activitybyyear <- queryNoParams ["SELECT * FROM general_activity_by_year order by year asc"]
-  conversationbyyear <- queryNoParams ["SELECT * FROM conversation_by_year order by year asc"]
+  activitybyyear <- query ["SELECT year,lines FROM general_activity_by_year where channel = ? order by year asc"]
+                          (Only cid)
+  conversationbyyear <- query ["SELECT year,lines FROM conversation_by_year where channel = ? order by year asc"]
+                              (Only cid)
 
   return Stats
     { stEventCount    = fromMaybe 0 count
@@ -60,17 +62,19 @@ getStats channel range@(Range from to) = do
     , stConversationByYear = conversationbyyear
    }
 
-getNickStats :: Maybe Channel -> Range -> Model c s [(String,Integer)]
-getNickStats _ (Range from to) =
+  where cid = showChanInt channel
+
+getNickStats :: Channel -> Range -> Model c s [(String,Integer)]
+getNickStats channel (Range from to) =
   query ["SELECT nick,COUNT(*)"
         ,"FROM EVENT"
-        ,"WHERE type = 'talk'"
+        ,"WHERE channel = ? and type = 'talk'"
         ,"AND timestamp > ?"
         ,"AND timestamp < ?"
         ,"GROUP BY nick"
         ,"ORDER BY 2 DESC"
         ,"LIMIT 200"]
-        (from,to)
+        (showChanInt channel,from,to)
 
 -- | Some test stats.
 sampleStats :: Stats

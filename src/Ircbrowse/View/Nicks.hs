@@ -13,16 +13,15 @@ import Ircbrowse.View.Cloud
 
 import qualified Data.Text as T
 
-nicks count ns showrecent = do
+nicks channel count ns showrecent = do
   template "nicks-page" ("Top " <> T.pack (showCount (length ns)) <> " Nicks") mempty $ do
+    channelNav channel
     container $ do
-      mainHeading $ do "Top "; toHtml (showCount (length ns)); " Nicks"
       row $
         span12 $
           p $ do "There have been many to enter the grizzly and chocolate flavoured world of IRC. "
                  if not showrecent then "Over the years, " else "Over the past month, "
-                 "there have been "; toHtml (showCount count) ; " nick names represented in the channels ";
-                 showChans; ", but of those, these are the "; toHtml (showCount (length ns));
+                 "there have been "; toHtml (showCount count) ; " nick names represented in this channel, ";
                  " who were worthy enough to be listed in this glorious shrine to those "
                  " wonderful participants who just couldn't shut up."
       row $

@@ -19,10 +19,11 @@ generateData :: Model c s ()
 generateData = do
   void $ do
     exec ["delete from conversation_by_year"] ()
-    exec ["insert into conversation_by_year select date_part('year',timestamp),count(*) from event where type in ('talk','act') group by date_part('year',timestamp) order by 1;"] ()
     exec ["delete from general_activity_by_year"] ()
-    exec ["insert into general_activity_by_year select date_part('year',timestamp),count(*) from event group by date_part('year',timestamp) order by 1;"] ()
     forM_ [toEnum 0..] $ \channel -> do
+      let cid = showChanInt channel
+      exec ["insert into conversation_by_year select date_part('year',timestamp),count(*),? from event where channel = ? and type in ('talk','act') group by date_part('year',timestamp) order by 1;"] (cid,cid)
+      exec ["insert into general_activity_by_year select date_part('year',timestamp),count(*),? from event where channel = ? group by date_part('year',timestamp) order by 1;"] (cid,cid)
       exec ["delete from event_order_index where idx = (? * 1000) + 1"]
            (Only (idxNum channel))
       exec ["insert into event_order_index"

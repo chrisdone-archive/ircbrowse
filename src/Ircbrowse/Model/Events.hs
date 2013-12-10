@@ -37,13 +37,13 @@ getEvents channel tid (PN _ pagination _) q = do
 getFirstEventDate :: Channel -> Model c s Day
 getFirstEventDate channel = do
   today <- fmap utctDay (io getCurrentTime)
-  fmap (fromMaybe today)
+  fmap (maybe today utctDay)
        (single ["SELECT timestamp"
                ,"FROM event"
                ,"WHERE channel = ?"
                ,"ORDER BY timestamp"
                ,"ASC LIMIT 1"]
-               (Only (idxNum channel)))
+               (Only (showChanInt channel)))
 
 getEventsByResults :: Channel -> [Int] -> Model c s [Event]
 getEventsByResults channel eids = do

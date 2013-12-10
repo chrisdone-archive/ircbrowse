@@ -5,7 +5,7 @@
 -- | An overview of all the IRC gubbins, stats, charts, pretty pictures, etc.
 
 module Ircbrowse.View.Overview
-  (overview)
+  (overview,stats)
   where
 
 import Ircbrowse.Types.Import
@@ -13,32 +13,46 @@ import Ircbrowse.View
 import Ircbrowse.View.Chart
 import Ircbrowse.View.Cloud
 import Ircbrowse.View.Template
+import Ircbrowse.View.Calendar
 
 import Control.Arrow
+import Data.Text (pack)
 
-overview :: Maybe Channel -> Range -> Stats -> Html
-overview _ range stats = do
+overview :: Html
+overview =
   template "overview" "IRC Browse" cloudScripts $ do
     container $ do
+      row $
+        span12 $ do
+          h1 "IRC Browse"
+          p "Choose the channel:"
+          forM_ [toEnum 0 ..] $ \(chan) ->
+            h2 $
+              a ! href (toValue (showChan chan)) $
+                do "#"; toHtml (showChan chan)
+    footer
+
+stats :: Channel -> Range -> Stats -> Html
+stats channel range stats = do
+  template "overview" ("IRC Browse: #" <> pack (showChan channel)) cloudScripts $ do
+    channelNav channel
+    container $ do
       row $ do
-        span12 $ summarize range stats
+        span12 $ do
+          summarize channel range stats
       row $ do
         span6 $ mostActiveTimes stats
         span6 $ dailyActivity range stats
       row $ do
-        span6 $ activeNicks stats
+        span6 $ activeNicks channel stats
         span6 $ nickCloud (stActiveNicks stats)
       row $ do
         span6 $ activityByYear stats
         span6 $ conversationByYear stats
     footer
 
-summarize :: Range -> Stats -> Html
-summarize range stats = p $ do
-  h1 $ "IRC Browse"
-  p $ do strong "Channel(s): "
-         htmlCommasAnd $ flip map (stChannels stats) $ \(network,chan) ->
-           a ! href (toValue ("/calendar/" ++ chan)) $ do "#"; toHtml chan
+summarize :: Channel -> Range -> Stats -> Html
+summarize channel range stats = p $ do
   "During this "
   toHtml (show (diffDays (rangeTo range) (rangeFrom range)))
   "-day reporting period, a total of "
@@ -65,8 +79,8 @@ dailyActivity range stats = do
   p "The amount of conversation per day in the past month."
   barChart (map (first show) (stDailyActivity stats))
 
-activeNicks :: Stats -> Html
-activeNicks stats = do
+activeNicks :: Channel -> Stats -> Html
+activeNicks channel stats = do
   h2 $ do "Most Active Nicks (Top "; toHtml (show limit); ")"
   table !. "table" $ do
     thead $ mapM_ th ["","Nick","Lines"]
@@ -76,7 +90,7 @@ activeNicks stats = do
           td $ toHtml (show i)
           td $ a ! href (toValue ("/nick/" ++ nick)) $ toHtml nick
           td $ toHtml (showCount linecount)
-  p $ a ! href "/nicks" $ "See all nicks →"
+  p $ a ! href (toValue ("/nicks/" ++ showChan channel)) $ "See all nicks →"
 
   where limit = 10
 

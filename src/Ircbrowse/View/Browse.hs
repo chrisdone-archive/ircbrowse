@@ -14,6 +14,7 @@ import           Ircbrowse.Types.Import
 import           Ircbrowse.View hiding (id)
 import           Ircbrowse.View.NickColour
 import           Ircbrowse.View.Template
+import Ircbrowse.View.Calendar
 
 import           Control.Arrow
 import           Data.Either
@@ -36,28 +37,21 @@ pdfs channel = browser False ("PDFs linked in #" <> T.pack (showChan channel)) c
 browser :: Bool -> Text -> Channel -> Html -> URI -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
 browser search title channel extra uri timestamp events pn q =
   template "browse" title mempty $ do
+    channelNav channel
     containerFluid $ do
-      mainHeading $
-        a ! hrefURI (clearUrlQueries uri) $ toHtml title
       when search $ searchForm q
       extra
       if null events && isJust q
          then noResults
          else paginatedTable channel uri events pn
+    footer
 
 browseDay :: Channel -> Text -> Text -> [Event] -> URI -> Html
 browseDay channel current date events uri = do
   template "browse" date mempty $ do
+    channelNav channel
     containerFluid $ do
-      mainHeading $ do a ! href (toValue ("/calendar/" ++ showChan channel)) $
-                         toHtml $ "#" ++ showChan channel
-                       ": "
-                       toHtml date
-      row $
-        span12 $
-          ul !. "nav nav-pills" $ do
-            mode current "everything" "Everything"
-            mode current "recent" "Recent"
+      h1 $ toHtml date
       if null events
          then noResults
          else do when (current == "recent")

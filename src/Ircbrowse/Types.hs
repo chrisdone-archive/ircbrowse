@@ -76,8 +76,9 @@ data Range = Range
   deriving (Eq,Show)
 
 data CacheKey
-  = Overview (Maybe Channel) Range
-  | NickCloud (Maybe Channel) Range
+  = StatsOverview Channel Range
+  | Overview
+  | NickCloud Channel Range
   | Social (Maybe Channel) Range
   | Browse Channel (Maybe Integer) PN
   | BrowseDay Channel Day Text
@@ -86,13 +87,15 @@ data CacheKey
   | PDFs Channel PN
   | UniquePDFs Channel
   | Calendar Channel
+  | Channel Channel
 
 instance Key CacheKey where
   keyToString (Calendar channel) = "calendar-" ++ showChan channel ++ ".html"
   keyToString (BrowseDay channel day mode) = "browse-day-" ++ showDay day ++ "-" ++ showChan channel ++ "-" ++ unpack mode ++ ".html"
   keyToString (UniquePDFs channel) = "unique-pdfs-" ++ showChan channel ++ ".html"
-  keyToString (Overview channel range) = contexted "overview" channel range
-  keyToString (NickCloud channel range) = contexted "nick-cloud" channel range
+  keyToString (StatsOverview channel range) = contexted "overview" (Just channel) range
+  keyToString Overview = "overview"
+  keyToString (NickCloud channel range) = contexted "nick-cloud" (Just channel) range
   keyToString (Social channel range) = contexted "social" channel range
   keyToString (Browse channel evid (PN _ pagination _)) =
     "browse-" ++ opt (Just (showChan channel)) ++ maybe "" (("-"++).show) evid ++
@@ -110,6 +113,7 @@ instance Key CacheKey where
     "-page" ++ show (pnCurrentPage pagination) ++ "-of-" ++ show (pnPerPage pagination) ++ ".html"
       where opt Nothing = "_"
             opt (Just x) = x
+  keyToString (Channel channel) = "channel-" ++ showChan channel ++ ".html"
 
 contexted name channel (Range from to) =
   name ++ "-" ++ opt (fmap showChan channel) ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"

@@ -4,6 +4,7 @@
 module Ircbrowse.View.Template where
 
 import Ircbrowse.View
+import Ircbrowse.Types.Import
 import qualified Text.Blaze.Html5 as H
 import Data.Text (Text)
 
@@ -28,6 +29,25 @@ template name thetitle innerhead innerbody = do
                        \'http://www') + '.google-analytics.com/ga.js'; var\
                        \ s = document.getElementsByTagName('script')[0]; \
                        \s.parentNode.insertBefore(ga, s);})(); </script>" :: Text)
+
+channelNav channel =
+  div !. "navbar navbar-static-top navbar-inverse" $
+    div !. "navbar-inner" $ do
+      div !. "container" $ do
+        a !. "brand" ! href "/" $ "IRCBrowse"
+        ul !. "nav" $ do
+          li $ a ! href (toValue ("/" ++ showChan channel)) $ do
+             (toHtml ("#" ++ showChan channel))
+          li $ a ! href (toValue ("/browse/" ++ showChan channel)) $ do
+             "Browse"
+          li $ a ! href (toValue ("/day/" ++ showChan channel ++ "/today?mode=recent")) $ do
+             "Recent"
+          li $ a ! href (toValue ("/day/" ++ showChan channel ++ "/today")) $ do
+             "Today"
+          li $ a ! href (toValue ("/calendar/" ++ showChan channel)) $ do
+             "Calendar"
+          li $ a ! href (toValue ("/nicks/" ++ showChan channel)) $ do
+             "Nicks"
 
 showCount :: (Show n,Integral n) => n -> String
 showCount = reverse . foldr merge "" . zip ("000,00,00,00"::String) . reverse . show where

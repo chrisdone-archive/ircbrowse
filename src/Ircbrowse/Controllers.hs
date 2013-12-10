@@ -36,11 +36,22 @@ import           Text.Blaze.Pagination
 
 overview :: Controller Config PState ()
 overview = do
+  viewCached Overview $ do
+    return $ V.overview
+
+stats :: Controller Config PState ()
+stats = do
   range <- getRange
-  channel <- getChannelMaybe
-  viewCached (Overview channel range) $ do
+  channel <- getChannel
+  viewCached (StatsOverview channel range) $ do
     stats <- model $ getStats channel range
-    return $ V.overview channel range stats
+    return $ V.stats channel range stats
+
+channel :: Controller Config PState ()
+channel = do
+  channel <- getChannel
+  viewCached (Channel channel) $ do
+    return $ V.channel channel
 
 calendar :: Controller Config PState ()
 calendar = do
@@ -63,10 +74,11 @@ allNicks :: Controller Config PState ()
 allNicks = do
   recent <- getBoolean "recent" True
   range <- getRange
+  channel <- getChannel
   viewCached (AllNicks recent range) $ do
-    nicks <- model $ getNicks 100 recent range
-    count <- model $ getNickCount recent range
-    return $ V.nicks count nicks recent
+    nicks <- model $ getNicks channel 100 recent range
+    count <- model $ getNickCount channel recent range
+    return $ V.nicks channel count nicks recent
 
 socialGraph :: Controller Config PState ()
 socialGraph = do
@@ -79,7 +91,7 @@ socialGraph = do
 nickCloud :: Controller Config PState ()
 nickCloud = do
   range <- getRange
-  channel <- getChannelMaybe
+  channel <- getChannel
   viewCached (NickCloud channel range) $ do
     nicks <- model $ getNickStats channel range
     return $ V.nickCloud nicks

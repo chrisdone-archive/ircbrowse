@@ -29,14 +29,16 @@ serve config pool = route routes where
            ,("/browse/:channel",run C.browse)
            ,("/nick-cloud",run C.nickCloud)
            ,("/social",run C.socialGraph)
-           ,("/calendar/:channel",run C.calendar)
            ,("/day/:channel/:year/:month/:day",run (C.browseDay False))
            ,("/day/:channel/today",run (C.browseDay True))
            ,("/nick/:nick",run C.nickProfile)
-           ,("/nicks",run C.allNicks)
+           ,("/nicks/:channel",run C.allNicks)
 	   ,("/quotes.rss",run C.quotes)
            ,("/pdfs/:channel/:unique",run C.pdfs)
            ,("/pdfs/:channel",run C.pdfs)
+           ,("/stats/:channel",run C.stats)
+           ,("/calendar/:channel",run C.calendar)
+           ,("/:channel",run C.stats)
            ,("/",run C.overview)
            ]
   run = runHandler PState config pool

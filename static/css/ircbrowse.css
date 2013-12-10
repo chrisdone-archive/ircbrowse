@@ -1,3 +1,5 @@
+.navbar { margin-bottom: 2em; }
+
 #browse .events .timestamp { color: #666; width: 13em }
 #browse .events .nick { color: #333; font-weight: bold; }
 #browse .events .nick-wrap { text-align: right; color: #ccc; }
