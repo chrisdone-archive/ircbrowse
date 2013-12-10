@@ -45,7 +45,7 @@ stats channel range stats = do
         span6 $ dailyActivity range stats
       row $ do
         span6 $ activeNicks channel stats
-        span6 $ nickCloud (stActiveNicks stats)
+        span6 $ nickCloud channel (stActiveNicks stats)
       row $ do
         span6 $ activityByYear stats
         span6 $ conversationByYear stats
@@ -94,11 +94,11 @@ activeNicks channel stats = do
 
   where limit = 10
 
-nickCloud :: [(String,Integer)] -> Html
-nickCloud stats = do
+nickCloud :: Channel -> [(String,Integer)] -> Html
+nickCloud channel stats = do
   h2 "Nicks Word Cloud"
   cloud "overview-nicks-container" (400,400) 100 3 stats
-  p $ a ! href "/nick-cloud" $ "See full nick cloud →"
+  p $ a ! href (toValue ("/nick-cloud/" ++ showChan channel)) $ "See full nick cloud →"
 
 activityByYear :: Stats -> Html
 activityByYear stats = do
