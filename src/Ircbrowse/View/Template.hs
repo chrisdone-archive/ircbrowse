@@ -48,6 +48,8 @@ channelNav channel =
              "Calendar"
           li $ a ! href (toValue ("/nicks/" ++ showChan channel)) $ do
              "Nicks"
+          li $ a ! href (toValue ("/pdfs/" ++ showChan channel)) $ do
+             "PDFs"
 
 showCount :: (Show n,Integral n) => n -> String
 showCount = reverse . foldr merge "" . zip ("000,00,00,00"::String) . reverse . show where

@@ -6,7 +6,6 @@ set -e
 
 logger -t ircbrowse "Clearing server logs ..."
 rm -rf log/*
-rm -f cache/*
 
 dist/build/ircbrowse/ircbrowse ircbrowse.conf generate-data
 
