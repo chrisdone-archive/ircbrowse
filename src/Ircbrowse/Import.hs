@@ -14,6 +14,7 @@ import           Ircbrowse.System
 import           Ircbrowse.Types
 import           Ircbrowse.Types.Import
 
+import           Control.Exception (try,IOException)
 import           Control.Concurrent
 import qualified Data.ByteString as S
 import           Data.IORef
@@ -81,6 +82,7 @@ importRecent quick config pool = do
     runDB config () pool $ void $ exec ["ANALYZE event_order_index"] ()
     putStrLn "Running data regeneration ..."
     runDB config () pool $ generateData
+
   putStrLn "Clearing cache ..."
   clearCache config
 
@@ -94,7 +96,7 @@ importChannel last config pool day channel = do
   let db = runDB config () pool
   db $ migrate False versions
   db $ importFile last channel config tmp
-  removeFile tmp
+  void (try (removeFile tmp) :: IO (Either IOException ()))
 
   where copyLog chan day = do
           let fp = "#" ++ showChan chan ++ "_" ++ unmakeDay day ++ ".log"
@@ -146,8 +148,8 @@ updateChannelIndex config channel insertions = do
 	   ,showChanInt channel
 	   ,lastOrigin)
   io $ putStrLn $  "Updating event count (+" ++ show insertions ++ ") for " ++ showChan channel ++ " ..."
-  void $ exec ["update event_count set \"count\" = \"count\" + ? where channel = ?;"]
-             (insertions
+  void $ exec ["update event_count set \"count\" = (select count(*) from event where channel = ?) where channel = ?;"]
+             (showChanInt channel
              ,showChanInt channel)
 
 -- | Import from the given file.
