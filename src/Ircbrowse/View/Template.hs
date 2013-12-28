@@ -40,7 +40,7 @@ channelNav channel =
              (toHtml ("#" ++ showChan channel))
           li $ a ! href (toValue ("/browse/" ++ showChan channel)) $ do
              "Browse"
-          li $ a ! href (toValue ("/day/" ++ showChan channel ++ "/today?mode=recent")) $ do
+          li $ a ! href (toValue ("/day/" ++ showChan channel ++ "/today/recent")) $ do
              "Recent"
           li $ a ! href (toValue ("/day/" ++ showChan channel ++ "/today")) $ do
              "Today"
@@ -48,8 +48,8 @@ channelNav channel =
              "Calendar"
           li $ a ! href (toValue ("/nicks/" ++ showChan channel)) $ do
              "Nicks"
-          li $ a ! href (toValue ("/pdfs/" ++ showChan channel)) $ do
-             "PDFs"
+          -- li $ a ! href (toValue ("/pdfs/" ++ showChan channel)) $ do
+             -- "PDFs"
 
 showCount :: (Show n,Integral n) => n -> String
 showCount = reverse . foldr merge "" . zip ("000,00,00,00"::String) . reverse . show where

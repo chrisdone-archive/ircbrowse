@@ -53,10 +53,10 @@ importRecent quick config pool = do
                    (Only (showChanInt channel))
       io $ writeIORef v row
     last <- readIORef v
+    now <- getCurrentTime
+    let today = utctDay now
     case listToMaybe last of
       Just event@(Only (lastdate::UTCTime)) -> do
-        now <- getCurrentTime
-        let today = utctDay now
         putStrLn $ "Last date: " ++ show lastdate
         putStrLn $ "Importing from day: " ++ show (utctDay lastdate)
         when (utctDay lastdate /= today) $
@@ -77,14 +77,15 @@ importRecent quick config pool = do
                 putStrLn $ "Going to import from: " ++ show (lastdate :: UTCTime)
                 importChannel lastdate config pool (utctDay lastdate) channel
                 return ()
+    putStrLn "Clearing caches ..."
+    runDB PState config pool $ do
+       resetCacheModel (BrowseToday channel "recent")
+       resetCacheModel (BrowseToday channel "everything")
   unless quick $ do
     putStrLn "Running ANALYZE ..."
     runDB config () pool $ void $ exec ["ANALYZE event_order_index"] ()
     putStrLn "Running data regeneration ..."
     runDB config () pool $ generateData
-
-  putStrLn "Clearing cache ..."
-  clearCache config
 
 parseFileTime (drop 1 . dropWhile (/='_') -> date) =
   parseTime defaultTimeLocale "%Y%m%d.log" date
@@ -92,20 +93,26 @@ parseFileTime (drop 1 . dropWhile (/='_') -> date) =
 -- | Import the channel into the database of the given date.
 importChannel :: UTCTime -> Config -> Pool -> Day -> Channel -> IO ()
 importChannel last config pool day channel = do
-  tmp <- copyLog channel day
-  let db = runDB config () pool
-  db $ migrate False versions
-  db $ importFile last channel config tmp
-  void (try (removeFile tmp) :: IO (Either IOException ()))
+  mtmp <- copyLog channel day
+  case mtmp of
+    Nothing -> putStrLn ("Nothing to import right now for #" ++ showChan channel)
+    Just tmp -> do let db = runDB config () pool
+                   db $ migrate False versions
+                   db $ importFile last channel config tmp
+                   void (try (removeFile tmp) :: IO (Either IOException ()))
 
   where copyLog chan day = do
           let fp = "#" ++ showChan chan ++ "_" ++ unmakeDay day ++ ".log"
           tmp <- getTemporaryDirectory
           putStrLn $ "Importing from file " ++ fp
           let tmpfile = tmp </> fp
-          copyFile (configLogDir config ++ fp)
-                   tmpfile
-          return tmpfile
+              target = configLogDir config ++ fp
+          exists <- doesFileExist target
+          if exists
+             then do copyFile target
+                              tmpfile
+                     return (Just tmpfile)
+             else return Nothing
 
 unmakeDay :: FormatTime t => t -> String
 unmakeDay = formatTime defaultTimeLocale "%Y%m%d"

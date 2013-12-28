@@ -78,12 +78,16 @@ getRecentEventsByDay channel day = do
 
 getAllEventsByDay :: Channel -> Day -> Model c s [Event]
 getAllEventsByDay channel day =
-  query ["SELECT * FROM (SELECT (SELECT id FROM event_order_index WHERE origin = event.id AND idx = ? limit 1) as id,"
-       ,"timestamp,network,channel,type,nick,text"
-       ,"FROM event"
-       ,"WHERE timestamp::date = ?::date"
-       ,"ORDER BY id ASC) c where not c.id is null"]
+  query ["SELECT (SELECT id FROM event_order_index WHERE origin = event.id AND idx = ? limit 1) as id,"
+        ,"timestamp,network,channel,type,nick,text"
+        ,"FROM event"
+        ,"WHERE channel = ?"
+        ,"AND timestamp >= ?"
+        ,"AND timestamp < (?::timestamp) + interval '1 day'"
+        ]
        (idxNum channel
+       ,showChanInt channel
+       ,day
        ,day)
 
 getTimestampedEvents channel tid pagination = do

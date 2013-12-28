@@ -33,5 +33,4 @@ main = do
       clearCache config
     _ -> do
       db $ migrate False versions
-      clearCache config
       runServer config pool

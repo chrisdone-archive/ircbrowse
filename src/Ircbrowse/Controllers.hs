@@ -26,10 +26,11 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import           Safe
 import           Snap.App
-import           Snap.App.RSS
 import           Snap.App.Cache
+import           Snap.App.RSS
 import           System.Locale
 import           Text.Blaze.Pagination
+import           Text.Blaze.Renderer.Text
 
 --------------------------------------------------------------------------------
 -- Controllers
@@ -43,7 +44,7 @@ stats :: Controller Config PState ()
 stats = do
   range <- getRange
   channel <- getChannel
-  viewCached (StatsOverview channel range) $ do
+  viewCached (StatsOverview channel) $ do
     stats <- model $ getStats channel range
     return $ V.stats channel range stats
 
@@ -66,7 +67,7 @@ nickProfile = do
   nick <- getText "nick"
   recent <- getBoolean "recent" True
   range <- getRange
-  viewCached (Profile nick recent range) $ do
+  viewCached (Profile nick recent) $ do
     hours <- model $ activeHours nick recent range
     return $ V.nickProfile nick recent hours
 
@@ -75,7 +76,7 @@ allNicks = do
   recent <- getBoolean "recent" True
   range <- getRange
   channel <- getChannel
-  viewCached (AllNicks recent range) $ do
+  viewCached (AllNicks channel recent) $ do
     nicks <- model $ getNicks channel 100 recent range
     count <- model $ getNickCount channel recent range
     return $ V.nicks channel count nicks recent
@@ -84,7 +85,7 @@ socialGraph :: Controller Config PState ()
 socialGraph = do
   range <- getRange
   channel <- getChannelMaybe
-  viewCached (Social channel range) $ do
+  viewCached (Social channel) $ do
     graph <- model $ getSocialGraph channel range
     return $ V.socialGraph graph
 
@@ -92,7 +93,7 @@ nickCloud :: Controller Config PState ()
 nickCloud = do
   range <- getRange
   channel <- getChannel
-  viewCached (NickCloud channel range) $ do
+  viewCached (NickCloud channel) $ do
     nicks <- model $ getNickStats channel range
     return $ V.nickCloud nicks
 
@@ -100,7 +101,7 @@ browseDay :: Bool -> Controller Config PState ()
 browseDay today =
   if today
     then do today <- io (fmap utctDay getCurrentTime)
-            browseSomeDay today (T.pack (formatTime defaultTimeLocale "%Y/%m/%d" today))
+            browseSomeDay True today (T.pack (formatTime defaultTimeLocale "%Y/%m/%d" today))
     else browseGivenDate
 
 browseGivenDate = do
@@ -110,15 +111,15 @@ browseGivenDate = do
   let datetext = year <> "/" <> month <> "/" <> day
   case parseTime defaultTimeLocale "%Y/%m/%d" (T.unpack datetext) of
     Nothing -> return ()
-    Just day -> browseSomeDay day datetext
+    Just day -> browseSomeDay False day datetext
 
-browseSomeDay :: Day -> Text -> Controller Config PState ()
-browseSomeDay day datetext = do
+browseSomeDay :: Bool -> Day -> Text -> Controller Config PState ()
+browseSomeDay today day datetext = do
   evid <- getIntegerMaybe "id"
   timestamp <- getTimestamp
   channel <- getChannel
   mode <- fmap (fromMaybe "everything") (getTextMaybe "mode")
-  out <- cache (BrowseDay channel day mode) $ do
+  out <- cache (if today then BrowseToday channel mode else BrowseDay channel day mode) $ do
     events <- model $ getEventsByDay channel day (mode == "everything")
     uri <- getMyURI
     return $ Just $ V.browseDay channel mode datetext events uri
@@ -132,11 +133,9 @@ browse = do
   q <- getSearchText "q"
   pn <- getPagination "events"
   let pn' = pn { pnResultsPerPage = Just [25,35,50,100] }
-  out <- cacheIf (isNothing q) (Browse channel evid pn') $ do
-    (pagination,logs) <- model $ getEvents channel evid pn' q
-    uri <- getMyURI
-    return $ Just $ V.browse channel uri timestamp logs pn' { pnPn = pagination } q
-  maybe (return ()) outputText out
+  (pagination,logs) <- model $ getEvents channel evid pn' q
+  uri <- getMyURI
+  outputText $ renderHtml $ V.browse channel uri timestamp logs pn' { pnPn = pagination } q
 
 pdfs :: Controller Config PState ()
 pdfs = do
@@ -157,10 +156,9 @@ paginatedPdfs = do
   timestamp <- getTimestamp
   pn <- getPagination "events"
   let pn' = pn { pnResultsPerPage = Just [25,35,50,100] }
-  viewCached (PDFs channel pn') $ do
-    (pagination,logs) <- model $ getPaginatedPdfs channel pn'
-    uri <- getMyURI
-    return $ V.pdfs channel uri timestamp logs pn' { pnPn = pagination } Nothing
+  (pagination,logs) <- model $ getPaginatedPdfs channel pn'
+  uri <- getMyURI
+  outputText $ renderHtml $ V.pdfs channel uri timestamp logs pn' { pnPn = pagination } Nothing
 
 quotes :: Controller Config PState ()
 quotes = do

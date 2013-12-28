@@ -76,47 +76,37 @@ data Range = Range
   deriving (Eq,Show)
 
 data CacheKey
-  = StatsOverview Channel Range
+  = StatsOverview Channel
   | Overview
-  | NickCloud Channel Range
-  | Social (Maybe Channel) Range
-  | Browse Channel (Maybe Integer) PN
+  | NickCloud Channel
+  | Social (Maybe Channel)
   | BrowseDay Channel Day Text
-  | Profile Text Bool Range
-  | AllNicks Bool Range
-  | PDFs Channel PN
+  | BrowseToday Channel Text
+  | Profile Text Bool
+  | AllNicks Channel Bool
   | UniquePDFs Channel
   | Calendar Channel
   | Channel Channel
 
 instance Key CacheKey where
   keyToString (Calendar channel) = "calendar-" ++ showChan channel ++ ".html"
+  keyToString (BrowseToday channel mode) = "browse-today-" ++ showChan channel ++ "-" ++ unpack mode ++ ".html"
   keyToString (BrowseDay channel day mode) = "browse-day-" ++ showDay day ++ "-" ++ showChan channel ++ "-" ++ unpack mode ++ ".html"
   keyToString (UniquePDFs channel) = "unique-pdfs-" ++ showChan channel ++ ".html"
-  keyToString (StatsOverview channel range) = contexted "overview" (Just channel) range
-  keyToString Overview = "overview"
-  keyToString (NickCloud channel range) = contexted "nick-cloud" (Just channel) range
-  keyToString (Social channel range) = contexted "social" channel range
-  keyToString (Browse channel evid (PN _ pagination _)) =
-    "browse-" ++ opt (Just (showChan channel)) ++ maybe "" (("-"++).show) evid ++
-    "-page" ++ show (pnCurrentPage pagination) ++ "-of-" ++ show (pnPerPage pagination) ++ ".html"
-      where opt Nothing = "_"
-            opt (Just x) = x
-  keyToString (Profile nick recent (Range from to)) =
-    "profile-" ++ unpack nick ++ "-" ++ (if recent then "recent-" else "all-") ++
-    showDay from ++ "-" ++ showDay to ++ ".html"
-  keyToString (AllNicks recent (Range from to)) =
-    "nicks-" ++ "-" ++ (if recent then "recent-" else "all-") ++
-    showDay from ++ "-" ++ showDay to ++ ".html"
-  keyToString (PDFs channel (PN _ pagination _)) =
-    "pdfs-" ++ opt (Just (showChan channel)) ++
-    "-page" ++ show (pnCurrentPage pagination) ++ "-of-" ++ show (pnPerPage pagination) ++ ".html"
-      where opt Nothing = "_"
-            opt (Just x) = x
+  keyToString (StatsOverview channel) = contexted "overview" (Just channel)
+  keyToString Overview = "overview.html"
+  keyToString (NickCloud channel) = contexted "nick-cloud" (Just channel)
+  keyToString (Social channel) = contexted "social" channel
+  keyToString (Profile nick recent) =
+   "profile-" ++ unpack nick ++ "-" ++ (if recent then "recent" else "all") ++
+   ".html"
+  keyToString (AllNicks channel recent) =
+    "nicks-" ++ showChan channel ++ "-" ++ (if recent then "recent" else "all") ++
+    ".html"
   keyToString (Channel channel) = "channel-" ++ showChan channel ++ ".html"
 
-contexted name channel (Range from to) =
-  name ++ "-" ++ opt (fmap showChan channel) ++ "-" ++ showDay from ++ "-" ++ showDay to ++ ".html"
+contexted name channel =
+  name ++ "-" ++ opt (fmap showChan channel) ++ ".html"
     where opt Nothing = "_"
           opt (Just x) = x
 

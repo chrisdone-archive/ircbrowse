@@ -30,6 +30,7 @@ serve config pool = route routes where
            ,("/nick-cloud/:channel",run C.nickCloud)
            ,("/social",run C.socialGraph)
            ,("/day/:channel/:year/:month/:day",run (C.browseDay False))
+           ,("/day/:channel/today/:mode",run (C.browseDay True))
            ,("/day/:channel/today",run (C.browseDay True))
            ,("/nick/:nick",run C.nickProfile)
            ,("/nicks/:channel",run C.allNicks)
