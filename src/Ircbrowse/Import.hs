@@ -53,8 +53,8 @@ importRecent quick config pool = do
                    (Only (showChanInt channel))
       io $ writeIORef v row
     last <- readIORef v
-    now <- getCurrentTime
-    let today = utctDay now
+    now <- getZonedTime
+    let today = localDay (zonedTimeToLocalTime now)
     case listToMaybe last of
       Just event@(Only (lastdate::UTCTime)) -> do
         putStrLn $ "Last date: " ++ show lastdate
