@@ -46,10 +46,10 @@ importRecent quick config pool = do
     v <- newIORef []
     runDB config () pool $ do
       row <- query ["select timestamp"
-		   ,"from event"
-		   ,"where channel = ?"
-		   ,"order by id"
-		   ,"desc limit 1"]
+                   ,"from event"
+                   ,"where channel = ?"
+                   ,"order by id"
+                   ,"desc limit 1"]
                    (Only (showChanInt channel))
       io $ writeIORef v row
     last <- readIORef v
@@ -118,8 +118,8 @@ unmakeDay :: FormatTime t => t -> String
 unmakeDay = formatTime defaultTimeLocale "%Y%m%d"
 
 -- | Update the event order index for the given channel.
-updateChannelIndex :: Config -> Channel -> Int -> Model c s ()
-updateChannelIndex config channel insertions = do
+updateChannelIndex :: Config -> Channel -> Model c s ()
+updateChannelIndex config channel = do
   io $ putStrLn $ "Updating order indexes for " ++ showChan channel ++ " ..."
   result <- query ["SELECT id,origin"
                   ,"FROM event_order_index"
@@ -143,18 +143,18 @@ updateChannelIndex config channel insertions = do
                      ,0::Int)
     ((lastId::Int,lastOrigin::Int):_) -> void $
       exec ["INSERT INTO event_order_index"
-	   ,"SELECT ? + RANK() OVER(ORDER BY id ASC) AS id,"
-	   ,"id AS ORIGIN,"
-	   ,"? AS idx"
-	   ,"FROM event"
-	   ,"WHERE channel = ?"
-	   ,"AND id > ?"
-	   ,"ORDER BY id ASC;"]
-	   (lastId
-	   ,idxNum channel
-	   ,showChanInt channel
-	   ,lastOrigin)
-  io $ putStrLn $  "Updating event count (+" ++ show insertions ++ ") for " ++ showChan channel ++ " ..."
+           ,"SELECT ? + RANK() OVER(ORDER BY id ASC) AS id,"
+           ,"id AS ORIGIN,"
+           ,"? AS idx"
+           ,"FROM event"
+           ,"WHERE channel = ?"
+           ,"AND id > ?"
+           ,"ORDER BY id ASC;"]
+           (lastId
+           ,idxNum channel
+           ,showChanInt channel
+           ,lastOrigin)
+  io $ putStrLn $  "Updating event count for " ++ showChan channel ++ " ..."
   void $ exec ["update event_count set \"count\" = (select count(*) from event where channel = ?) where channel = ?;"]
              (showChanInt channel
              ,showChanInt channel)
@@ -168,7 +168,7 @@ importFile last channel config path = do
    io $ forM_ events $ \event ->
      print event
    importEvents channel events
-   updateChannelIndex config channel (length events)
+   updateChannelIndex config channel
 
   -- This code is no longer applicable for ZNC. It was for tunes.org logs.
   --
@@ -176,7 +176,7 @@ importFile last channel config path = do
   --   (EventAt _ (decompose -> GenericEvent typ _ (T.concat -> text)):_)
   --     | show typ == "Log" && T.isPrefixOf "ended" text -> importEvents channel events
   --   _ -> do liftIO $ removeFile path
-  --     	    error $ "Log is incomplete (no 'ended' entry). (Removed file cache.)"
+  --                error $ "Log is incomplete (no 'ended' entry). (Removed file cache.)"
 
 -- | Import an event.
 importEvents :: Channel -> [EventAt] -> Model c s ()
@@ -185,16 +185,31 @@ importEvents channel events = do
     case event of
       EventAt time (decompose -> GenericEvent typ mnick texts) -> do
         let text = T.concat texts
-        unless (T.null (T.strip text)) $ void $
-          exec ["INSERT INTO event (timestamp,network,channel,type,nick,text) VALUES"
-	       ,"(?,?,?,?,?,?)"]
-               (time
-	       ,1::Int
-	       ,showChanInt channel
-	       ,map toLower (show typ)
-	       ,fmap unNick mnick
-	       ,text)
+        exists <- fmap (==[Only True])
+                       (query ["select true from event"
+                              ,"where timestamp = ?"
+                              ,"and network = ?"
+                              ,"and channel = ?"
+                              ,"and type = ?"
+                              ,"and nick = ?"
+                              ,"and text = ?"]
+                              (time
+                              ,1::Int
+                              ,showChanInt channel
+                              ,map toLower (show typ)
+                              ,fmap unNick mnick
+                              ,text))
+        if (exists || T.null (T.strip text))
+           then return False
+           else do (void (exec ["INSERT INTO event (timestamp,network,channel,type,nick,text) VALUES"
+                               ,"(?,?,?,?,?,?)"]
+                               (time
+                               ,1::Int
+                               ,showChanInt channel
+                               ,map toLower (show typ)
+                               ,fmap unNick mnick
+                               ,text)))
+                   return True
       NoParse text -> do liftIO $ T.putStrLn $ mappend "Unable to import line: " text
-                         return mempty
-
+                         return False
   where unNick (Nick t) = t
