@@ -73,8 +73,9 @@ searchForm q =
   form ! method "get" $
     fieldset $ do
       inputAppend $ do
-        input ! name "q" !. "span2" !# "appendedInputButton" ! type_ "text" ! value (maybe "" toValue q)
+        input ! name "q" !. "span2" !# "appendedInputButton" ! type_ "text" ! value (maybe "" toValue q) ! placeholder "(the search index is updated once daily)" ! A.style "width:27em"
         input !. "btn" ! type_ "submit" ! value "Go!"
+
 
 paginatedTable :: Channel -> URI -> [Event] -> PN -> Html
 paginatedTable channel uri events pn' = do
