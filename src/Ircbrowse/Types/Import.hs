@@ -7,6 +7,7 @@ showChan Lisp = "lisp"
 showChan HaskellGame = "haskell-game"
 showChan Diagrams = "diagrams"
 showChan Tasty = "tasty"
+showChan HaskellDistributed = "haskell-distributed"
 
 -- | Show a channel.
 showChanInt :: Channel -> Int
@@ -15,6 +16,7 @@ showChanInt Lisp = 2
 showChanInt HaskellGame = 3
 showChanInt Diagrams = 4
 showChanInt Tasty = 5
+showChanInt HaskellDistributed = 6
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -23,6 +25,7 @@ parseChan "lisp" =  Just Lisp
 parseChan "diagrams" =  Just Diagrams
 parseChan "haskell-game" = Just HaskellGame
 parseChan "tasty" = Just Tasty
+parseChan "haskell-distributed" = Just HaskellDistributed
 parseChan _ = Nothing
 
 idxNum :: Channel -> Int
@@ -31,7 +34,8 @@ idxNum Lisp = 2000
 idxNum HaskellGame = 3000
 idxNum Diagrams = 4000
 idxNum Tasty = 5000
+idxNum HaskellDistributed = 6000
 
 -- | Possible supported channels.
-data Channel = Haskell | Lisp | HaskellGame | Diagrams | Tasty
+data Channel = Haskell | Lisp | HaskellGame | Diagrams | Tasty | HaskellDistributed
   deriving Enum
