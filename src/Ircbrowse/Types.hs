@@ -83,27 +83,32 @@ data CacheKey
   | BrowseDay Channel Day Text
   | BrowseToday Channel Text
   | Profile Text Bool
-  | AllNicks Channel Bool
+  | AllNicks Channel Text
   | UniquePDFs Channel
   | Calendar Channel
   | Channel Channel
 
 instance Key CacheKey where
-  keyToString (Calendar channel) = "calendar-" ++ showChan channel ++ ".html"
-  keyToString (BrowseToday channel mode) = "browse-today-" ++ showChan channel ++ "-" ++ unpack mode ++ ".html"
-  keyToString (BrowseDay channel day mode) = "browse-day-" ++ showDay day ++ "-" ++ showChan channel ++ "-" ++ unpack mode ++ ".html"
-  keyToString (UniquePDFs channel) = "unique-pdfs-" ++ showChan channel ++ ".html"
-  keyToString (StatsOverview channel) = contexted "overview" (Just channel)
-  keyToString Overview = "overview.html"
-  keyToString (NickCloud channel) = contexted "nick-cloud" (Just channel)
-  keyToString (Social channel) = contexted "social" channel
-  keyToString (Profile nick recent) =
+  keyToString (Calendar channel) = norm $ "calendar-" ++ showChan channel ++ ".html"
+  keyToString (BrowseToday channel mode) = norm $ "browse-today-" ++ showChan channel ++ "-" ++ unpack mode ++ ".html"
+  keyToString (BrowseDay channel day mode) = norm $ "browse-day-" ++ showDay day ++ "-" ++ showChan channel ++ "-" ++ unpack mode ++ ".html"
+  keyToString (UniquePDFs channel) = norm $ "unique-pdfs-" ++ showChan channel ++ ".html"
+  keyToString (StatsOverview channel) = norm $ contexted "overview" (Just channel)
+  keyToString Overview = norm $ "overview.html"
+  keyToString (NickCloud channel) = norm $ contexted "nick-cloud" (Just channel)
+  keyToString (Social channel) = norm $ contexted "social" channel
+  keyToString (Profile nick recent) = norm $
    "profile-" ++ unpack nick ++ "-" ++ (if recent then "recent" else "all") ++
    ".html"
-  keyToString (AllNicks channel recent) =
-    "nicks-" ++ showChan channel ++ "-" ++ (if recent then "recent" else "all") ++
+  keyToString (AllNicks channel mode) = norm $
+    "nicks-" ++ showChan channel ++ "-" ++ unpack mode ++
     ".html"
-  keyToString (Channel channel) = "channel-" ++ showChan channel ++ ".html"
+  keyToString (Channel channel) = norm $ "channel-" ++ showChan channel ++ ".html"
+
+norm = go where
+  go (x:xs) | isDigit x || isLetter x || x == '.' || x == '-'  = x : go xs
+            | otherwise = show (fromEnum x) ++ go xs
+  go [] = []
 
 contexted name channel =
   name ++ "-" ++ opt (fmap showChan channel) ++ ".html"

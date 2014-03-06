@@ -73,13 +73,13 @@ nickProfile = do
 
 allNicks :: Controller Config PState ()
 allNicks = do
-  recent <- getBoolean "recent" True
+  mode <- fmap (maybe "recent" (\x -> if x == "all" then "all" else "recent")) (getTextMaybe "mode")
   range <- getRange
   channel <- getChannel
-  viewCached (AllNicks channel recent) $ do
-    nicks <- model $ getNicks channel 100 recent range
-    count <- model $ getNickCount channel recent range
-    return $ V.nicks channel count nicks recent
+  viewCached (AllNicks channel mode) $ do
+    nicks <- model $ getNicks channel 100 (mode == "recent") range
+    count <- model $ getNickCount channel (mode == "recent") range
+    return $ V.nicks channel count nicks mode
 
 socialGraph :: Controller Config PState ()
 socialGraph = do

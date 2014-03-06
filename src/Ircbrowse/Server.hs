@@ -33,6 +33,7 @@ serve config pool = route routes where
            ,("/day/:channel/today/:mode",run (C.browseDay True))
            ,("/day/:channel/today",run (C.browseDay True))
            ,("/nick/:nick",run C.nickProfile)
+           ,("/nicks/:channel/:mode",run C.allNicks)
            ,("/nicks/:channel",run C.allNicks)
 	   ,("/quotes.rss",run C.quotes)
            ,("/pdfs/:channel/:unique",run C.pdfs)
