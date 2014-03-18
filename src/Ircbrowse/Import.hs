@@ -41,7 +41,7 @@ import           Snap.App.Migrate
 -- | Import most recent logs all available channels.
 importRecent :: Bool -> Config -> Pool -> IO ()
 importRecent quick config pool = do
-  forM_ [Haskell,Lisp,HaskellGame,Diagrams,Tasty,HaskellDistributed] $ \channel -> do
+  forM_ [Haskell,Lisp,HaskellGame,Diagrams,Tasty,HaskellDistributed,NumericalHaskell] $ \channel -> do
     putStrLn $ "Importing channel: " ++ showChan channel
     v <- newIORef []
     runDB config () pool $ do
