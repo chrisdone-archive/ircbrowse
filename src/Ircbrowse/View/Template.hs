@@ -37,7 +37,7 @@ channelNav channel =
         a !. "brand" ! href "/" $ "IRCBrowse"
         ul !. "nav" $ do
           li $ a ! href (toValue ("/" ++ showChan channel)) $ do
-             (toHtml ("#" ++ showChan channel))
+             (toHtml (prettyChan channel))
           li $ a ! href (toValue ("/browse/" ++ showChan channel)) $ do
              "Browse"
           li $ a ! href (toValue ("/day/" ++ showChan channel ++ "/today/recent")) $ do

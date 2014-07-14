@@ -41,7 +41,7 @@ import           Snap.App.Migrate
 -- | Import most recent logs all available channels.
 importRecent :: Bool -> Config -> Pool -> IO ()
 importRecent quick config pool = do
-  forM_ [Haskell,Lisp,HaskellGame,Diagrams,Tasty,HaskellDistributed,NumericalHaskell] $ \channel -> do
+  forM_ [toEnum 0..] $ \channel -> do
     putStrLn $ "Importing channel: " ++ showChan channel
     v <- newIORef []
     runDB config () pool $ do
@@ -61,13 +61,13 @@ importRecent quick config pool = do
         putStrLn $ "Importing from day: " ++ show (utctDay lastdate)
         when (utctDay lastdate /= today) $
           putStrLn $ "And also day: " ++ show (addDays 1 (utctDay lastdate))
-        importChannel lastdate config pool (utctDay lastdate) channel
+        importChannel lastdate config pool (utctDay lastdate) channel False
         when (utctDay lastdate /= today) $
-          importChannel lastdate config pool (addDays 1 (utctDay lastdate)) channel
+          importChannel lastdate config pool (addDays 1 (utctDay lastdate)) channel False
         putStrLn $ "Imported channel " ++ showChan channel
       _ -> do
         logs <- fmap (sort) (getDirectoryContents (configLogDir config))
-        case find (isInfixOf ("#" ++ showChan channel ++ "_")) logs of
+        case find (isInfixOf (prettyChan channel ++ "_")) logs of
           Nothing -> error $ "Unable to get last import time, or find the first log of this channel: " ++ showChan channel
           Just fp ->
             case parseFileTime fp of
@@ -75,7 +75,7 @@ importRecent quick config pool = do
               Just lastdate -> do
                 putStrLn $ "This channel has never been imported: " ++ showChan channel
                 putStrLn $ "Going to import from: " ++ show (lastdate :: UTCTime)
-                importChannel lastdate config pool (utctDay lastdate) channel
+                importChannel lastdate config pool (utctDay lastdate) channel True
                 return ()
     putStrLn "Clearing caches ..."
     runDB PState config pool $ do
@@ -91,18 +91,18 @@ parseFileTime (drop 1 . dropWhile (/='_') -> date) =
   parseTime defaultTimeLocale "%Y%m%d.log" date
 
 -- | Import the channel into the database of the given date.
-importChannel :: UTCTime -> Config -> Pool -> Day -> Channel -> IO ()
-importChannel last config pool day channel = do
+importChannel :: UTCTime -> Config -> Pool -> Day -> Channel -> Bool -> IO ()
+importChannel last config pool day channel frst = do
   mtmp <- copyLog channel day
   case mtmp of
     Nothing -> putStrLn ("Nothing to import right now for #" ++ showChan channel)
     Just tmp -> do let db = runDB config () pool
                    db $ migrate False versions
-                   db $ importFile last channel config tmp
+                   db $ importFile last channel config tmp frst
                    void (try (removeFile tmp) :: IO (Either IOException ()))
 
   where copyLog chan day = do
-          let fp = "#" ++ showChan chan ++ "_" ++ unmakeDay day ++ ".log"
+          let fp = prettyChan chan ++ "_" ++ unmakeDay day ++ ".log"
           tmp <- getTemporaryDirectory
           putStrLn $ "Importing from file " ++ fp
           let tmpfile = tmp </> fp
@@ -160,11 +160,12 @@ updateChannelIndex config channel = do
              ,showChanInt channel)
 
 -- | Import from the given file.
-importFile :: UTCTime -> Channel -> Config -> FilePath -> Model c s ()
-importFile last channel config path = do
+importFile :: UTCTime -> Channel -> Config -> FilePath -> Bool -> Model c s ()
+importFile last channel config path frst = do
    events' <- liftIO $ parseLog ircbrowseConfig path
    io $ putStrLn "Importing the following events:"
-   let events = dropWhile (not.(\ (EventAt t _) -> t > last)) events'
+   let events | frst = events'
+              | otherwise = dropWhile (not.(\ (EventAt t _) -> t > last)) events'
    io $ forM_ events $ \event ->
      print event
    importEvents channel events

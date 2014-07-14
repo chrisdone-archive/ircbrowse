@@ -29,7 +29,7 @@ overview =
           forM_ [toEnum 0 ..] $ \(chan) ->
             h2 $
               a ! href (toValue (showChan chan)) $
-                do "#"; toHtml (showChan chan)
+                do toHtml (prettyChan chan)
     footer
 
 stats :: Channel -> Range -> Stats -> Html
