@@ -45,6 +45,18 @@ browser search title channel extra uri timestamp events pn q =
          then noResults
          else paginatedTable channel uri events pn
     footer
+    script ! src "http://code.jquery.com/jquery-2.1.1.min.js" $ mempty
+    script ! src "/js/link.js" $ mempty
+
+selection :: Channel -> Text -> [Event] -> URI -> Html
+selection channel title events uri =
+  template "browse"
+           title
+           mempty
+           (do channelNav channel
+               containerFluid (do h1 (toHtml title)
+                                  eventsTable False events uri)
+               footer)
 
 browseDay :: Channel -> Text -> Text -> [Event] -> URI -> Html
 browseDay channel current date events uri = do
@@ -56,9 +68,12 @@ browseDay channel current date events uri = do
          then noResults
          else do when (current == "recent")
                       (do p "Newest at the top")
-                 eventsTable events uri
+                 eventsTable True events uri
     footer
-  when (current == "recent") $ script ! src "/js/recent.js" $ mempty
+  when (current == "recent") $
+    do script ! src "/js/recent.js" $ mempty
+  script ! src "http://code.jquery.com/jquery-2.1.1.min.js" $ mempty
+  script ! src "/js/link.js" $ mempty
 
   where mode current label title =
           li !. modeClass $ a ! A.href (toValue ("?mode=" <> label :: Text)) $ title
@@ -81,12 +96,12 @@ paginatedTable :: Channel -> URI -> [Event] -> PN -> Html
 paginatedTable channel uri events pn' = do
   let pn = pn' { pnURI = deleteQueryKey "timestamp" (deleteQueryKey "id" uri) }
   pagination pn
-  eventsTable events uri
+  eventsTable True events uri
   pagination pn { pnPn = (pnPn pn) { pnShowDesc = False }
                 , pnResultsPerPage = Nothing
                 }
 
-eventsTable events uri =
+eventsTable clear events uri =
   table !. "events table" $
     forM_ events $ \event -> do
       let secs = formatTime defaultTimeLocale "%s" (zonedTimeToUTC (eventTimestamp event))
@@ -101,7 +116,7 @@ eventsTable events uri =
                            (\nick -> toValue ("/nick/" <> nick))
                            (eventNick event)
       tr ! name (toValue anchor) !# (toValue anchor) !. (toValue (eventClass ++ " " ++ focused)) $ do
-        td  !. "timestamp" $ timestamp uri (eventId event) (eventTimestamp event) anchor secs
+        td !# (toValue ("id" <> show (eventId event))) !. "timestamp" $ timestamp clear uri (eventId event) (eventTimestamp event) anchor secs
         if eventType event == "talk"
           then do td !. "nick-wrap" $ do
                     " <"
@@ -112,13 +127,15 @@ eventsTable events uri =
                     a ! href nickLink !. "nick" ! style color $ toHtml $ fromMaybe " " (eventNick event)
                   td !. "text" $ linkify $ eventText event
 
-timestamp :: URI -> Int -> ZonedTime -> String -> String -> Html
-timestamp puri eid t anchor secs =
+timestamp :: Bool -> URI -> Int -> ZonedTime -> String -> String -> Html
+timestamp clear puri eid t anchor secs =
   a ! hrefURIWithHash uri anchor $ toHtml $ show t
 
   where uri = updateUrlParam "id" (show eid)
                                   (updateUrlParam "timestamp" secs
-                                                  (clearUrlQueries puri))
+                                                  (if clear
+                                                      then clearUrlQueries puri
+                                                      else puri))
 
 allPdfs :: URI -> Channel -> [(Int,ZonedTime,Text)] -> Html
 allPdfs uri channel lines = do

@@ -2,8 +2,7 @@
 
 #browse .events .timestamp { color: #666; width: 13em }
 #browse .events .nick { color: #333; font-weight: bold; }
-#browse .events .nick-wrap { text-align: right; color: #ccc; }
-#browse .events .event.selected { background:  }
+#browse .events .nick-wrap { text-align: right; color: #ccc; width: 9em }
 #browse .events .not-focused,#browse .events .not-focused .nick { color: #888; font-style: italic; font-weight: normal }
 #browse .events .focused { background: #efefef; }
 #browse .results-per-page { float: right; }
@@ -22,4 +21,49 @@ body#calendar td {
 
 body#calendar td a:visited {
   color: #888;
+}
+
+.link {
+  float: right;
+  color: #999;
+  line-height: 40px;
+  height: 40px;
+  display: inline-block;
+}
+.link:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+.link-container {
+  margin-top: 40px;
+  color: #fff;
+}
+
+.link-container textarea {
+  width: 30em;
+  height: 5em;
+}
+
+.selecting {
+  border: 2px dashed #08c;
+  padding-top: 1em;
+}
+
+#browse .selecting .events tr:hover, #browse .selecting .events tr:hover * {
+  background: #00354f;
+  color: #fff !important;
+  cursor: pointer;
+}
+
+#browse .selecting .events tr.selected, #browse .selecting .events tr.selected * {
+  background: #08c;
+  color: #fff !important;
+  cursor: pointer;
+}
+
+#browse .selecting .events tr.selected:hover, #browse .selecting .events tr.selected:hover * {
+  background: #00354f;
+  color: #fff !important;
+  cursor: pointer;
 }

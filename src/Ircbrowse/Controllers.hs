@@ -113,6 +113,16 @@ browseGivenDate = do
     Nothing -> return ()
     Just day -> browseSomeDay False day datetext
 
+browseSpecified :: Controller Config PState ()
+browseSpecified =
+  do channel <- getChannel
+     events <- getText "events"
+     title <- getText "title"
+     let eids = mapMaybe (readMay . T.unpack) (T.split (==',') events)
+     events <- model (getEventsByOrderIds channel eids)
+     uri <- getMyURI
+     outputText (renderHtml (V.selection channel title events uri))
+
 browseSomeDay :: Bool -> Day -> Text -> Controller Config PState ()
 browseSomeDay today day datetext = do
   evid <- getIntegerMaybe "id"

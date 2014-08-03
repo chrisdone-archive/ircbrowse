@@ -26,7 +26,7 @@ getEvents channel tid (PN _ pagination _) q = do
       case result of
         Left err -> return (pagination { pnTotal = 0 },[])
         Right result -> do
-          results <- getEventsByResults channel (map fst (rResults result))
+          results <- getEventsByIds channel (map fst (rResults result))
           return (pagination { pnTotal = fromIntegral (rTotal result) }
                  ,results)
     Nothing -> do
@@ -45,8 +45,17 @@ getFirstEventDate channel = do
                ,"ASC LIMIT 1"]
                (Only (showChanInt channel)))
 
-getEventsByResults :: Channel -> [Int] -> Model c s [Event]
-getEventsByResults channel eids = do
+getEventsByOrderIds :: Channel -> [Int] -> Model c s [Event]
+getEventsByOrderIds channel eids = do
+  query ["SELECT id,timestamp,network,channel,type,nick,text"
+        ,"FROM event"
+        ,"WHERE id in (SELECT origin FROM event_order_index WHERE idx = ? AND id IN ("
+        ,intercalate ", " (map show eids)
+        ,")) ORDER BY id ASC"]
+        (Only (idxNum channel))
+
+getEventsByIds :: Channel -> [Int] -> Model c s [Event]
+getEventsByIds channel eids = do
   query ["SELECT (SELECT id FROM event_order_index WHERE origin = event.id AND idx = ? limit 1),"
         ,"timestamp,network,channel,type,nick,text"
         ,"FROM event"
