@@ -7,11 +7,14 @@ $(function(){
   var val = $.cookie('selected-events');
   if (val) {
     events = JSON.parse(val);
+    if (events === null) events = [];
     for (var i = 0; i < events.length; i++) {
       $('#id' + events[i]).parent().addClass('selected');
     }
   }
-  else events = [];
+  else {
+    events = [];
+  }
   brand.append(container);
   var textarea;
   function update(){
@@ -45,13 +48,14 @@ $(function(){
       });
       update();
     } else {
-      if (events.length) confirm("Discard selected events?");
+      if (events.length)
+        if (!confirm("Discard selected events?")) return;
       container.empty();
       $('.container-fluid').removeClass('selecting');
       $('.selecting tr').off('click');
       events = [];
       $('.selected').removeClass('selected');
-      $.cookie('selected-events',null);
+      $.removeCookie('selected-events');
     }
   });
   if ($.cookie('selected-events'))

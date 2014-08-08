@@ -12,6 +12,7 @@ prettyChan NumericalHaskell = "#numerical-haskell"
 prettyChan FSharp = "##fsharp"
 prettyChan Ghcjs = "#ghcjs"
 prettyChan HaskellBeginners = "#haskell-beginners"
+prettyChan HLedger = "#hledger"
 
 -- | Show a channel.
 showChan :: Channel -> String
@@ -25,6 +26,7 @@ showChan HaskellBeginners = "haskell-beginners"
 showChan NumericalHaskell = "numerical-haskell"
 showChan FSharp = "fsharp"
 showChan Ghcjs = "ghcjs"
+showChan HLedger = "hledger"
 
 -- | Show a channel.
 showChanInt :: Channel -> Int
@@ -38,6 +40,7 @@ showChanInt NumericalHaskell = 7
 showChanInt FSharp = 8
 showChanInt Ghcjs = 9
 showChanInt HaskellBeginners = 10
+showChanInt HLedger = 11
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -51,6 +54,7 @@ parseChan "haskell-distributed" = Just HaskellDistributed
 parseChan "numerical-haskell" = Just NumericalHaskell
 parseChan "fsharp" = Just FSharp
 parseChan "ghcjs" = Just Ghcjs
+parseChan "hledger" = Just HLedger
 parseChan _ = Nothing
 
 idxNum :: Channel -> Int
@@ -64,7 +68,8 @@ idxNum NumericalHaskell = 7000
 idxNum FSharp = 8000
 idxNum Ghcjs = 9000
 idxNum HaskellBeginners = 10000
+idxNum HLedger = 11000
 
 -- | Possible supported channels.
-data Channel = Haskell | Lisp | HaskellGame | Diagrams | Tasty | HaskellDistributed | NumericalHaskell | FSharp | Ghcjs | HaskellBeginners
+data Channel = Haskell | Lisp | HaskellGame | Diagrams | Tasty | HaskellDistributed | NumericalHaskell | FSharp | Ghcjs | HaskellBeginners | HLedger
   deriving Enum

@@ -50,19 +50,19 @@ body#calendar td a:visited {
   padding-top: 1em;
 }
 
-#browse .selecting .events tr:hover, #browse .selecting .events tr:hover * {
+.selecting .events tr:hover, .selecting .events tr:hover * {
   background: #00354f;
   color: #fff !important;
   cursor: pointer;
 }
 
-#browse .selecting .events tr.selected, #browse .selecting .events tr.selected * {
+.selecting .events tr.selected, .selecting .events tr.selected * {
   background: #08c;
   color: #fff !important;
   cursor: pointer;
 }
 
-#browse .selecting .events tr.selected:hover, #browse .selecting .events tr.selected:hover * {
+.selecting .events tr.selected:hover, .selecting .events tr.selected:hover * {
   background: #00354f;
   color: #fff !important;
   cursor: pointer;
