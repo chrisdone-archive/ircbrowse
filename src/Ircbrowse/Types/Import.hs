@@ -64,9 +64,9 @@ parseChan "numerical-haskell" = Just NumericalHaskell
 parseChan "fsharp" = Just FSharp
 parseChan "ghcjs" = Just Ghcjs
 parseChan "hledger" = Just HLedger
-parseChan "#typelevel" = Just Typelevel
-parseChan "#scalaz" = Just Scalaz
-parseChan "#shapeless" = Just Shapeless
+parseChan "typelevel" = Just Typelevel
+parseChan "scalaz" = Just Scalaz
+parseChan "shapeless" = Just Shapeless
 parseChan _ = Nothing
 
 idxNum :: Channel -> Int

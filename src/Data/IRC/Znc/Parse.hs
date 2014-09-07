@@ -9,6 +9,7 @@ import           Data.Maybe
 import           Data.Word
 import           System.Locale
 
+import qualified Control.Exception        as Ex
 import qualified Data.Foldable            as F
 import qualified Data.Attoparsec          as P
 import qualified Data.ByteString          as B
@@ -126,7 +127,7 @@ getDay fp = case Path.splitFileName fp of
 -- @tunes.org@.
 parseLog :: Config -> FilePath -> IO [EventAt]
 parseLog (Config{timeZone=tz, zoneInfo=zi}) p = do
-  tzdir <- either (const zi) id <$> IOError.try (Env.getEnv "TZDIR")
+  tzdir <- either (const zi :: Ex.IOException -> FilePath) id <$> Ex.try (Env.getEnv "TZDIR")
   adj   <- TimeAdj (getDay p) <$> getTimeConv (Path.combine tzdir tz)
   b <- B.readFile p
   let go r@P.Fail{}    = error $ show r
