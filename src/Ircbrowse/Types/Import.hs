@@ -13,6 +13,9 @@ prettyChan FSharp = "##fsharp"
 prettyChan Ghcjs = "#ghcjs"
 prettyChan HaskellBeginners = "#haskell-beginners"
 prettyChan HLedger = "#hledger"
+prettyChan Typelevel = "#typelevel"
+prettyChan Scalaz = "#scalaz"
+prettyChan Shapeless = "#shapeless"
 
 -- | Show a channel.
 showChan :: Channel -> String
@@ -27,6 +30,9 @@ showChan NumericalHaskell = "numerical-haskell"
 showChan FSharp = "fsharp"
 showChan Ghcjs = "ghcjs"
 showChan HLedger = "hledger"
+showChan Typelevel = "typelevel"
+showChan Scalaz = "scalaz"
+showChan Shapeless = "shapeless"
 
 -- | Show a channel.
 showChanInt :: Channel -> Int
@@ -41,6 +47,9 @@ showChanInt FSharp = 8
 showChanInt Ghcjs = 9
 showChanInt HaskellBeginners = 10
 showChanInt HLedger = 11
+showChanInt Typelevel = 12
+showChanInt Scalaz = 13
+showChanInt Shapeless = 14
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -55,6 +64,9 @@ parseChan "numerical-haskell" = Just NumericalHaskell
 parseChan "fsharp" = Just FSharp
 parseChan "ghcjs" = Just Ghcjs
 parseChan "hledger" = Just HLedger
+parseChan "#typelevel" = Just Typelevel
+parseChan "#scalaz" = Just Scalaz
+parseChan "#shapeless" = Just Shapeless
 parseChan _ = Nothing
 
 idxNum :: Channel -> Int
@@ -69,7 +81,10 @@ idxNum FSharp = 8000
 idxNum Ghcjs = 9000
 idxNum HaskellBeginners = 10000
 idxNum HLedger = 11000
+idxNum Typelevel = 12000
+idxNum Scalaz = 13000
+idxNum Shapeless = 14000
 
 -- | Possible supported channels.
-data Channel = Haskell | Lisp | HaskellGame | Diagrams | Tasty | HaskellDistributed | NumericalHaskell | FSharp | Ghcjs | HaskellBeginners | HLedger
+data Channel = Haskell | Lisp | HaskellGame | Diagrams | Tasty | HaskellDistributed | NumericalHaskell | FSharp | Ghcjs | HaskellBeginners | HLedger | Typelevel | Scalaz | Shapeless
   deriving Enum

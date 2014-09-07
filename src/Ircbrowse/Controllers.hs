@@ -35,6 +35,10 @@ import           Text.Blaze.Renderer.Text
 --------------------------------------------------------------------------------
 -- Controllers
 
+export :: Controller Config PState ()
+export = do
+  return ()
+
 overview :: Controller Config PState ()
 overview = do
   viewCached Overview $ do

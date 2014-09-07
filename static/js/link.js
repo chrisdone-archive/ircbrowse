@@ -2,7 +2,7 @@ $(function(){
   var link = $('<a href="javascript:"></a>').addClass('link').text('Link');
   var brand = $('.brand').parent().append(link);
   var container = $('<div class="link-container"></div>');
-  var url = 'http://ircbrowse.net/selection/haskell';
+  var url = 'http://ircbrowse.net/selection/' + $('.nav li').first().text().replace(/#/g,'');
   var events;
   var val = $.cookie('selected-events');
   if (val) {

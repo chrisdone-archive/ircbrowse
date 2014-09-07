@@ -42,6 +42,7 @@ serve config pool = route routes where
            ,("/calendar/:channel",run C.calendar)
            ,("/:channel",run C.stats)
            ,("/selection/:channel",run C.browseSpecified)
+           ,("/export/:filename",run C.export)
            ,("/",run C.overview)
            ]
   run = runHandler PState config pool
