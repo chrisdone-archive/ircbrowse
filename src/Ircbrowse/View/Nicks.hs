@@ -6,13 +6,14 @@
 
 module Ircbrowse.View.Nicks where
 
-import Ircbrowse.View
-import Ircbrowse.Types.Import
-import Ircbrowse.View.Template
-import Ircbrowse.View.Cloud
+import           Ircbrowse.View
+import           Ircbrowse.Types.Import
+import           Ircbrowse.View.Template
 
+import           Data.Text (Text)
 import qualified Data.Text as T
 
+nicks :: Channel -> Int -> [(Text,Int)] -> Text -> Html
 nicks channel count ns mode = do
   template "nicks-page" ("Top " <> T.pack (showCount (length ns)) <> " Nicks") mempty $ do
     channelNav channel
@@ -28,10 +29,11 @@ nicks channel count ns mode = do
         span6 $ nicklist channel ns mode
     footer
 
+nicklist :: Channel -> [(Text,Int)] -> Text -> Html
 nicklist c ns mode = do
   tabNav $ do
-    li !. (if mode == "recent" then "active" else "") $ a ! href (link "recent") $ "Recent"
-    li !. (if mode == "all" then "active" else "") $ a ! href (link "all") $ "All Time"
+    li !. (if mode == "recent" then "active" else "") $ a ! href (lnk "recent") $ "Recent"
+    li !. (if mode == "all" then "active" else "") $ a ! href (lnk "all") $ "All Time"
   table !. "table" $ do
     thead $
       tr $ do th "Nick"
@@ -41,8 +43,9 @@ nicklist c ns mode = do
         tr $ do
           td $ a ! href (toValue ("/nick/" <> nick)) $ toHtml nick
           td $ toHtml (showCount count)
-  where link n = toValue ("/nicks/" ++ showChan c ++ "/" ++ n)
+  where lnk n = toValue ("/nicks/" ++ showChan c ++ "/" ++ n)
 
+showChans :: Html
 showChans =
   htmlCommasAnd $ flip map [toEnum 0 ..] $ \chan ->
     a ! href (toValue ("/browse/" <> T.pack (showChan chan))) $

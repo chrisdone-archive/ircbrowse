@@ -1,28 +1,29 @@
+{-# LANGUAGE PatternGuards #-}
 {-# LANGUAGE ViewPatterns #-}
 module Data.IRC.Znc.Parse where
 
-import           Data.IRC.Event
-
 import           Control.Applicative
+import qualified Control.Exception as Ex
+import           Data.Attoparsec (Parser)
+import qualified Data.Attoparsec as P
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as B8
+import qualified Data.Foldable as F
+import           Data.IRC.Event
 import           Data.List
 import           Data.Maybe
-import           Data.Word
-import           System.Locale
-
-import qualified Control.Exception        as Ex
-import qualified Data.Foldable            as F
-import qualified Data.Attoparsec          as P
-import qualified Data.ByteString          as B
-import qualified Data.ByteString.Char8    as B8
-import qualified Data.Time                as Time
-import qualified Data.Text                as T
-import qualified Data.Text.Encoding       as T
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import qualified Data.Text.Encoding.Error as T
-import qualified System.FilePath          as Path
-import qualified System.Environment       as Env
-import qualified System.IO.Error          as IOError
+import qualified Data.Time as Time
+import           Data.Time.Format (ParseTime)
+import qualified Data.Time.LocalTime.TimeZone.Olson as Zone
 import qualified Data.Time.LocalTime.TimeZone.Series as Zone
-import qualified Data.Time.LocalTime.TimeZone.Olson  as Zone
+import           Data.Word
+import qualified System.Environment as Env
+import qualified System.FilePath as Path
+import           System.Locale
 
 -- | Configuring the parser.
 data Config = Config
@@ -100,8 +101,8 @@ event = F.asum
     chr  = P.word8  . fromIntegral . fromEnum
     nick = (Nick . decode) <$> P.takeWhile (not . P.inClass " \n\r\t\v<>")
     userAct f x = f <$ str x <*> nick <* chr ' ' <*> restOfLine
-    global f x = f <$ str x <*> restOfLine
 
+str :: String -> Parser ByteString
 str  = P.string . B8.pack
 
 line :: TimeAdj -> P.Parser EventAt
@@ -113,6 +114,7 @@ safeRead :: (Read a) => String -> Maybe a
 safeRead x | [(v,"")] <- reads x = Just v
 safeRead _ = Nothing
 
+getDay :: ParseTime t => FilePath -> t
 getDay fp = case Path.splitFileName fp of
   (_,(drop 1 . dropWhile (/='_')) -> date) ->
     case Time.parseTime defaultTimeLocale "%Y%m%d.log" date of

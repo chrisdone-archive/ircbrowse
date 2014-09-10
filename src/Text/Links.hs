@@ -3,7 +3,7 @@
 -- | Split some text into links and text.
 
 module Text.Links
- (explodeLinks)
+ (explodeLinks,tests)
   where
 
 import           Data.Maybe
@@ -19,7 +19,7 @@ explodeLinks = consume where
     if T.null t
        then []
        else case T.breakOn prefix t of
-              (before,"") -> [Right t]
+              (_,"") -> [Right t]
               (before,after) ->
                 case T.span allowed after of
                   (murl,rest) -> case parseURI (T.unpack murl) of

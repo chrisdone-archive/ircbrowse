@@ -15,7 +15,7 @@ import Network.Mail.Mime (Address)
 import Snap.App.Cache
 import Snap.App.Types
 import System.Locale
-import Text.Blaze.Pagination
+
 
 -- | Site-wide configuration.
 data Config = Config
@@ -105,11 +105,13 @@ instance Key CacheKey where
     ".html"
   keyToString (Channel channel) = norm $ "channel-" ++ showChan channel ++ ".html"
 
+norm :: [Char] -> [Char]
 norm = go where
   go (x:xs) | isDigit x || isLetter x || x == '.' || x == '-'  = x : go xs
             | otherwise = show (fromEnum x) ++ go xs
   go [] = []
 
+contexted :: [Char] -> Maybe Channel -> [Char]
 contexted name channel =
   name ++ "-" ++ opt (fmap showChan channel) ++ ".html"
     where opt Nothing = "_"

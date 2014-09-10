@@ -1,8 +1,9 @@
 module Ircbrowse.Model.Events where
 
-import Ircbrowse.Types
+import Database.PostgreSQL.Simple.FromRow
 import Ircbrowse.Data
 import Ircbrowse.Monads
+import Ircbrowse.Types
 import Ircbrowse.Types.Import
 
 import Data.Text (Text)
@@ -24,7 +25,7 @@ getEvents channel tid (PN _ pagination _) q = do
         , sFilters = [("channel",showChanInt channel)]
         }
       case result of
-        Left err -> return (pagination { pnTotal = 0 },[])
+        Left{} -> return (pagination { pnTotal = 0 },[])
         Right result -> do
           results <- getEventsByIds channel (map fst (rResults result))
           return (pagination { pnTotal = fromIntegral (rTotal result) }
@@ -71,7 +72,7 @@ getEventsByDay channel day everything =
      else getRecentEventsByDay channel day
 
 getRecentEventsByDay :: Channel -> Day -> Model c s [Event]
-getRecentEventsByDay channel day = do
+getRecentEventsByDay channel _ = do
   count <- single ["SELECT count FROM event_count where channel = ?"] (Only (showChanInt channel))
   let offset = fromMaybe 0 count - limit
   query ["SELECT idx.id,e.timestamp,e.network,e.channel,e.type,e.nick,e.text FROM event e,"
@@ -99,6 +100,11 @@ getAllEventsByDay channel day =
        ,day
        ,day)
 
+getTimestampedEvents :: FromRow r
+                     => Channel
+                     -> Integer
+                     -> Pagination
+                     -> Model c s (Pagination,[r])
 getTimestampedEvents channel tid pagination = do
   getPaginatedEvents channel pagination
     { pnCurrentPage = if mod tid (pnPerPage pagination) == 0
@@ -106,6 +112,8 @@ getTimestampedEvents channel tid pagination = do
                          else tid `div` pnPerPage pagination + 1
     }
 
+getPaginatedEvents :: FromRow r
+                   => Channel -> Pagination -> Model c s (Pagination,[r])
 getPaginatedEvents channel pagination = do
   count <- single ["SELECT count FROM event_count where channel = ?"] (Only (showChanInt channel))
   events <- query ["SELECT idx.id,e.timestamp,e.network,e.channel,e.type,e.nick,e.text FROM event e,"
@@ -123,6 +131,8 @@ getPaginatedEvents channel pagination = do
   where offset = 1 + (max 0 (pnCurrentPage pagination - 1) * pnPerPage pagination)
         limit = pnPerPage pagination
 
+getPaginatedPdfs :: FromRow r
+                 => Channel -> PN -> Model c s (Pagination,[r])
 getPaginatedPdfs channel (PN _ pagination _) = do
   count <- single ["SELECT COUNT(*) FROM event_order_index WHERE idx = ?"]
                   (Only (idxNum channel + 1))

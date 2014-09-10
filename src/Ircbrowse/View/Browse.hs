@@ -14,7 +14,6 @@ import           Ircbrowse.Types.Import
 import           Ircbrowse.View hiding (id)
 import           Ircbrowse.View.NickColour
 import           Ircbrowse.View.Template
-import Ircbrowse.View.Calendar
 
 import           Control.Arrow
 import           Data.Either
@@ -28,20 +27,31 @@ import           Prelude (min)
 import qualified Text.Blaze.Html5.Attributes as A
 import           Text.Links
 
+browse :: Channel -> URI -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
 browse channel = browser True ("Browse #" <> T.pack (showChan channel)) channel $ mempty
 
+pdfs :: Channel -> URI -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
 pdfs channel = browser False ("PDFs linked in #" <> T.pack (showChan channel)) channel $ do
   p $ a ! A.href (toValue ("/pdfs/" ++ showChan channel ++ "/unique")) $ do
     "Show unique PDF links →"
 
-browser :: Bool -> Text -> Channel -> Html -> URI -> Maybe UTCTime -> [Event] -> PN -> Maybe Text -> Html
-browser search title channel extra uri timestamp events pn q =
-  template "browse" title mempty $ do
+browser :: Bool
+        -> Text
+        -> Channel
+        -> Html
+        -> URI
+        -> Maybe UTCTime
+        -> [Event]
+        -> PN
+        -> Maybe Text
+        -> Html
+browser search title' channel extra uri _ events pn q' =
+  template "browse" title' mempty $ do
     channelNav channel
     containerFluid $ do
-      when search $ searchForm q
+      when search $ searchForm q'
       extra
-      if null events && isJust q
+      if null events && isJust q'
          then noResults
          else paginatedTable channel uri events pn
     footer
@@ -49,12 +59,12 @@ browser search title channel extra uri timestamp events pn q =
     script ! src "/js/link.js" $ mempty
 
 selection :: Channel -> Text -> [Event] -> URI -> Html
-selection channel title events uri =
+selection channel title' events uri =
   template "browse"
-           title
+           title'
            mempty
            (do channelNav channel
-               containerFluid (do h1 (toHtml title)
+               containerFluid (do h1 (toHtml title')
                                   eventsTable False events uri)
                footer)
 
@@ -75,25 +85,21 @@ browseDay channel current date events uri = do
   script ! src "http://code.jquery.com/jquery-2.1.1.min.js" $ mempty
   script ! src "/js/link.js" $ mempty
 
-  where mode current label title =
-          li !. modeClass $ a ! A.href (toValue ("?mode=" <> label :: Text)) $ title
-            where modeClass | current == label = "active"
-                            | otherwise = ""
-
+noResults :: Html
 noResults = do
   p "There are no results!"
 
 searchForm :: Maybe Text -> Html
-searchForm q =
+searchForm q' =
   form ! method "get" $
     fieldset $ do
       inputAppend $ do
-        input ! name "q" !. "span2" !# "appendedInputButton" ! type_ "text" ! value (maybe "" toValue q) ! placeholder "(the search index is updated once daily)" ! A.style "width:27em"
+        input ! name "q" !. "span2" !# "appendedInputButton" ! type_ "text" ! value (maybe "" toValue q') ! placeholder "(the search index is updated once daily)" ! A.style "width:27em"
         input !. "btn" ! type_ "submit" ! value "Go!"
 
 
 paginatedTable :: Channel -> URI -> [Event] -> PN -> Html
-paginatedTable channel uri events pn' = do
+paginatedTable _ uri events pn' = do
   let pn = pn' { pnURI = deleteQueryKey "timestamp" (deleteQueryKey "id" uri) }
   pagination pn
   eventsTable True events uri
@@ -101,6 +107,7 @@ paginatedTable channel uri events pn' = do
                 , pnResultsPerPage = Nothing
                 }
 
+eventsTable :: Bool -> [Event] -> URI -> Html
 eventsTable clear events uri =
   table !. "events table" $
     forM_ events $ \event -> do
@@ -138,11 +145,11 @@ timestamp clear puri eid t anchor secs =
                                                       else puri))
 
 allPdfs :: URI -> Channel -> [(Int,ZonedTime,Text)] -> Html
-allPdfs uri channel lines = do
-  template "pdfs" title mempty $ do
+allPdfs uri channel lines' = do
+  template "pdfs" title' mempty $ do
     containerFluid $ do
       mainHeading $
-        a ! hrefURI (clearUrlQueries uri) $ toHtml title
+        a ! hrefURI (clearUrlQueries uri) $ toHtml title'
       p $ a ! A.href (toValue ("/pdfs/" ++ showChan channel)) $ do
           "← Browse all links in context"
       let urls = sortBy (flip (comparing fst))
@@ -150,28 +157,28 @@ allPdfs uri channel lines = do
                $ groupBy (on (==) (\(_,_,url) -> url))
                $ sortBy (comparing (\(_,_,url) -> url))
                $ concat
-               $ map (\(id,time,text) -> map (id,time,) . filter (isSuffixOf ".pdf") . map show . lefts . explodeLinks $ text)
-               $ lines
+               $ map (\(id',time',text) -> map (id',time',) . filter (isSuffixOf ".pdf") . map show . lefts . explodeLinks $ text)
+               $ lines'
       table !. "table" $ do
         tr $ do
           th "Linked"
           th "URL"
-        forM_ urls $ \(i,urls) -> do
+        forM_ urls $ \(i,urls') -> do
           tr $ do
             td (toHtml (show i))
-            forM_ (take 1 urls) $ \(_,_,url) ->
+            forM_ (take 1 urls') $ \(_,_,url) ->
               td $ do
                 a ! A.href (toValue url) ! target "_blank" $ toHtml url
                 " — "
                 a ! A.href (toValue ("http://ircbrowse.net/browse/" ++ showChan channel ++ "?q=" ++ url)) $
                   "Search results"
-                " — Context"; (if length urls == 1 then "" else "s"); ": "
-                forM_ (take 30 (zip [1..] urls)) $ \(j,(i,t,_)) -> do
+                " — Context"; (if length urls' == 1 then "" else "s"); ": "
+                forM_ (take 30 (zip [1..] urls')) $ \(j,(i',t,_)) -> do
                   let secs = formatTime defaultTimeLocale "%s" (zonedTimeToUTC t)
-                  a ! A.href (toValue ("/browse/" ++ showChan channel ++ "?id=" ++ show i ++
+                  a ! A.href (toValue ("/browse/" ++ showChan channel ++ "?id=" ++ show i' ++
                                       "&timestamp=" ++ secs ++ "#t" ++ secs)) $
                    toHtml (show j)
                   " "
-                when (length urls > 30) $ " …"
+                when (length urls' > 30) $ " …"
 
-  where title = ("Unique PDFs linked in #" <> T.pack (showChan channel))
+  where title' = ("Unique PDFs linked in #" <> T.pack (showChan channel))

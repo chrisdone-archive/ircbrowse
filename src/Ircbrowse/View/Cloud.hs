@@ -16,7 +16,7 @@ import Data.Text.Lazy.Builder
 cloud :: String -> (Int,Int) -> Int -> Int -> [(String,Integer)] -> Html
 cloud elid (width,height) limit scale stats = do
   div !# toValue elid $ mempty
-  script $ preEscapedToHtml $ "drawCloud(" <> toLazyText (fromValue (toJSON spec)) <> ")"
+  script $ preEscapedToHtml $ "drawCloud(" <> toLazyText (encodeToTextBuilder (toJSON spec)) <> ")"
 
   where spec = object ["width"  .= width
                       ,"height" .= height
@@ -28,6 +28,7 @@ cloud elid (width,height) limit scale stats = do
         makeWord :: (String,Integer) -> Value
         makeWord (text,size) = object ["text" .= text,"size" .= size]
 
+cloudScripts :: Html
 cloudScripts =
   forM_ ["d3","d3.layout.cloud","drawcloud"] $ \name ->
     script ! src ("/js/" <> name <> ".js") $ mempty

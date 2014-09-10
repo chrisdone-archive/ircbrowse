@@ -11,7 +11,7 @@ cabal-version:       >=1.8
 
 executable ircbrowse
   main-is:           Main.hs
-  ghc-options:      -threaded -O2
+  ghc-options:      -threaded -O2 -Wall -fno-warn-unused-do-bind -fno-warn-name-shadowing
   hs-source-dirs:    src
   build-depends:     base >= 4 && <5,
                      blaze-html   >= 0.6,

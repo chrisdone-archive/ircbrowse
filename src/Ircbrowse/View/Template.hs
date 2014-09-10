@@ -30,6 +30,7 @@ template name thetitle innerhead innerbody = do
                        \ s = document.getElementsByTagName('script')[0]; \
                        \s.parentNode.insertBefore(ga, s);})(); </script>" :: Text)
 
+channelNav :: Channel -> Html
 channelNav channel =
   div !. "navbar navbar-static-top navbar-inverse" $
     div !. "navbar-inner" $ do
@@ -56,6 +57,7 @@ showCount = reverse . foldr merge "" . zip ("000,00,00,00"::String) . reverse . 
   merge (f,c) rest | f == ',' = "," ++ [c] ++ rest
                    | otherwise = [c] ++ rest
 
+footer :: Html
 footer =
   div !# "footer" $
     div !. "container" $ do
@@ -68,6 +70,7 @@ footer =
         " | "
         a ! href "http://haskell.org/" $ "Haskell"
 
+mainHeading :: Html -> Html
 mainHeading inner = h1 $ do
   a ! href "/" $ do "IRC Browse"
   ": "

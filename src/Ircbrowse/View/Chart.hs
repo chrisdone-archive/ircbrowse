@@ -21,7 +21,6 @@ barChartBy (w,h) values = img ! src (toValue url)
               "&chs=" ++ show w ++ "x" ++ show h ++ "&cht=bvs&chbh=a" ++
               "&chxr=0|1,0," ++ show maxcount
         xlabels = map fst values
-        ylabels = map show [10,20,30,40,50]
         datas = map (\x -> show (round ((fi x / maxcount) * 100))) times
         times = map snd values
         maxcount = fi (maximum' times)
@@ -39,7 +38,6 @@ radarChart values = img ! src (toValue url)
               "&chxr=0|1,0," ++ show maxcount ++
               "&chm=B,FFCC3399,0,1.0,5.0"
         xlabels = map fst values
-        ylabels = map show [10,20,30,40,50]
         datas = map (\x -> show (round ((fi x / maxcount) * 100))) times
         times = map snd values
         maxcount = fi (maximum' times)

@@ -103,9 +103,12 @@ parseResults input = case match rx input [] of
   where rx = compile "\n[0-9]+\\. document=([0-9]+), weight=([0-9]+)[^\n]+"
                      []
 
+readInt :: Integral a => Text -> Maybe a
 readInt x = case T.decimal x of
               Right (ok,"") -> Just ok
               _ -> Nothing
+
+readDouble :: Text -> Maybe Double
 readDouble x = case T.double x of
                  Right (ok,"") -> Just ok
                  _ -> Nothing

@@ -15,12 +15,9 @@ import           Ircbrowse.Types
 import           Ircbrowse.Types.Import
 
 import           Control.Exception (try,IOException)
-import           Control.Concurrent
-import qualified Data.ByteString as S
 import           Data.IORef
 import           Data.IRC.CLog.Parse hiding (Config,parseLog)
 import           Data.IRC.Znc.Parse hiding (Config)
-import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import           Snap.App
@@ -56,7 +53,7 @@ importRecent quick config pool = do
     now <- getZonedTime
     let today = localDay (zonedTimeToLocalTime now)
     case listToMaybe last of
-      Just event@(Only (lastdate::UTCTime)) -> do
+      Just (Only (lastdate::UTCTime)) -> do
         putStrLn $ "Last date: " ++ show lastdate
         putStrLn $ "Importing from day: " ++ show (utctDay lastdate)
         when (utctDay lastdate /= today) $
@@ -87,6 +84,7 @@ importRecent quick config pool = do
     putStrLn "Running data regeneration ..."
     runDB config () pool $ generateData
 
+parseFileTime :: ParseTime t => [Char] -> Maybe t
 parseFileTime (drop 1 . dropWhile (/='_') -> date) =
   parseTime defaultTimeLocale "%Y%m%d.log" date
 
@@ -119,7 +117,7 @@ unmakeDay = formatTime defaultTimeLocale "%Y%m%d"
 
 -- | Update the event order index for the given channel.
 updateChannelIndex :: Config -> Channel -> Model c s ()
-updateChannelIndex config channel = do
+updateChannelIndex _ channel = do
   io $ putStrLn $ "Updating order indexes for " ++ showChan channel ++ " ..."
   result <- query ["SELECT id,origin"
                   ,"FROM event_order_index"

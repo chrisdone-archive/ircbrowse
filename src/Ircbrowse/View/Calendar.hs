@@ -12,21 +12,17 @@ module Ircbrowse.View.Calendar
   ,channelNav)
   where
 
-import Ircbrowse.Types.Import
-import Ircbrowse.View
-import Ircbrowse.View.Chart
-import Ircbrowse.View.Cloud
-import Ircbrowse.View.Template
+import           Ircbrowse.Types.Import
+import           Ircbrowse.View
+import           Ircbrowse.View.Template
 
-import Data.Text (Text)
+import           Data.Function
+import           Data.List.Split
 import qualified Data.Text as T
-import Data.List.Split
-import Control.Arrow
-import Data.Function
-import Data.Time
-import Data.Time.Calendar.OrdinalDate
-import System.Locale
+import           Data.Time.Calendar.OrdinalDate
+import           System.Locale
 
+startYear :: Integer
 startYear = 2001
 
 channel :: Channel -> Html
@@ -44,12 +40,11 @@ calendar firstDay today channel =
       container $ do
         forM_ (years firstDay today) $ \year ->
           case year of
-            [] -> return ()
             ((yearsample:_):_) -> do
                row $
                  span12 $
                    h2 $ toHtml (showYear yearsample)
-               forM_ (chunk 4 year) $ \months ->
+               forM_ (chunksOf 4 year) $ \months ->
                  row $ do
                    forM_ months $ \days ->
                      span3 $
@@ -58,12 +53,13 @@ calendar firstDay today channel =
                          (monthsample:_) -> do
                            h3 $ toHtml (showMonth monthsample)
                            table $
-                             forM_ (chunk 7 days) $ \days ->
+                             forM_ (chunksOf 7 days) $ \days ->
                                tr $
                                  forM_ days $ \day ->
                                    td $
                                      a ! href (toValue ("/day/" ++ showChan channel ++ "/" ++ showDate day)) $
                                        toHtml (showDayOfMonth day)
+            _ -> return ()
       footer
 
 years :: Day -> Day -> [[[Day]]]

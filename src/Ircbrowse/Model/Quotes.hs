@@ -2,7 +2,6 @@
 
 module Ircbrowse.Model.Quotes where
 
-import Ircbrowse.Types
 import Ircbrowse.Types.Import
 
 import Data.Text

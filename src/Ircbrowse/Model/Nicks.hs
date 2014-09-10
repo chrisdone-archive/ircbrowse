@@ -2,7 +2,6 @@
 
 module Ircbrowse.Model.Nicks where
 
-import Ircbrowse.Data
 import Ircbrowse.Types
 import Ircbrowse.Types.Import
 

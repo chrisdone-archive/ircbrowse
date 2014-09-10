@@ -1,4 +1,5 @@
- {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
 
 -- | Generate data needed for statistics and things like that. General
 -- data that doesn't need to be generated on-demand.
@@ -6,13 +7,7 @@
 module Ircbrowse.Model.Data where
 
 import Ircbrowse.Monads
-import Ircbrowse.Types
-import           Ircbrowse.Data
-import           Ircbrowse.Model.Migrations
-import           Ircbrowse.Monads
-import           Ircbrowse.System
-import           Ircbrowse.Types
-import           Ircbrowse.Types.Import
+import Ircbrowse.Types.Import
 
 import Snap.App
 

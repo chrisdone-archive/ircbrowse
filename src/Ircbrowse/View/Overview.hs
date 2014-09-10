@@ -5,7 +5,7 @@
 -- | An overview of all the IRC gubbins, stats, charts, pretty pictures, etc.
 
 module Ircbrowse.View.Overview
-  (overview,stats)
+  (overview,statsOverview)
   where
 
 import Ircbrowse.Types.Import
@@ -13,7 +13,6 @@ import Ircbrowse.View
 import Ircbrowse.View.Chart
 import Ircbrowse.View.Cloud
 import Ircbrowse.View.Template
-import Ircbrowse.View.Calendar
 
 import Control.Arrow
 import Data.Text (pack)
@@ -32,8 +31,8 @@ overview =
                 do toHtml (prettyChan chan)
     footer
 
-stats :: Channel -> Range -> Stats -> Html
-stats channel range stats = do
+statsOverview :: Channel -> Range -> Stats -> Html
+statsOverview channel range stats = do
   template "overview" ("IRC Browse: #" <> pack (showChan channel)) cloudScripts $ do
     channelNav channel
     container $ do
@@ -52,7 +51,7 @@ stats channel range stats = do
     footer
 
 summarize :: Channel -> Range -> Stats -> Html
-summarize channel range stats = p $ do
+summarize _ range stats = p $ do
   "During this "
   toHtml (show (diffDays (rangeTo range) (rangeFrom range)))
   "-day reporting period, a total of "

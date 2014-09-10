@@ -6,13 +6,7 @@
 
 module Ircbrowse.Model.Social where
 
-import           Data.List
-import           Data.Map.Strict (Map)
-import qualified Data.Map.Strict as M
 import           Data.Text (Text)
-import qualified Data.Text as T
-import           Ircbrowse.Monads
-import           Ircbrowse.Types
 import           Snap.App
 
 getSocialGraph :: b -> r -> Model c s [(Text,Text,Int)]

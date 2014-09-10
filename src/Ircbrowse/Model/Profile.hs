@@ -8,10 +8,9 @@ import Ircbrowse.Data
 import Ircbrowse.Types
 import Ircbrowse.Types.Import
 
-import Snap.App
-import Data.Text (Text)
-import Data.Time
 import Data.Monoid
+import Data.Text (Text)
+import Snap.App
 
 data NickStats = NickStats
   { nickHours  :: ![(Int,Int,Int,Int)]

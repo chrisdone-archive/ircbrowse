@@ -4,21 +4,21 @@ module Ircbrowse.Controllers where
 
 import           Ircbrowse.Data
 import           Ircbrowse.Model.Events
-import           Ircbrowse.Model.Stats
-import           Ircbrowse.Model.Social
 import           Ircbrowse.Model.Nicks
 import           Ircbrowse.Model.Profile
 import           Ircbrowse.Model.Quotes
+import           Ircbrowse.Model.Social
+import           Ircbrowse.Model.Stats
 import           Ircbrowse.Monads
 import           Ircbrowse.Types
 import           Ircbrowse.Types.Import
 import           Ircbrowse.View.Browse as V
-import           Ircbrowse.View.NickCloud as V
-import           Ircbrowse.View.Overview as V
-import           Ircbrowse.View.Social as V
 import           Ircbrowse.View.Calendar as V
-import           Ircbrowse.View.Profile as V
+import           Ircbrowse.View.NickCloud as V
 import           Ircbrowse.View.Nicks as V
+import           Ircbrowse.View.Overview as V
+import           Ircbrowse.View.Profile as V
+import           Ircbrowse.View.Social as V
 
 import           Data.ByteString (ByteString)
 import           Data.Text (Text)
@@ -29,8 +29,8 @@ import           Snap.App
 import           Snap.App.Cache
 import           Snap.App.RSS
 import           System.Locale
+import           Text.Blaze.Html.Renderer.Text
 import           Text.Blaze.Pagination
-import           Text.Blaze.Renderer.Text
 
 --------------------------------------------------------------------------------
 -- Controllers
@@ -50,7 +50,7 @@ stats = do
   channel <- getChannel
   viewCached (StatsOverview channel) $ do
     stats <- model $ getStats channel range
-    return $ V.stats channel range stats
+    return $ V.statsOverview channel range stats
 
 channel :: Controller Config PState ()
 channel = do
@@ -108,6 +108,7 @@ browseDay today =
             browseSomeDay True today (T.pack (formatTime defaultTimeLocale "%Y/%m/%d" today))
     else browseGivenDate
 
+browseGivenDate :: Controller Config PState ()
 browseGivenDate = do
   year <- getText "year"
   month <- getText "month"
@@ -129,8 +130,6 @@ browseSpecified =
 
 browseSomeDay :: Bool -> Day -> Text -> Controller Config PState ()
 browseSomeDay today day datetext = do
-  evid <- getIntegerMaybe "id"
-  timestamp <- getTimestamp
   channel <- getChannel
   mode <- fmap (fromMaybe "everything") (getTextMaybe "mode")
   out <- cache (if today then BrowseToday channel mode else BrowseDay channel day mode) $ do
@@ -158,6 +157,7 @@ pdfs = do
      then uniquePdfs
      else paginatedPdfs
 
+uniquePdfs :: Controller Config PState ()
 uniquePdfs = do
   channel <- getChannel
   uri <- getMyURI
@@ -165,6 +165,7 @@ uniquePdfs = do
     pdfs <- model $ getAllPdfs channel
     return $ V.allPdfs uri channel pdfs
 
+paginatedPdfs :: Controller Config PState ()
 paginatedPdfs = do
   channel <- getChannel
   timestamp <- getTimestamp

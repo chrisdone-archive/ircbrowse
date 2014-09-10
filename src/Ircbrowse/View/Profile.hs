@@ -6,20 +6,18 @@
 -- | Display a profile of the given nick.
 
 module Ircbrowse.View.Profile
-  (nickProfile)
+
   where
 
 import           Ircbrowse.Model.Profile
 import           Ircbrowse.Types.Import
 import           Ircbrowse.View
 import           Ircbrowse.View.Chart
-import           Ircbrowse.View.Cloud
 import           Ircbrowse.View.Template
 
-import           System.Locale
 import           Data.Text (Text)
 import qualified Data.Text as T
-import           Control.Arrow
+import           System.Locale
 import           Text.Printf
 
 nickProfile :: Text -> Bool -> NickStats -> Html
@@ -33,6 +31,7 @@ nickProfile nick showrecent ns@NickStats{..} = do
           case typ of
             "act" -> em (do toHtml nick; " "; toHtml quote)
             "talk" -> do em (toHtml ("“" <> quote <> "”")); " — "; toHtml nick
+            _ -> return ()
       tabNav $ do
         li !. (if showrecent then "active" else "") $ a ! href "?recent=true" $ "Recent"
         li !. (if not showrecent then "active" else "") $ a ! href "?recent=false" $ "All Time"
@@ -44,6 +43,7 @@ nickProfile nick showrecent ns@NickStats{..} = do
              else profileSections nick showrecent ns
     footer
 
+profileSections :: Text -> Bool -> NickStats -> Html
 profileSections nick showrecent ns@NickStats{..} =
   do summary nick showrecent ns
      logsLink nick
@@ -100,6 +100,8 @@ profileSections nick showrecent ns@NickStats{..} =
                  ,secs]
          where secs = formatTime defaultTimeLocale "%s" t
 
+summary :: ToMarkup a
+        => a -> Bool -> NickStats -> Html
 summary nick showrecent NickStats{..} = do
   p $ do toHtml nick; " has written "
          toHtml (showCount nickWords); " words, "
@@ -119,7 +121,11 @@ summary nick showrecent NickStats{..} = do
         nickAvg   = round (fromIntegral (sum (map (\(_,avg,_,_,_) -> avg) nickYears)) /
                            fromIntegral (length nickYears))
 
-maximumBy' f [] = (0,0,0,0)
+maximumBy'
+  :: (Num t, Num t1, Num t2, Num t3) =>
+     ((t, t1, t2, t3) -> (t, t1, t2, t3) -> Ordering)
+     -> [(t, t1, t2, t3)] -> (t, t1, t2, t3)
+maximumBy' _ [] = (0,0,0,0)
 maximumBy' f xs = maximumBy f xs
 
 logsLink :: Text -> Html
