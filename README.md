@@ -15,7 +15,9 @@ Update the database to the latest migration:
 
 ## Stackage version
 
-    remote-repo: stackage:http://www.stackage.org/stackage/805701d44dd044b9d44d3021826344cfe67ab411
+GHC 7.4
+
+    remote-repo: stackage:http://www.stackage.org/stackage/bcd05bfac24db21c8d25b1069765e3d4d7037ee3
 
 ## Adding a channel
 
