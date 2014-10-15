@@ -13,6 +13,10 @@ Update the database to the latest migration:
 
     $ dist/build/ircbrowse/ircbrowse ircbrowse.conf --create-version
 
+## Stackage version
+
+    remote-repo: stackage:http://www.stackage.org/stackage/805701d44dd044b9d44d3021826344cfe67ab411
+
 ## Adding a channel
 
 * Add to VNC's join list
