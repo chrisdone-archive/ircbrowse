@@ -1,0 +1,31 @@
+name:                clogparse
+version:             0.2
+license:             BSD3
+license-file:        LICENSE
+synopsis:            Parse IRC logs such as the #haskell logs on tunes.org
+category:            Text, IRC, Language
+author:              Keegan McAllister <mcallister.keegan@gmail.com>
+maintainer:          Keegan McAllister <mcallister.keegan@gmail.com>
+build-type:          Simple
+cabal-version:       >=1.2
+description:
+  Use this library to parse IRC logs saved by the @clog@ bot on Freenode.
+  This includes the logs of @#haskell@ which are available from
+  <http://tunes.org/~nef/logs/haskell/>.
+  .
+  Suggestions and patches are welcome.
+
+library
+  exposed-modules:
+      Data.IRC.Event
+    , Data.IRC.CLog.Parse
+  ghc-options:       -Wall
+  build-depends:
+      base            >= 3 && < 5
+    , bytestring      >= 0.9
+    , text            >= 0.8
+    , time            >= 1.1
+    , filepath        >= 1.1
+    , timezone-olson  >= 0.1
+    , timezone-series >= 0.1
+    , attoparsec      >= 0.8
