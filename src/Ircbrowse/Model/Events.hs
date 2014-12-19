@@ -94,6 +94,7 @@ getAllEventsByDay channel day =
         ,"WHERE channel = ?"
         ,"AND timestamp >= ?"
         ,"AND timestamp < (?::timestamp) + interval '1 day'"
+        ,"ORDER BY id ASC"
         ]
        (idxNum channel
        ,showChanInt channel
