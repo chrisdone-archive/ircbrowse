@@ -55,7 +55,7 @@ $(function(){
       $('.selecting tr').off('click');
       events = [];
       $('.selected').removeClass('selected');
-      $.removeCookie('selected-events');
+      $.cookie('selected-events','');
     }
   });
   if ($.cookie('selected-events'))
