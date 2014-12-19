@@ -29,7 +29,7 @@ executable ircbrowse
                      postgresql-simple,
                      ConfigFile,
                      mtl,
-                     network,
+                     network==2.5.0.0,
                      cgi,
                      old-locale,
                      directory,
