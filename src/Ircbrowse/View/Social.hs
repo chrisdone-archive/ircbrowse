@@ -24,7 +24,7 @@ socialGraph graph = do
             a ! href "/" $ do "IRC Browse"
             ": Social Graph"
           p $ do "Below is a graph of communication between people in the channel."
-          script $ preEscapedToHtml $ "drawGraph(" <> toLazyText (encodeToTextBuilder (toJSON spec)) <> ")"
+          script $ preEscapedToHtml $ "drawGraph(" <> toLazyText (fromValue (toJSON spec)) <> ")"
 
   where spec = object [ "nodes" .= map makeNode nodes
                       , "width" .= (960::Int)

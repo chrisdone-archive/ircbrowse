@@ -16,7 +16,7 @@ import Data.Text.Lazy.Builder
 cloud :: String -> (Int,Int) -> Int -> Int -> [(String,Integer)] -> Html
 cloud elid (width,height) limit scale stats = do
   div !# toValue elid $ mempty
-  script $ preEscapedToHtml $ "drawCloud(" <> toLazyText (encodeToTextBuilder (toJSON spec)) <> ")"
+  script $ preEscapedToHtml $ "drawCloud(" <> toLazyText (fromValue (toJSON spec)) <> ")"
 
   where spec = object ["width"  .= width
                       ,"height" .= height
