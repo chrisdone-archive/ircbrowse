@@ -166,8 +166,9 @@ importFile last channel config path frst = do
               | otherwise = dropWhile (not.(\ (EventAt t _) -> t > last)) events'
    io $ forM_ events $ \event ->
      print event
-   importEvents channel events
-   updateChannelIndex config channel
+   unless (null events)
+          (do importEvents channel events
+              updateChannelIndex config channel)
 
   -- This code is no longer applicable for ZNC. It was for tunes.org logs.
   --
