@@ -22,8 +22,8 @@ import           Data.Text (Text)
 import qualified Data.Text as T
 import           Network.URI
 import           Network.URI.Params
-import           Prelude (id)
-import           Prelude (min)
+-- import           Prelude (id)
+-- import           Prelude (min)
 import qualified Text.Blaze.Html5.Attributes as A
 import           Text.Links
 
