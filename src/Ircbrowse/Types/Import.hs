@@ -17,6 +17,7 @@ prettyChan Typelevel = "#typelevel"
 prettyChan Scalaz = "#scalaz"
 prettyChan Shapeless = "#shapeless"
 prettyChan Purescript = "#purescript"
+prettyChan ReflexFRP = "#reflex-frp"
 
 -- | Show a channel.
 showChan :: Channel -> String
@@ -35,6 +36,7 @@ showChan Typelevel = "typelevel"
 showChan Scalaz = "scalaz"
 showChan Shapeless = "shapeless"
 showChan Purescript = "purescript"
+showChan ReflexFRP = "reflex-frp"
 
 -- | Show a channel.
 showChanInt :: Channel -> Int
@@ -53,6 +55,7 @@ showChanInt Typelevel = 12
 showChanInt Scalaz = 13
 showChanInt Shapeless = 14
 showChanInt Purescript = 15
+showChanInt ReflexFRP = 16
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -71,6 +74,7 @@ parseChan "typelevel" = Just Typelevel
 parseChan "scalaz" = Just Scalaz
 parseChan "shapeless" = Just Shapeless
 parseChan "purescript" = Just Purescript
+parseChan "reflex-frp" = Just ReflexFRP
 parseChan _ = Nothing
 
 idxNum :: Channel -> Int
@@ -89,6 +93,7 @@ idxNum Typelevel = 12000
 idxNum Scalaz = 13000
 idxNum Shapeless = 14000
 idxNum Purescript = 15000
+idxNum ReflexFRP = 16000
 
 -- | Possible supported channels.
 data Channel
@@ -107,4 +112,5 @@ data Channel
   | Scalaz
   | Shapeless
   | Purescript
+  | ReflexFRP
   deriving (Enum)
