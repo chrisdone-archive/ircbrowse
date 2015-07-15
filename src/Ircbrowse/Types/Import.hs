@@ -13,6 +13,7 @@ prettyChan Ghcjs = "#ghcjs"
 prettyChan HaskellBeginners = "#haskell-beginners"
 prettyChan HLedger = "#hledger"
 prettyChan Typelevel = "#typelevel"
+prettyChan Scalaz = "#scalaz"
 prettyChan Shapeless = "#shapeless"
 prettyChan Purescript = "#purescript"
 prettyChan HaskellCN = "#haskell-cn"
@@ -31,6 +32,7 @@ showChan FSharp = "fsharp"
 showChan Ghcjs = "ghcjs"
 showChan HLedger = "hledger"
 showChan Typelevel = "typelevel"
+showChan Scalaz = "scalaz"
 showChan Shapeless = "shapeless"
 showChan Purescript = "purescript"
 showChan HaskellCN = "haskell-cn"
@@ -49,6 +51,7 @@ showChanInt Ghcjs = 9
 showChanInt HaskellBeginners = 10
 showChanInt HLedger = 11
 showChanInt Typelevel = 12
+showChanInt Scalaz = 13
 showChanInt Shapeless = 14
 showChanInt Purescript = 15
 showChanInt HaskellCN = 16
@@ -67,6 +70,7 @@ parseChan "fsharp" = Just FSharp
 parseChan "ghcjs" = Just Ghcjs
 parseChan "hledger" = Just HLedger
 parseChan "typelevel" = Just Typelevel
+parseChan "scalaz" = Just Scalaz
 parseChan "shapeless" = Just Shapeless
 parseChan "purescript" = Just Purescript
 parseChan "haskell-cn" = Just HaskellCN
@@ -85,6 +89,7 @@ idxNum Ghcjs = 9000
 idxNum HaskellBeginners = 10000
 idxNum HLedger = 11000
 idxNum Typelevel = 12000
+idxNum Scalaz = 13000
 idxNum Shapeless = 14000
 idxNum Purescript = 15000
 idxNum HaskellCN = 16000
@@ -103,6 +108,7 @@ data Channel
   | HaskellBeginners
   | HLedger
   | Typelevel
+  | Scalaz
   | Shapeless
   | Purescript
   | HaskellCN
