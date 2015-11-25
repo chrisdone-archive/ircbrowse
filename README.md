@@ -1,8 +1,12 @@
-## About
+# ircbrowse
 
 IRC Browse is a web service for browsing IRC logs. The [IRC Browse site is here](http://ircbrowse.net/).
 
-## Database setup
+## Building & running
+
+Build:
+
+   $ stack install
 
 Create the PostgreSQL database:
 
@@ -11,13 +15,11 @@ Create the PostgreSQL database:
 
 Update the database to the latest migration:
 
-    $ dist/build/ircbrowse/ircbrowse ircbrowse.conf --create-version
+    $ stack exec -- ircbrowse ircbrowse.conf --create-version
 
-## Stackage version
+Run:
 
-GHC 7.4
-
-    remote-repo: stackage:http://www.stackage.org/stackage/bcd05bfac24db21c8d25b1069765e3d4d7037ee3
+   $ stack exec -- ircbrowse ircbrowse.conf
 
 ## Adding a channel
 

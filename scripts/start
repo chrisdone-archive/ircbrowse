@@ -1,2 +1,2 @@
 #! /bin/bash
-dist/build/ircbrowse/ircbrowse ircbrowse.conf
+/home/chris/.local/bin/ircbrowse ircbrowse.conf

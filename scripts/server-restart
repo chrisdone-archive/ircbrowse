@@ -13,4 +13,4 @@ do
     fi
 done
 
-dist/build/ircbrowse/ircbrowse ircbrowse.conf 1>/dev/null 2>/dev/null & disown
+/home/chris/.local/bin/ircbrowse ircbrowse.conf 1>/dev/null 2>/dev/null & disown

@@ -1,3 +1,3 @@
 cd $1
 
-dist/build/ircbrowse/ircbrowse ircbrowse.conf fast-import
+/home/chris/.local/bin/ircbrowse ircbrowse.conf fast-import

@@ -7,7 +7,7 @@ set -e
 logger -t ircbrowse "Clearing server logs ..."
 rm -rf log/*
 
-dist/build/ircbrowse/ircbrowse ircbrowse.conf generate-data
+/home/chris/.local/bin/ircbrowse ircbrowse.conf generate-data
 
 logger -t ircbrowse "Restarting server ..."
 killall ircbrowse
