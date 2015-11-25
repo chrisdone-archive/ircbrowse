@@ -6,7 +6,7 @@ IRC Browse is a web service for browsing IRC logs. The [IRC Browse site is here]
 
 Build:
 
-   $ stack install
+    $ stack install
 
 Create the PostgreSQL database:
 
