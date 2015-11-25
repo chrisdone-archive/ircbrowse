@@ -19,7 +19,7 @@ Update the database to the latest migration:
 
 Run:
 
-   $ stack exec -- ircbrowse ircbrowse.conf
+    $ stack exec -- ircbrowse ircbrowse.conf
 
 ## Adding a channel
 
