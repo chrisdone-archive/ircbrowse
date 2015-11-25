@@ -20,7 +20,6 @@ import           Data.Function
 import           Data.List.Split
 import qualified Data.Text as T
 import           Data.Time.Calendar.OrdinalDate
-import           System.Locale
 
 startYear :: Integer
 startYear = 2001

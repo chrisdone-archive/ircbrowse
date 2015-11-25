@@ -22,13 +22,14 @@ executable ircbrowse
                      time,
                      snap-core,
                      snap-server,
-                     snap-app == 0.6.0,
+                     snap-app,
                      mime-mail,
                      text,
                      postgresql-simple,
                      ConfigFile,
                      mtl,
-                     network==2.5.0.0,
+                     network,
+                     network-uri,
                      cgi,
                      old-locale,
                      directory,
@@ -45,4 +46,43 @@ executable ircbrowse
                      timezone-series,
                      attoparsec,
                      split,
-                     cgi >= 3001.2.2.0
+                     cgi
+  other-modules:
+    Control.Monad.IO
+    Data.IRC.Znc.Parse
+    Data.String.Extra
+    Ircbrowse.Blaze
+    Ircbrowse.Config
+    Ircbrowse.Controllers
+    Ircbrowse.Data
+    Ircbrowse.Import
+    Ircbrowse.Model.Data
+    Ircbrowse.Model.Events
+    Ircbrowse.Model.Migrations
+    Ircbrowse.Model.Nicks
+    Ircbrowse.Model.Profile
+    Ircbrowse.Model.Quotes
+    Ircbrowse.Model.Social
+    Ircbrowse.Model.Stats
+    Ircbrowse.Monads
+    Ircbrowse.Prelude
+    Ircbrowse.Server
+    Ircbrowse.System
+    Ircbrowse.Types
+    Ircbrowse.Types.Import
+    Ircbrowse.View
+    Ircbrowse.View.Browse
+    Ircbrowse.View.Calendar
+    Ircbrowse.View.Chart
+    Ircbrowse.View.Cloud
+    Ircbrowse.View.NickCloud
+    Ircbrowse.View.NickColour
+    Ircbrowse.View.Nicks
+    Ircbrowse.View.Overview
+    Ircbrowse.View.Profile
+    Ircbrowse.View.Social
+    Ircbrowse.View.Template
+    Sphinx
+    Text.Blaze.Bootstrap
+    Text.Blaze.Linkify
+    Text.Links

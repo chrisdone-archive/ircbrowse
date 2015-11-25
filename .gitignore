@@ -12,3 +12,4 @@ logs/
 sphinx/
 sphinx.conf
 static/exports
+.stack-work

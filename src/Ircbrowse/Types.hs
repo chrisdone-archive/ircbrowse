@@ -14,8 +14,7 @@ import Database.PostgreSQL.Simple.FromRow
 import Network.Mail.Mime (Address)
 import Snap.App.Cache
 import Snap.App.Types
-import System.Locale
-
+import Data.Time
 
 -- | Site-wide configuration.
 data Config = Config

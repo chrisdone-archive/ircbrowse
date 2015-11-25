@@ -23,7 +23,6 @@ import qualified Data.Time.LocalTime.TimeZone.Series as Zone
 import           Data.Word
 import qualified System.Environment as Env
 import qualified System.FilePath as Path
-import           System.Locale
 
 -- | Configuring the parser.
 data Config = Config
@@ -117,7 +116,7 @@ safeRead _ = Nothing
 getDay :: ParseTime t => FilePath -> t
 getDay fp = case Path.splitFileName fp of
   (_,(drop 1 . dropWhile (/='_')) -> date) ->
-    case Time.parseTime defaultTimeLocale "%Y%m%d.log" date of
+    case Time.parseTime Time.defaultTimeLocale "%Y%m%d.log" date of
       Just day -> day
       Nothing -> error ("cannot parse date from filename: " ++ date)
 

@@ -1,6 +1,6 @@
 module Ircbrowse.System
   (module System.Directory
-  ,module System.Locale
+  ,defaultTimeLocale
   ,module System.FilePath
   ,module System.IO
   )
@@ -9,4 +9,4 @@ module Ircbrowse.System
 import System.Directory
 import System.FilePath
 import System.IO
-import System.Locale
+import Data.Time (defaultTimeLocale)

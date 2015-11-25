@@ -1,0 +1,9 @@
+resolver: lts-3.15
+packages:
+- .
+- upstream/clogparse
+- upstream/snap-app
+
+extra-deps: []
+flags: {}
+extra-package-dbs: []

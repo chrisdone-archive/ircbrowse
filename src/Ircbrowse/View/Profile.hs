@@ -17,7 +17,6 @@ import           Ircbrowse.View.Template
 
 import           Data.Text (Text)
 import qualified Data.Text as T
-import           System.Locale
 import           Text.Printf
 
 nickProfile :: Text -> Bool -> NickStats -> Html

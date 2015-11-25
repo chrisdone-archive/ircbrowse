@@ -28,7 +28,6 @@ import           Safe
 import           Snap.App
 import           Snap.App.Cache
 import           Snap.App.RSS
-import           System.Locale
 import           Text.Blaze.Html.Renderer.Text
 import           Text.Blaze.Pagination
 
