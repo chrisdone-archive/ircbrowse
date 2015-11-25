@@ -18,6 +18,8 @@ prettyChan Shapeless = "#shapeless"
 prettyChan Purescript = "#purescript"
 prettyChan HaskellCN = "#haskell-cn"
 prettyChan ReflexFrp = "#reflex-frp"
+prettyChan HaskellIdeEngine = "#haskell-ide-engine"
+prettyChan HaskellStack = "#haskell-stack"
 
 -- | Show a channel.
 showChan :: Channel -> String
@@ -37,6 +39,8 @@ showChan Shapeless = "shapeless"
 showChan Purescript = "purescript"
 showChan HaskellCN = "haskell-cn"
 showChan ReflexFrp = "reflex-frp"
+showChan HaskellIdeEngine = "haskell-ide-engine"
+showChan HaskellStack = "haskell-stack"
 
 -- | Show a channel.
 showChanInt :: Channel -> Int
@@ -56,6 +60,8 @@ showChanInt Shapeless = 14
 showChanInt Purescript = 15
 showChanInt HaskellCN = 16
 showChanInt ReflexFrp = 17
+showChanInt HaskellIdeEngine = 18
+showChanInt HaskellStack = 19
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -75,6 +81,8 @@ parseChan "shapeless" = Just Shapeless
 parseChan "purescript" = Just Purescript
 parseChan "haskell-cn" = Just HaskellCN
 parseChan "reflex-frp" = Just ReflexFrp
+parseChan "haskell-ide-engine" = Just HaskellIdeEngine
+parseChan "haskell-stack" = Just HaskellStack
 parseChan _ = Nothing
 
 idxNum :: Channel -> Int
@@ -94,6 +102,8 @@ idxNum Shapeless = 14000
 idxNum Purescript = 15000
 idxNum HaskellCN = 16000
 idxNum ReflexFrp = 17000
+idxNum HaskellIdeEngine = 18000
+idxNum HaskellStack = 19000
 
 -- | Possible supported channels.
 data Channel
@@ -113,4 +123,6 @@ data Channel
   | Purescript
   | HaskellCN
   | ReflexFrp
+  | HaskellIdeEngine
+  | HaskellStack
   deriving (Enum)
