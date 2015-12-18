@@ -9,6 +9,12 @@ category:            Web
 build-type:          Simple
 cabal-version:       >=1.8
 
+executable nixos-convert
+  main-is: Convert.hs
+  ghc-options: -O2 -Wall -threaded
+  build-depends: base, time, process, async, bytestring
+  hs-source-dirs: src
+
 executable ircbrowse
   main-is:           Main.hs
   ghc-options:      -threaded -O2 -Wall -fno-warn-unused-do-bind -fno-warn-name-shadowing
