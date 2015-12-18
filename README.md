@@ -1,6 +1,13 @@
 # ircbrowse
 
-IRC Browse is a web service for browsing IRC logs. The [IRC Browse site is here](http://ircbrowse.net/).
+IRC Browse is a web service for browsing IRC logs. The
+[IRC Browse site is here](http://ircbrowse.net/).
+
+## Adding a channel
+
+Add to
+[`Ircbrowse.Types.Import`](https://github.com/chrisdone/ircbrowse/edit/master/src/Ircbrowse/Types/Import.hs)
+and open a pull request.
 
 ## Building & running
 
@@ -20,10 +27,3 @@ Update the database to the latest migration:
 Run:
 
     $ stack exec -- ircbrowse ircbrowse.conf
-
-## Adding a channel
-
-* Add to VNC's join list
-* Add to Ircbrowse.TypesImport
-* Add to Ircbrowse.Import's importRecent
-* Insert an entry into entry_count
