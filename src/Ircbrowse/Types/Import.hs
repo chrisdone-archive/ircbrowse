@@ -23,6 +23,7 @@ data Channel
   | HaskellIdeEngine
   | HaskellStack
   | Snowdrift
+  | LibReviews
   deriving (Enum)
 
 -- | Pretty print a channel in a human-representation.
@@ -47,6 +48,7 @@ prettyChan = \case
   HaskellIdeEngine -> "#haskell-ide-engine"
   HaskellStack -> "#haskell-stack"
   Snowdrift -> "#snowdrift"
+  LibReviews -> "#lib.reviews"
 
 -- | Show a channel.
 showChan :: Channel -> String
@@ -70,6 +72,7 @@ showChan = \case
   HaskellIdeEngine -> "haskell-ide-engine"
   HaskellStack -> "haskell-stack"
   Snowdrift -> "snowdrift"
+  LibReviews -> "lib.reviews"
 
 -- | Show a channel.
 showChanInt :: Channel -> Int
@@ -93,6 +96,7 @@ showChanInt = \case
   HaskellIdeEngine -> 18
   HaskellStack -> 19
   Snowdrift -> 20
+  LibReviews -> 21
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -116,6 +120,7 @@ parseChan = \case
   "haskell-ide-engine" -> Just HaskellIdeEngine
   "haskell-stack" -> Just HaskellStack
   "snowdrift" -> Just Snowdrift
+  "lib.reviews" -> Just LibReviews
   _ -> Nothing
 
 idxNum :: Channel -> Int
@@ -139,3 +144,4 @@ idxNum = \case
   HaskellIdeEngine -> 18000
   HaskellStack -> 19000
   Snowdrift -> 20000
+  LibReviews -> 21000
