@@ -24,6 +24,7 @@ data Channel
   | HaskellStack
   | Snowdrift
   | Ghc
+  | Hackage
   deriving (Enum)
 
 -- | Pretty print a channel in a human-representation.
@@ -49,6 +50,7 @@ prettyChan = \case
   HaskellStack -> "#haskell-stack"
   Snowdrift -> "#snowdrift"
   Ghc -> "#ghc"
+  Hackage -> "#hackage"
 
 -- | Show a channel.
 showChan :: Channel -> String
@@ -73,6 +75,7 @@ showChan = \case
   HaskellStack -> "haskell-stack"
   Snowdrift -> "snowdrift"
   Ghc -> "ghc"
+  Hackage -> "hackage"
 
 -- | Show a channel.
 showChanInt :: Channel -> Int
@@ -97,6 +100,7 @@ showChanInt = \case
   HaskellStack -> 19
   Snowdrift -> 20
   Ghc -> 21
+  Hackage -> 22
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -121,6 +125,7 @@ parseChan = \case
   "haskell-stack" -> Just HaskellStack
   "snowdrift" -> Just Snowdrift
   "ghc" -> Just Ghc
+  "hackage" -> Just Hackage
   _ -> Nothing
 
 idxNum :: Channel -> Int
@@ -145,3 +150,4 @@ idxNum = \case
   HaskellStack -> 19000
   Snowdrift -> 20000
   Ghc -> 21000
+  Hackage -> 22000
