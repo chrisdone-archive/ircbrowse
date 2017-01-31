@@ -10,6 +10,7 @@ data Channel
   | Diagrams
   | Tasty
   | HaskellDistributed
+  | CakeML
   | FSharp
   | Ghcjs
   | HaskellBeginners
@@ -37,6 +38,7 @@ prettyChan = \case
   Diagrams -> "#diagrams"
   Tasty -> "#tasty"
   HaskellDistributed -> "#haskell-distributed"
+  CakeML -> "#cakeml"
   FSharp -> "##fsharp"
   Ghcjs -> "#ghcjs"
   HaskellBeginners -> "#haskell-beginners"
@@ -65,6 +67,7 @@ showChan = \case
   HaskellDistributed -> "haskell-distributed"
   HaskellBeginners -> "haskell-beginners"
   FSharp -> "fsharp"
+  CakeML -> "cakeml"
   Ghcjs -> "ghcjs"
   HLedger -> "hledger"
   Typelevel -> "typelevel"
@@ -89,6 +92,7 @@ showChanInt = \case
   Diagrams -> 4
   Tasty -> 5
   HaskellDistributed -> 6
+  CakeML -> 7
   FSharp -> 8
   Ghcjs -> 9
   HaskellBeginners -> 10
@@ -116,6 +120,7 @@ parseChan = \case
   "tasty" -> Just Tasty
   "haskell-beginners" -> Just HaskellBeginners
   "haskell-distributed" -> Just HaskellDistributed
+  "cakeml" -> Just CakeML
   "fsharp" -> Just FSharp
   "ghcjs" -> Just Ghcjs
   "hledger" -> Just HLedger
@@ -141,6 +146,7 @@ idxNum = \case
   Diagrams -> 4000
   Tasty -> 5000
   HaskellDistributed -> 6000
+  CakeML -> 7000
   FSharp -> 8000
   Ghcjs -> 9000
   HaskellBeginners -> 10000
