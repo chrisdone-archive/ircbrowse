@@ -27,6 +27,7 @@ data Channel
   | Servant
   | Ghc
   | Hackage
+  | LibReviews
   deriving (Enum)
 
 -- | Pretty print a channel in a human-representation.
@@ -55,6 +56,7 @@ prettyChan = \case
   Servant -> "#servant"
   Ghc -> "#ghc"
   Hackage -> "#hackage"
+  LibReviews -> "#lib.reviews"
 
 -- | Show a channel.
 showChan :: Channel -> String
@@ -82,6 +84,7 @@ showChan = \case
   Servant -> "servant"
   Ghc -> "ghc"
   Hackage -> "hackage"
+  LibReviews -> "lib.reviews"
 
 -- | Show a channel.
 showChanInt :: Channel -> Int
@@ -92,7 +95,6 @@ showChanInt = \case
   Diagrams -> 4
   Tasty -> 5
   HaskellDistributed -> 6
-
   FSharp -> 8
   Ghcjs -> 9
   HaskellBeginners -> 10
@@ -110,6 +112,7 @@ showChanInt = \case
   Hackage -> 22
   Servant -> 23
   CakeML -> 24
+  LibReviews -> 25
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -137,6 +140,7 @@ parseChan = \case
   "servant" -> Just Servant
   "ghc" -> Just Ghc
   "hackage" -> Just Hackage
+  "lib.reviews" -> Just LibReviews
   _ -> Nothing
 
 idxNum :: Channel -> Int
@@ -165,3 +169,4 @@ idxNum = \case
   Hackage -> 22000
   Servant -> 23000
   CakeML -> 24000
+  LibReviews -> 25000
