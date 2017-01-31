@@ -92,7 +92,7 @@ showChanInt = \case
   Diagrams -> 4
   Tasty -> 5
   HaskellDistributed -> 6
-  CakeML -> 7
+
   FSharp -> 8
   Ghcjs -> 9
   HaskellBeginners -> 10
@@ -109,6 +109,7 @@ showChanInt = \case
   Ghc -> 21
   Hackage -> 22
   Servant -> 23
+  CakeML -> 24
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -146,7 +147,7 @@ idxNum = \case
   Diagrams -> 4000
   Tasty -> 5000
   HaskellDistributed -> 6000
-  CakeML -> 7000
+
   FSharp -> 8000
   Ghcjs -> 9000
   HaskellBeginners -> 10000
@@ -163,4 +164,4 @@ idxNum = \case
   Ghc -> 21000
   Hackage -> 22000
   Servant -> 23000
-
+  CakeML -> 24000
