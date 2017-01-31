@@ -28,7 +28,7 @@ executable ircbrowse
                      time,
                      snap-core,
                      snap-server,
-                     snap-app,
+                     snap-app < 0.7,
                      mime-mail,
                      text,
                      postgresql-simple,
