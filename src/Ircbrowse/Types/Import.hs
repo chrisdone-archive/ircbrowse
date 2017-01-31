@@ -23,6 +23,7 @@ data Channel
   | HaskellIdeEngine
   | HaskellStack
   | Snowdrift
+  | Servant
   | Ghc
   | Hackage
   deriving (Enum)
@@ -49,6 +50,7 @@ prettyChan = \case
   HaskellIdeEngine -> "#haskell-ide-engine"
   HaskellStack -> "#haskell-stack"
   Snowdrift -> "#snowdrift"
+  Servant -> "#servant"
   Ghc -> "#ghc"
   Hackage -> "#hackage"
 
@@ -74,6 +76,7 @@ showChan = \case
   HaskellIdeEngine -> "haskell-ide-engine"
   HaskellStack -> "haskell-stack"
   Snowdrift -> "snowdrift"
+  Servant -> "servant"
   Ghc -> "ghc"
   Hackage -> "hackage"
 
@@ -101,6 +104,7 @@ showChanInt = \case
   Snowdrift -> 20
   Ghc -> 21
   Hackage -> 22
+  Servant -> 23
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -124,6 +128,7 @@ parseChan = \case
   "haskell-ide-engine" -> Just HaskellIdeEngine
   "haskell-stack" -> Just HaskellStack
   "snowdrift" -> Just Snowdrift
+  "servant" -> Just Servant
   "ghc" -> Just Ghc
   "hackage" -> Just Hackage
   _ -> Nothing
@@ -151,3 +156,5 @@ idxNum = \case
   Snowdrift -> 20000
   Ghc -> 21000
   Hackage -> 22000
+  Servant -> 23000
+
