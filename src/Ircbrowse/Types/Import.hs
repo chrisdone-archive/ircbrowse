@@ -18,6 +18,7 @@ data Channel
   | Typelevel
   | Scalaz
   | Shapeless
+  | ProjectM36
   | Purescript
   | HaskellCN
   | ReflexFrp
@@ -47,6 +48,7 @@ prettyChan = \case
   Typelevel -> "#typelevel"
   Scalaz -> "#scalaz"
   Shapeless -> "#shapeless"
+  ProjectM36 -> "#project-m36"
   Purescript -> "#purescript"
   HaskellCN -> "#haskell-cn"
   ReflexFrp -> "#reflex-frp"
@@ -75,6 +77,7 @@ showChan = \case
   Typelevel -> "typelevel"
   Scalaz -> "scalaz"
   Shapeless -> "shapeless"
+  ProjectM36 -> "project-m36"
   Purescript -> "purescript"
   HaskellCN -> "haskell-cn"
   ReflexFrp -> "reflex-frp"
@@ -113,6 +116,7 @@ showChanInt = \case
   Servant -> 23
   CakeML -> 24
   LibReviews -> 25
+  ProjectM36 -> 26
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -131,6 +135,7 @@ parseChan = \case
   "typelevel" -> Just Typelevel
   "scalaz" -> Just Scalaz
   "shapeless" -> Just Shapeless
+  "project-m36" -> Just ProjectM36
   "purescript" -> Just Purescript
   "haskell-cn" -> Just HaskellCN
   "reflex-frp" -> Just ReflexFrp
@@ -170,3 +175,4 @@ idxNum = \case
   Servant -> 23000
   CakeML -> 24000
   LibReviews -> 25000
+  ProjectM36 -> 26000
