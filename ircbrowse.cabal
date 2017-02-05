@@ -17,7 +17,7 @@ executable nixos-convert
 
 executable ircbrowse
   main-is:           Main.hs
-  ghc-options:      -threaded -O2 -Wall -fno-warn-unused-do-bind -fno-warn-name-shadowing
+  ghc-options:      -threaded -O2 -Wall -fno-warn-unused-do-bind -fno-warn-name-shadowing  -rtsopts
   hs-source-dirs:    src
   build-depends:     base >= 4 && <5,
                      blaze-html,
