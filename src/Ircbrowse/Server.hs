@@ -18,7 +18,7 @@ runServer config pool = do
   setUnicodeLocale "en_US"
   httpServe server (serve config pool)
 
-  where server = setPort 10001 defaultConfig
+  where server = setPort 10009 defaultConfig
 
 -- | Serve the controllers.
 serve :: Config -> Pool -> Snap ()
