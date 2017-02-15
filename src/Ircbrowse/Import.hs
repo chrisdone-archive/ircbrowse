@@ -102,9 +102,10 @@ importChannel last config pool day channel frst = do
   where copyLog chan day = do
           let fp = prettyChan chan ++ "/" ++ unmakeDay day ++ ".log"
           tmp <- getTemporaryDirectory
-          putStrLn $ "Importing from file " ++ fp
+
           let tmpfile = tmp </> prettyChan chan ++ "_" ++ unmakeDay day ++ ".log"
               target = configLogDir config ++ fp
+          putStrLn $ "Importing from file " ++ target
           exists <- doesFileExist target
           if exists
              then do copyFile target
