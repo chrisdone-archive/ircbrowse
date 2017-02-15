@@ -116,7 +116,7 @@ safeRead _ = Nothing
 getDay :: ParseTime t => FilePath -> t
 getDay fp = case Path.splitFileName fp of
   (_,(drop 1 . dropWhile (/='_')) -> date) ->
-    case Time.parseTime Time.defaultTimeLocale "%Y%m%d.log" date of
+    case Time.parseTime Time.defaultTimeLocale "%Y-%m-%d.log" date of
       Just day -> day
       Nothing -> error ("cannot parse date from filename: " ++ date)
 
