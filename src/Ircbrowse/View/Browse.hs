@@ -49,7 +49,7 @@ browser search title' channel extra uri _ events pn q' =
   template "browse" title' mempty $ do
     channelNav channel
     containerFluid $ do
-      when search $ searchForm q'
+      {-when search $ searchForm q'-}
       extra
       if null events && isJust q'
          then noResults

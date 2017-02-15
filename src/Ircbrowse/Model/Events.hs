@@ -14,7 +14,7 @@ import Text.Blaze.Pagination
 getEvents :: Channel -> Maybe Integer -> PN -> Maybe Text
           -> Model c s (Pagination,[Event])
 getEvents channel tid (PN _ pagination _) q = do
-  case q of
+  case Nothing {-q-} of
     Just q -> do
       result <- io $ search def
         { sPath = "/opt/sphinx/bin/search"
