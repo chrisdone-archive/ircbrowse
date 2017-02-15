@@ -114,7 +114,7 @@ importChannel last config pool day channel frst = do
              else return Nothing
 
 unmakeDay :: FormatTime t => t -> String
-unmakeDay = formatTime defaultTimeLocale "%Y%m%d"
+unmakeDay = formatTime defaultTimeLocale "%Y-%m-%d"
 
 -- | Update the event order index for the given channel.
 updateChannelIndex :: Config -> Channel -> Model c s ()
