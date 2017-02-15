@@ -27,7 +27,7 @@ overview =
           p "Choose the channel:"
           forM_ [toEnum 0 ..] $ \(chan) ->
             h2 $
-              a ! href (toValue (showChan chan)) $
+              a ! href (toValue ("/browse/" ++ showChan chan)) $
                 do toHtml (prettyChan chan)
     footer
 
