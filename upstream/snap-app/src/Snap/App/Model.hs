@@ -45,6 +45,7 @@ model = liftModel
 query :: (ToRow ps,FromRow r) => [String] -> ps -> Model c s [r]
 query q ps = do
   conn <- env modelStateConn
+  liftIO (putStrLn (unlines q ++ ";"))
   Model $ ReaderT (\_ -> DB.query conn (fromString (unlines q)) ps)
 
 -- | Query a single field from a single result.
