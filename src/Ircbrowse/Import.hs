@@ -86,7 +86,7 @@ importRecent quick config pool = do
 
 parseFileTime :: ParseTime t => [Char] -> Maybe t
 parseFileTime (drop 1 . dropWhile (/='_') -> date) =
-  parseTime defaultTimeLocale "%Y%m%d.log" date
+  parseTime defaultTimeLocale "%Y-%m-%d.log" date
 
 -- | Import the channel into the database of the given date.
 importChannel :: UTCTime -> Config -> Pool -> Day -> Channel -> Bool -> IO ()
