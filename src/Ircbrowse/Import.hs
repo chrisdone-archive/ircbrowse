@@ -81,8 +81,8 @@ importRecent quick config pool = do
   unless quick $ do
     putStrLn "Running ANALYZE ..."
     runDB config () pool $ void $ exec ["ANALYZE event_order_index"] ()
-    putStrLn "Running data regeneration ..."
-    runDB config () pool $ generateData
+    --putStrLn "Running data regeneration ..."
+    --runDB config () pool $ generateData
 
 parseFileTime :: ParseTime t => [Char] -> Maybe t
 parseFileTime (drop 1 . dropWhile (/='_') -> date) =
@@ -100,10 +100,10 @@ importChannel last config pool day channel frst = do
                    void (try (removeFile tmp) :: IO (Either IOException ()))
 
   where copyLog chan day = do
-          let fp = prettyChan chan ++ "_" ++ unmakeDay day ++ ".log"
+          let fp = prettyChan chan ++ "/" ++ unmakeDay day ++ ".log"
           tmp <- getTemporaryDirectory
           putStrLn $ "Importing from file " ++ fp
-          let tmpfile = tmp </> fp
+          let tmpfile = tmp </> prettyChan chan ++ "_" ++ unmakeDay day ++ ".log"
               target = configLogDir config ++ fp
           exists <- doesFileExist target
           if exists
