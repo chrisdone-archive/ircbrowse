@@ -48,7 +48,7 @@ query :: (ToRow ps,FromRow r) => [String] -> ps -> Model c s [r]
 query q ps = do
   conn <- env modelStateConn
   fmt <- liftIO (formatQuery conn (fromString (unlines q ++ ";")) ps)
-  liftIO (S8.putStrLn fmt)
+  -- liftIO (S8.putStrLn fmt)
   Model $ ReaderT (\_ -> DB.query conn (fromString (unlines q)) ps)
 
 -- | Query a single field from a single result.
