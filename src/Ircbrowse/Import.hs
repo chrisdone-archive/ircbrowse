@@ -172,9 +172,12 @@ importFile last channel config path frst = do
                                                   e -> error (show e))) events'
    io $ forM_ events $ \event ->
      print event
-   unless (null events)
-          (do importEvents channel events
-              updateChannelIndex config channel)
+   let events_ = if null events
+                    then [EventAt last (Log "IRCBrowse was down during this period.")]
+                    else events
+   importEvents channel events_
+   updateChannelIndex config channel
+
   where
 
   -- This code is no longer applicable for ZNC. It was for tunes.org logs.
