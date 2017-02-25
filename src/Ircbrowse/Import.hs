@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -164,7 +165,8 @@ importFile last channel config path frst = do
    events' <- liftIO $ parseLog ircbrowseConfig path
    io $ putStrLn "Importing the following events:"
    let events | frst = events'
-              | otherwise = dropWhile (not.(\ (EventAt t _) -> t > last)) events'
+              | otherwise = dropWhile (not.(\case (EventAt t _) -> t > last
+                                                  e -> error (show e))) events'
    io $ forM_ events $ \event ->
      print event
    unless (null events)
