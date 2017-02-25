@@ -162,7 +162,10 @@ updateChannelIndex _ channel = do
 -- | Import from the given file.
 importFile :: UTCTime -> Channel -> Config -> FilePath -> Bool -> Model c s ()
 importFile last channel config path frst = do
-   events' <- liftIO $ parseLog ircbrowseConfig path
+   events'' <- liftIO $ parseLog ircbrowseConfig path
+   let events' = filter (\case
+                            e@EventAt{} -> True
+                            NoParse "" -> False) events''
    io $ putStrLn "Importing the following events:"
    let events | frst = events'
               | otherwise = dropWhile (not.(\case (EventAt t _) -> t > last
@@ -172,6 +175,7 @@ importFile last channel config path frst = do
    unless (null events)
           (do importEvents channel events
               updateChannelIndex config channel)
+  where
 
   -- This code is no longer applicable for ZNC. It was for tunes.org logs.
   --
