@@ -173,7 +173,8 @@ importFile last channel config path frst = do
    io $ forM_ events $ \event ->
      print event
    let events_ = if null events
-                    then [EventAt last (Log "IRCBrowse was down during this period.")]
+                    then [EventAt (let UTCTime d i = last
+                                   in UTCTime (addDays 1 d) i) (Log "IRCBrowse was down during this period.")]
                     else events
    importEvents channel events_
    updateChannelIndex config channel
