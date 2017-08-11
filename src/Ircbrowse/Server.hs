@@ -36,6 +36,7 @@ serve config pool = route routes where
            -- ,("/nicks/:channel/:mode",run C.allNicks)
            -- ,("/nicks/:channel",run C.allNicks)
            ,("/quotes.rss",run C.quotes)
+           ,("/robots.txt",serveFileAs "text/plain" "static/robots.txt")
            -- ,("/pdfs/:channel/:unique",run C.pdfs)
            -- ,("/pdfs/:channel",run C.pdfs)
            -- ,("/stats/:channel",run C.stats)
