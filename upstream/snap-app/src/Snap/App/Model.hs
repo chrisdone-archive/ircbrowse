@@ -102,8 +102,7 @@ pconnect (Pool var) = liftIO $ do
 -- | Restore a connection to the pool.
 restore :: MonadIO m => Pool -> Connection -> m ()
 restore (Pool var) conn = liftIO $ do
-  modifyMVar_ var $ \state -> do
-    return state { poolConnections = conn : poolConnections state }
+  close conn
 
 -- | Use the connection pool.
 withPoolConnection :: (MonadCatchIO m,MonadIO m) => Pool -> (Connection -> m a) -> m ()
