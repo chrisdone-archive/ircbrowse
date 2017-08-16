@@ -37,9 +37,9 @@ import           Snap.App.Migrate
 --     removeFile file
 
 -- | Import most recent logs all available channels.
-importRecent :: Bool -> Config -> Pool -> IO ()
-importRecent quick config pool = do
-  forM_ [toEnum 0..] $ \channel -> do
+importRecent :: Bool -> Config -> Pool -> Maybe String -> IO ()
+importRecent quick config pool mThisChan = do
+  forM_ (filter (\c->maybe True (==showChan c) mThisChan) [toEnum 0..]) $ \channel -> do
     putStrLn $ "Importing channel: " ++ showChan channel
     v <- newIORef []
     runDB config () pool $ do
@@ -172,14 +172,14 @@ importFile last channel config path frst = do
                                                   e -> error (show e))) events'
    io $ forM_ events $ \event ->
      print event
-   let events_ = if null events
+   {-let events_ = if null events
                     then [EventAt (let UTCTime d i = last
                                    in UTCTime (addDays 1 d) i) (Log "IRCBrowse was down during this period.")]
-                    else events
-   importEvents channel events_
-   updateChannelIndex config channel
-
-  where
+                    else events-}
+   unless (null events)
+     (do importEvents channel events
+         updateChannelIndex config channel
+         )
 
   -- This code is no longer applicable for ZNC. It was for tunes.org logs.
   --
