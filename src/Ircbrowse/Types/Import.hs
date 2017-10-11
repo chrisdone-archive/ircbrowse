@@ -29,6 +29,7 @@ data Channel
   | Ghc
   | Hackage
   | LibReviews
+  | Yi
   deriving (Enum)
 
 -- | Pretty print a channel in a human-representation.
@@ -59,6 +60,7 @@ prettyChan = \case
   Ghc -> "#ghc"
   Hackage -> "#hackage"
   LibReviews -> "#lib.reviews"
+  Yi -> "#yi"
 
 -- | Show a channel.
 showChan :: Channel -> String
@@ -88,6 +90,7 @@ showChan = \case
   Ghc -> "ghc"
   Hackage -> "hackage"
   LibReviews -> "lib.reviews"
+  Yi -> "yi"
 
 -- | Show a channel.
 showChanInt :: Channel -> Int
@@ -117,6 +120,7 @@ showChanInt = \case
   CakeML -> 24
   LibReviews -> 25
   ProjectM36 -> 26
+  Yi -> 27
 
 -- | Read a channel.
 parseChan :: String -> Maybe Channel
@@ -146,6 +150,7 @@ parseChan = \case
   "ghc" -> Just Ghc
   "hackage" -> Just Hackage
   "lib.reviews" -> Just LibReviews
+  "yi" -> Just Yi
   _ -> Nothing
 
 idxNum :: Channel -> Int
@@ -176,3 +181,4 @@ idxNum = \case
   CakeML -> 24000
   LibReviews -> 25000
   ProjectM36 -> 26000
+  Yi -> 27000
